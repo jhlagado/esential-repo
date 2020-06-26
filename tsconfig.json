@@ -1,0 +1,17 @@
+{
+  "include": ["./src/**/*", "assets"],
+  "compilerOptions": {
+    "lib": [
+      "dom",
+      "es2015",
+      "es2016",
+      "es2017",
+      "es2018",
+      "esnext",
+      "esnext.asynciterable"
+    ],
+    "jsx": "react",
+    "strict": true // This is useful too, to enable several strict checks
+  },
+  "files": ["custom.d.ts"]
+}

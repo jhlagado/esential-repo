@@ -1,0 +1,41 @@
+{
+  "name": "watwasm",
+  "version": "1.0.0",
+  "description": "A recoil based form example",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint src/**/*.ts* --fix",
+    "test": "npm run lint && jest --coverage"
+  },
+  "staticFiles": {
+    "staticPath": "public",
+    "watcherGlob": "**"
+  },
+  "keywords": [
+    "parcel",
+    "react",
+    "typescript"
+  ],
+  "author": "John Hardy <“jh@lagado.com”> (https://www.lagado.com)",
+  "license": "MIT",
+  "dependencies": {
+    "wabt": "^1.0.17"
+  },
+  "devDependencies": {
+    "@types/fetch-mock": "^7.3.2",
+    "@types/jest": "^24.9.1",
+    "@types/node": "^12.12.43",
+    "@types/webpack-env": "^1.15.2",
+    "@typescript-eslint/eslint-plugin": "^2.34.0",
+    "@typescript-eslint/parser": "^2.34.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.3",
+    "jest": "^26.0.1",
+    "node-fetch": "^2.6.0",
+    "prettier": "^1.19.1",
+    "ts-jest": "^26.1.0",
+    "typescript": "^3.9.3",
+    "parcel-bundler": "^1.12.4"
+  }
+}
