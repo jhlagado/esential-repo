@@ -10,6 +10,7 @@
       "esnext",
       "esnext.asynciterable"
     ],
+    "esModuleInterop": true,
     "jsx": "react",
     "strict": true // This is useful too, to enable several strict checks
   },
