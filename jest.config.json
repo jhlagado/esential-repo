@@ -1,19 +1,10 @@
-// For a detailed explanation regarding each configuration property, visit:
-// https://jestjs.io/docs/en/configuration.html
-
-module.exports = {
-  "moduleFileExtensions": [
-    "ts",
-    "tsx",
-    "js",
-    "jsx",
-    "json",
-    "node"
-  ],
+{
+  "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"],
   "transform": {
-    "^.+\\.tsx?$": "ts-jest"
+    "^.+\\.tsx?$": "ts-jest",
+    "^.+\\.wat?$": "jest-raw-loader"
   },
-  "testRegex": '^.*.test.(ts|tsx)$',
+  "testRegex": "^.*.test.(ts|tsx)$",
   "collectCoverageFrom": [
     "src/**/*.{ts,tsx}",
     "!src/icons/**/*.{ts,tsx}",
@@ -23,9 +14,7 @@ module.exports = {
     "!src/types/**",
     "!**/tests/**"
   ],
-  "setupFiles": [
-    "<rootDir>/testSetup.js"
-  ],
+  "setupFiles": ["<rootDir>/testSetup.js"],
   "moduleNameMapper": {
     "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/empty.js",
     "\\.(css|less)$": "<rootDir>/empty.js",
@@ -39,4 +28,4 @@ module.exports = {
       "lines": 80
     }
   }
-};
+}
