@@ -1,12 +1,16 @@
 import wabtModule from 'wabt';
-import mainWat from './main.wat';
+import mainWat from './main-wat';
 
 const compileModule: any = async (input: string, importObject: any) => {
   const wabt = await wabtModule();
-  const { buffer } = wabt.parseWat('module', input).toBinary({});
-  const module = await WebAssembly.compile(buffer);
-  const instance = await WebAssembly.instantiate(module, importObject);
-  return instance.exports;
+  const { buffer } = wabt.parseWat('module', input, { "multi_value": true }).toBinary({});
+  try {
+    const module = await WebAssembly.compile(buffer);
+    const instance = await WebAssembly.instantiate(module, importObject);
+    return instance.exports;
+  } catch (e) {
+    console.log(e)
+  }
 };
 
 export interface Adder {
