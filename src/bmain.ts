@@ -25,7 +25,10 @@ mod.addFunction("returnOne", createType([]), createType([i32]), [i32],
 
 mod.addFunctionExport("returnOne", "returnOne");
 
-mod.addFunction("returnTwo", createType([]), createType([i32, i32]), [i32],
+const zeroItemType = createType([]);
+const twoItemType = createType([i32, i32]);
+
+mod.addFunction("returnTwo", zeroItemType, twoItemType, [],
   mod.return(
     mod.tuple.make([
       mod.i32.const(1),
@@ -34,11 +37,11 @@ mod.addFunction("returnTwo", createType([]), createType([i32, i32]), [i32],
   )
 );
 
-mod.addFunction("selectTwo", createType([]), i32, [],
+mod.addFunction("selectTwo", zeroItemType, i32, [],
   mod.block(null as any, [
     mod.return(
       mod.tuple.extract(
-        mod.call("returnTwo", [], createType([i32, i32])), 1
+        mod.call("returnTwo", [], twoItemType), 1
       )
     )
   ])
