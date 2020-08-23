@@ -41,7 +41,7 @@ m.addFunction(
   'addTwo',
   zeroItemType,
   i32,
-  [twoItemType, i32],
+  [twoItemType],
   m.block(null as any, [
     m.local.set(0, m.call('returnTwo', [], twoItemType)),
     m.return(
@@ -58,6 +58,34 @@ m.addFunction(
 );
 m.addFunctionExport('addTwo', 'addTwo');
 
+m.addFunction(
+  'addThree',
+  i32,
+  i32,
+  [twoItemType],
+  m.block(null as any, [
+    m.local.set(1, m.call('returnTwo', [], twoItemType)),
+    m.return(
+      m.call(
+        'add',
+        [
+          m.local.get(0, i32),
+          m.call(
+            'add',
+            [
+              m.tuple.extract(m.local.get(1, twoItemType), 0),
+              m.tuple.extract(m.local.get(1, twoItemType), 1),
+            ],
+            i32,
+          ),
+        ],
+        i32,
+      ),
+    ),
+  ]),
+);
+m.addFunctionExport('addThree', 'addThree');
+
 m.optimize();
 if (!m.validate()) throw new Error('validation error');
 
@@ -70,3 +98,4 @@ const exported = instance.exports as any;
 console.log(exported.add(41, 1));
 console.log(exported.selectTwo(41, 1));
 console.log(exported.addTwo());
+console.log(exported.addThree(10));
