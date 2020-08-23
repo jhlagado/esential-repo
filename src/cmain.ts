@@ -1,26 +1,56 @@
-import { parseText } from "binaryen";
+import {
+  Module,
+  createType,
+  i32,
+} from 'binaryen';
 
-const src = `(module
-  (type $none_=>_i32 (func (result i32)))
-  (type $i32_i32_=>_i32 (func (param i32 i32) (result i32)))
-  (export "add" (func $add))
-  (export "returnOne" (func $returnOne))
-  (export "selectTwo" (func $selectTwo))
-  (func $add (; has Stack IR ;) (param $0 i32) (param $1 i32) (result i32)
-   (i32.add
-    (local.get $0)
-    (local.get $1)
-   )
-  )
-  (func $returnOne (; has Stack IR ;) (result i32)
-   (i32.const 1)
-  )
-  (func $selectTwo (; has Stack IR ;) (result i32)
-   (i32.const 2)
-  )
- )`
+const mod = new Module();
+mod.addFunction("add", createType([i32, i32]), i32, [i32],
+  mod.block(null as any, [
+    mod.local.set(2,
+      mod.i32.add(
+        mod.local.get(0, i32),
+        mod.local.get(1, i32)
+      )
+    ),
+    mod.return(
+      mod.local.get(2, i32)
+    )
+  ])
+);
+mod.addFunctionExport("add", "add");
 
-const mod = parseText(src);
+mod.addFunction("returnOne", createType([]), createType([i32]), [i32],
+  mod.return(
+    mod.i32.const(1)
+  )
+);
+
+mod.addFunctionExport("returnOne", "returnOne");
+
+const zeroItemType = createType([]);
+const twoItemType = createType([i32, i32]);
+
+mod.addFunction("returnTwo", zeroItemType, twoItemType, [],
+  mod.return(
+    mod.tuple.make([
+      mod.i32.const(1),
+      mod.i32.const(2)
+    ])
+  )
+);
+
+mod.addFunction("selectTwo", zeroItemType, i32, [],
+  mod.block(null as any, [
+    mod.return(
+      mod.tuple.extract(
+        mod.call("returnTwo", [], twoItemType), 1
+      )
+    )
+  ])
+);
+
+mod.addFunctionExport("selectTwo", "selectTwo");
 
 mod.optimize();
 if (!mod.validate())

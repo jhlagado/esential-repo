@@ -4,10 +4,9 @@
   "description": "A recoil based form example",
   "main": "index.js",
   "scripts": {
-    "start": "parcel src/index.html",
+    "start": "node --experimental-wasm-mv -r ts-node/register src/bmain",
     "lint": "eslint src/**/*.ts* --fix",
-    "test": "yarn lint && node --experimental-wasm-mv node_modules/jest/bin/jest --coverage",
-    "watch": "nodemon --watch asm wat2wasm "
+    "test": "yarn lint && node --experimental-wasm-mv node_modules/jest/bin/jest --coverage"
   },
   "staticFiles": {
     "staticPath": "public",
@@ -22,9 +21,6 @@
   "license": "MIT",
   "dependencies": {
     "binaryen": "^96.0.0",
-    "nodemon": "^2.0.4"
-  },
-  "devDependencies": {
     "@types/fetch-mock": "^7.3.2",
     "@types/jest": "^24.9.1",
     "@types/node": "^12.12.43",
@@ -42,12 +38,6 @@
     "ts-jest": "^26.1.0",
     "ts-node": "^8.10.2",
     "typescript": "^3.9.3",
-    "wabt": "1.0.19-nightly.20200812",
-    "parcel-plugin-wat-string": "0.0.0"
-  },
-  "nodemonConfig": {
-    "ignore": "node_modules/**/node_modules",
-    "delay": 2500,
-    "env": {}
+    "wabt": "1.0.19-nightly.20200812"
   }
 }

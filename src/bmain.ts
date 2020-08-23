@@ -1,64 +1,72 @@
-import { Module, createType, i32 } from "binaryen";
-
-// Create a module with a single function
-const mod = new Module();
-mod.addFunction("add", createType([i32, i32]), i32, [i32],
-  mod.block(null as any, [
-    mod.local.set(2,
-      mod.i32.add(
-        mod.local.get(0, i32),
-        mod.local.get(1, i32)
-      )
-    ),
-    mod.return(
-      mod.local.get(2, i32)
-    )
-  ])
-);
-mod.addFunctionExport("add", "add");
-
-mod.addFunction("returnOne", createType([]), createType([i32]), [i32],
-  mod.return(
-    mod.i32.const(1)
-  )
-);
-
-mod.addFunctionExport("returnOne", "returnOne");
+import { Module, createType, i32 } from 'binaryen';
 
 const zeroItemType = createType([]);
 const twoItemType = createType([i32, i32]);
 
-mod.addFunction("returnTwo", zeroItemType, twoItemType, [],
-  mod.return(
-    mod.tuple.make([
-      mod.i32.const(1),
-      mod.i32.const(2)
-    ])
-  )
+const m = new Module();
+m.setFeatures(512); // Features.Multivalue has a bug
+
+m.addFunction(
+  'add',
+  createType([i32, i32]),
+  i32,
+  [i32],
+  m.block(null as any, [
+    m.local.set(2, m.i32.add(m.local.get(0, i32), m.local.get(1, i32))),
+    m.return(m.local.get(2, i32)),
+  ]),
+);
+m.addFunctionExport('add', 'add');
+
+m.addFunction(
+  'returnTwo',
+  zeroItemType,
+  twoItemType,
+  [],
+  m.return(m.tuple.make([m.i32.const(1), m.i32.const(2)])),
 );
 
-mod.addFunction("selectTwo", zeroItemType, i32, [],
-  mod.block(null as any, [
-    mod.return(
-      mod.tuple.extract(
-        mod.call("returnTwo", [], twoItemType), 1
-      )
-    )
-  ])
+m.addFunction(
+  'selectTwo',
+  zeroItemType,
+  i32,
+  [],
+  m.block(null as any, [
+    m.return(m.tuple.extract(m.call('returnTwo', [], twoItemType), 1)),
+  ]),
 );
+m.addFunctionExport('selectTwo', 'selectTwo');
 
-mod.addFunctionExport("selectTwo", "selectTwo");
+m.addFunction(
+  'addTwo',
+  zeroItemType,
+  i32,
+  [twoItemType, i32],
+  m.block(null as any, [
+    m.local.set(0, m.call('returnTwo', [], twoItemType)),
+    m.return(
+      m.call(
+        'add',
+        [
+          m.tuple.extract(m.local.get(0, twoItemType), 0),
+          m.tuple.extract(m.local.get(0, twoItemType), 1),
+        ],
+        i32,
+      ),
+    ),
+  ]),
+);
+m.addFunctionExport('addTwo', 'addTwo');
 
-mod.optimize();
-if (!mod.validate())
-  throw new Error("validation error");
+m.optimize();
+if (!m.validate()) throw new Error('validation error');
 
-const textData = mod.emitText();
+const textData = m.emitText();
 console.log(textData);
 
-const compiled = new WebAssembly.Module(mod.emitBinary());
+const compiled = new WebAssembly.Module(m.emitBinary());
 const instance = new WebAssembly.Instance(compiled, {});
 const exported = instance.exports as any;
 console.log(exported.add(41, 1));
-console.log(exported.returnOne(41, 1));
 console.log(exported.selectTwo(41, 1));
+console.log(exported.addTwo());
