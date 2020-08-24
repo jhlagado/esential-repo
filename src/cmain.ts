@@ -1,12 +1,11 @@
 import { Module, i32 } from 'binaryen';
-import { Accessor } from './types';
 import { makeModule } from './utils';
 
 const m1 = makeModule(
   (m: Module) => ({
     add: [
       [[i32, i32], i32, [i32]],
-      ([a, b, c]: Accessor[]) => [c(m.i32.add(a(), b())), c()],
+      ([a, b, c]) => [c(m.i32.add(a(), b())), c()],
     ],
   }),
   ['add'],
