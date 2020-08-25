@@ -1,5 +1,5 @@
-import { Module, createType, ExpressionRef, Type, i32 } from 'binaryen';
-import { ModuleDef, Accessor } from './types';
+import { Module, createType, ExpressionRef } from 'binaryen';
+import { ModuleDef, Accessor, TypeDef } from './types';
 
 export const asArray = (arg: any) => (Array.isArray(arg) ? arg : [arg]);
 
@@ -11,21 +11,26 @@ export const makeModule = (
   const m = new Module();
   m.setFeatures(512); // Features.Multivalue has a bug
   for (const [defName, def] of Object.entries(defsFunc(m))) {
-    const [types, body] = def;
-    const [arg, result, locals] = types;
+    const [arg, result, locals, body] = def;
 
-    const accessors: Accessor[] = [
+    const accessors0 = [
       ...Object.values(asArray(arg)),
       ...Object.values(locals),
-    ].map((typ: Type, index: number) => (value?: ExpressionRef) =>
-      value !== undefined ? m.local.set(index, value) : m.local.get(index, typ),
-    );
+    ];
+
+    const accessors: Accessor[] = accessors0.map((typeDef: TypeDef, index: number) => {
+      const typ = createType(asArray(typeDef));
+      return (value?: ExpressionRef) =>
+        value !== undefined
+          ? m.local.set(index, value)
+          : m.local.get(index, typ);
+    });
 
     m.addFunction(
       defName,
       createType(asArray(arg)),
       createType(asArray(result)),
-      locals,
+      locals.map(local => createType(asArray(local))),
       m.block(null as any, body(accessors)),
     );
 
