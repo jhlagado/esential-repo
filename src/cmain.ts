@@ -1,88 +1,51 @@
-import { Module, i32, createType } from 'binaryen';
-import { makeModule } from './utils';
-import { FuncDef } from './types';
+import { Module, i32 } from 'binaryen';
+import { makeFunc, NIL } from './utils';
+import { i32ops } from './core';
 
-const module = makeModule(
-  ({
-    call,
-    drop,
-    getFunction,
-    return: _return,
-    i32: { add: _add, const: val },
-    tuple: { make, extract },
-  }: Module) => {
-    //
-    const add: FuncDef = [
-      [i32, i32],
-      i32,
-      [i32],
-      ([a, b, c]) => [c(_add(a(), b())), c()],
-    ];
+const { add, const: val } = i32ops;
 
-    const returnTwo: FuncDef = [
-      [],
-      [i32, i32],
-      [],
-      () => [_return(make([val(1), val(2)]))],
-    ];
+const m = new Module();
+m.setFeatures(512);
 
-    const selectRight: FuncDef = [
-      [],
-      i32,
-      [[i32, i32]],
-      ([a]) => [
-        a(call('returnTwo', [], createType([i32, i32]))),
-        _return(extract(a(), 1)),
-      ],
-    ];
+const func = makeFunc(m);
 
-    const addTwo: FuncDef = [
-      [],
-      i32,
-      [[i32, i32]],
-      ([a]) => [
-        a(call('returnTwo', [], createType([i32, i32]))),
-        _return(call('add', [extract(a(), 0), extract(a(), 1)], i32)),
-      ],
-    ];
+const pair = [i32, i32];
 
-    const addThree: FuncDef = [
-      i32,
-      i32,
-      [[i32, i32]],
-      ([a, b]) => [
-        b(call('returnTwo', [], createType([i32, i32]))),
-        _return(
-          call(
-            'add',
-            [a(), call('add', [extract(b(), 0), extract(b(), 1)], i32)],
-            i32,
-          ),
-        ),
-      ],
-    ];
+const addition = func('addition', [pair, i32, [i32]], ([a, b, u]) => [
+  u(add(a(), b())),
+  u(),
+]);
 
-    return {
-      add,
-      returnTwo,
-      selectRight,
-      addTwo,
-      addThree,
-    };
-  },
-  ['add', 'selectRight', 'addTwo', 'addThree'],
+const returnTwo = func(
+  'returnTwo',
+  [NIL, pair, [pair]],
+  ([u]) => [u(val(1), val(2)), u()],
+  false,
 );
 
-console.log(module.emitText());
+func('selectRight', [NIL, i32, [pair]], ([u]) => [u(returnTwo()), u[1]]);
 
-module.optimize();
-if (!module.validate()) throw new Error('validation error');
+func('addTwo', [NIL, i32, [pair]], ([u]) => [
+  u(returnTwo()),
+  addition(u[0], u[1]),
+]);
 
-const compiled = new WebAssembly.Module(module.emitBinary());
+func('addThree', [i32, i32, [pair]], ([a, u]) => [
+  u(returnTwo()),
+  addition(a(), addition(u[0], u[1])),
+]);
+
+console.log('Raw:', m.emitText());
+
+m.optimize();
+if (!m.validate()) throw new Error('validation error');
+
+console.log('Optimized:', m.emitText());
+
+const compiled = new WebAssembly.Module(m.emitBinary());
 const instance = new WebAssembly.Instance(compiled, {});
 const exported = instance.exports as any;
-console.log(exported.add(41, 1));
+console.log(exported.addition(41, 1));
 console.log(exported.selectRight());
 console.log(exported.addTwo());
 console.log(exported.addThree(10));
-console.log(module.getFunction('returnTwo'));

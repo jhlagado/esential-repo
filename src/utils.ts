@@ -1,45 +1,56 @@
 import { Module, createType, ExpressionRef } from 'binaryen';
-import { ModuleDef, Accessor, TypeDef } from './types';
+import { Accessor, TypeDef, BodyDef, FuncDef } from './types';
+import { call, local, tuple } from './core';
 
+export const NIL: number[] = [];
 export const asArray = (arg: any) => (Array.isArray(arg) ? arg : [arg]);
 
-export const makeModule = (
-  defsFunc: ModuleDef,
-  exported: string[] = [],
-  start?: string,
-): Module => {
-  const m = new Module();
-  m.setFeatures(512); // Features.Multivalue has a bug
-  for (const [defName, def] of Object.entries(defsFunc(m))) {
-    const [arg, result, locals, body] = def;
-
-    const accessors0 = [
-      ...Object.values(asArray(arg)),
-      ...Object.values(locals),
-    ];
-
-    const accessors: Accessor[] = accessors0.map((typeDef: TypeDef, index: number) => {
-      const typ = createType(asArray(typeDef));
-      return (value?: ExpressionRef) =>
-        value !== undefined
-          ? m.local.set(index, value)
-          : m.local.get(index, typ);
+export const makeFunc = (m: Module) => (
+  name: string,
+  def: FuncDef,
+  body: BodyDef,
+  exported = true,
+) => {
+  const [arg, ret, vars] = def;
+  const accessors: Accessor[] = [
+    ...Object.values(asArray(arg)),
+    ...Object.values(vars),
+  ].map((typeDef: TypeDef, index: number) => {
+    const typ = createType(asArray(typeDef));
+    const f = (...args: ExpressionRef[]) => {
+      switch (args.length) {
+        case 0:
+          return local.get(index, typ);
+        case 1:
+          return local.set(index, args[0]);
+        default:
+          return local.set(index, tuple.make(args));
+      }
+    };
+    return new Proxy<Accessor>(f, {
+      get(target: Accessor, i: number) {
+        return tuple.extract(target(), i);
+      },
     });
+  });
 
-    m.addFunction(
-      defName,
-      createType(asArray(arg)),
-      createType(asArray(result)),
-      locals.map(local => createType(asArray(local))),
-      m.block(null as any, body(accessors)),
-    );
+  m.addFunction(
+    name,
+    createType(asArray(arg)),
+    createType(asArray(ret)),
+    vars.map(v => createType(asArray(v))),
+    m.block(null as any, body(accessors)),
+  );
 
-    if (exported.includes(defName)) {
-      m.addFunctionExport(defName, defName);
-    }
-  }
-  if (start) {
-    m.setStart(m.getFunction(start));
-  }
-  return m;
+  if (exported) m.addFunctionExport(name, name);
+
+  const func = (...args: ExpressionRef[]) =>
+    call(name, args, createType(asArray(ret)));
+  func.types = {
+    arg,
+    ret,
+    vars,
+  };
+
+  return func;
 };
