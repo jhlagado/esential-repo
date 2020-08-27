@@ -12,9 +12,11 @@ const func = makeFunc(m);
 const addition = func(
   'addition',
   { arg: { a: i32, b: i32 }, ret: i32, vars: { u: i32 } },
-  function(this: any) {
-    this.u = add(this.a, this.b);
-    this.ret = this.u; //return
+  function(arg: any, ret: any, vars: any) {
+
+    vars.u = add(arg.a, arg.b);
+
+    ret = vars.u;
   },
 );
 

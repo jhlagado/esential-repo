@@ -1,5 +1,6 @@
 import { ExpressionRef, Type } from 'binaryen';
 
+export type Dict<T> = { [key: string]: T };
 export type TypeDef = Type | Type[];
 
 export type FuncDef = {
