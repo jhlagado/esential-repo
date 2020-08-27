@@ -4,7 +4,7 @@
   "description": "A recoil based form example",
   "main": "index.js",
   "scripts": {
-    "start": "node --experimental-wasm-mv -r ts-node/register src/cmain",
+    "start": "node --experimental-wasm-mv -r ts-node/register src/dmain",
     "lint": "eslint src/**/*.ts* --fix",
     "test": "yarn lint && node --experimental-wasm-mv node_modules/jest/bin/jest --coverage"
   },
