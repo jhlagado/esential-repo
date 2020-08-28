@@ -1,5 +1,7 @@
 import { ExpressionRef, Type } from 'binaryen';
 
+export const TypeSym = Symbol('TypeSym');
+
 export type Dict<T> = { [key: string]: T };
 export type TypeDef = Type | Type[];
 
@@ -8,7 +10,13 @@ export type FuncDef = {
   ret: TypeDef;
   vars: { [key: string]: TypeDef };
 };
-export type ValueFunc = {
-  (): ExpressionRef;
-  type: TypeDef;
-};
+export interface TypedFunc extends Function {
+  [TypeSym]?: TypeDef;
+}
+
+export type BodyDef = (
+  arg: Dict<TypeDef>,
+  ret: TypedFunc,
+  vars: Dict<TypeDef>,
+) => void;
+export type ValueFunc = () => ExpressionRef;

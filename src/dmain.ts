@@ -39,17 +39,17 @@ const addition = func(
 //   addition(a(), addition(u[0], u[1])),
 // ]);
 
-console.log('Raw:', m.emitText());
+// console.log('Raw:', m.emitText());
 
-m.optimize();
-if (!m.validate()) throw new Error('validation error');
+// m.optimize();
+// if (!m.validate()) throw new Error('validation error');
 
-console.log('Optimized:', m.emitText());
+// console.log('Optimized:', m.emitText());
 
-const compiled = new WebAssembly.Module(m.emitBinary());
-const instance = new WebAssembly.Instance(compiled, {});
-const exported = instance.exports as any;
-console.log(exported.addition(41, 1));
-// console.log(exported.selectRight());
-// console.log(exported.addTwo());
-// console.log(exported.addThree(10));
+// const compiled = new WebAssembly.Module(m.emitBinary());
+// const instance = new WebAssembly.Instance(compiled, {});
+// const exported = instance.exports as any;
+// console.log(exported.addition(41, 1));
+// // console.log(exported.selectRight());
+// // console.log(exported.addTwo());
+// // console.log(exported.addThree(10));
