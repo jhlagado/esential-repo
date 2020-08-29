@@ -24,7 +24,10 @@ export const makeTypedProxy = (func: Function, typeDef: TypeDef): TypedFunc => {
 export const val = (value: number, typeDef: Type): TypedFunc => {
   if (typeDef in primitives) {
     // override type checking because of error in type definition for i64.const
-    return makeTypedProxy(() => (primitives[typeDef] as any).const(value), typeDef);
+    return makeTypedProxy(
+      () => (primitives[typeDef] as any).const(value),
+      typeDef,
+    );
   }
   throw `Can only use primtive types in val, not ${typeDef}`;
 };
@@ -40,6 +43,9 @@ export const makeTupleProxy = (
       } else if (Number.isInteger(prop)) {
         if (Array.isArray(typeDef)) {
           const index = prop as number;
+          if (index >= typeDef.length) {
+            throw `Max tuple index should be ${typeDef.length} but received ${index}`;
+          }
           const f = () => tuple.extract(target(), index);
           return makeTupleProxy(f, typeDef[index]);
         } else {
