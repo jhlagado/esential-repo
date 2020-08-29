@@ -1,60 +1,37 @@
-import { Module, createType, ExpressionRef, Type, i32, i64 } from 'binaryen';
-import {
-  FuncDef,
-  TypedFunc,
-  TypeDef,
-  Dict,
-  TypeSym,
-  BodyDef,
-  ValueFunc,
-} from './types';
-import { local, tuple, primitives } from './core';
+import { Module, createType, ExpressionRef, Type, none } from 'binaryen';
+import { TypeDef, Dict, BodyDef, TupleObj, FuncDef } from './types';
+import { local, tuple, prims, call } from './core';
 
 export const NIL: number[] = [];
 export const asArray = (arg: any) => (Array.isArray(arg) ? arg : [arg]);
 
-export const makeTypedProxy = (func: Function, typeDef: TypeDef): TypedFunc => {
-  return new Proxy(func, {
-    get(target: TypedFunc, prop: number | symbol) {
-      return prop === TypeSym ? typeDef : (target as any)[prop];
-    },
-  });
-};
-
-export const val = (value: number, typeDef: Type): TypedFunc => {
-  if (typeDef in primitives) {
+export const val = (value: number, typeDef: Type): ExpressionRef => {
+  if (typeDef in prims) {
     // override type checking because of error in type definition for i64.const
-    return makeTypedProxy(
-      () => (primitives[typeDef] as any).const(value),
-      typeDef,
-    );
+    return (prims[typeDef] as any).const(value);
   }
   throw `Can only use primtive types in val, not ${typeDef}`;
 };
 
 export const makeTupleProxy = (
-  valueFunc: ValueFunc,
+  expressionRef: ExpressionRef,
   typeDef: TypeDef,
-): TypedFunc => {
-  return new Proxy(valueFunc, {
-    get(target: TypedFunc, prop: number | symbol) {
-      if (prop === TypeSym) {
-        return typeDef;
-      } else if (Number.isInteger(prop)) {
+): TupleObj =>
+  new Proxy(
+    { expressionRef, typeDef },
+    {
+      get(target: any, index: number) {
         if (Array.isArray(typeDef)) {
-          const index = prop as number;
           if (index >= typeDef.length) {
             throw `Max tuple index should be ${typeDef.length} but received ${index}`;
           }
-          const f = () => tuple.extract(target(), index);
-          return makeTupleProxy(f, typeDef[index]);
+          return tuple.extract(expressionRef, index);
         } else {
           throw `Cannot index a primitive value`;
         }
-      }
+      },
     },
-  });
-};
+  );
 
 export const makeDictProxy = (
   receiver: Dict<TypeDef>,
@@ -68,61 +45,47 @@ export const makeDictProxy = (
         throw `Unknown variable '${prop}'`;
       }
       const typeDef = target[prop];
-      const t = Array.isArray(typeDef) ? createType(typeDef) : typeDef;
-      const f = () => local.get(index, t);
       return Array.isArray(typeDef)
-        ? makeTupleProxy(f, typeDef)
-        : makeTypedProxy(f, typeDef);
+        ? makeTupleProxy(local.get(index, createType(typeDef)), typeDef)
+        : local.get(index, typeDef);
     },
-    set(target: any, prop: string, valueFunc: TypedFunc) {
+    set(target: any, prop: string, expressionRef: ExpressionRef) {
       const index = varNames.indexOf(prop);
       if (index < 0) {
         throw `Unknown variable '${prop}'`;
       }
-      bodyItems.push(local.set(index, valueFunc()));
+      bodyItems.push(local.set(index, expressionRef));
       return true;
+    },
+    apply(target: any) {
+      return target;
     },
   });
 };
 
-export const makeFunc = () => (
+export const makeFunc = (m: Module) => (
   name: string,
-  def: FuncDef,
+  funcDef: FuncDef,
   bodyDef: BodyDef,
-  // exported = true,
+  exported = true,
 ) => {
-  const { arg, ret, vars } = def;
+  const { arg = {}, ret = none, vars = {} } = funcDef;
   const varNames = Object.keys({ ...arg, ...vars });
   const bodyItems: ExpressionRef[] = [];
   const argProxy = makeDictProxy(arg, varNames, bodyItems);
   const varsProxy = makeDictProxy(vars, varNames, bodyItems);
-  const retFunc = makeTypedProxy((typedFunc: TypedFunc) => {
-    bodyItems.push(typedFunc());
-  }, ret);
+  const retFunc = (expressionRef: ExpressionRef) => {
+    bodyItems.push(expressionRef);
+  };
   bodyDef(argProxy, retFunc, varsProxy);
-  console.log(bodyItems);
-  // m.addFunction(
-  //   name,
-  //   createType(Object.values(arg)),
-  //   createType(asArray(ret)),
-  //   Object.values(vars).map(v => createType(asArray(v))),
-  //   m.block(null as any, body),
-  // );
-
-  // if (exported) m.addFunctionExport(name, name);
-
-  // const func = (...args: ValueFunc[]) =>
-  //   call(
-  //     name,
-  //     args.map(arg => arg()),
-  //     createType(asArray(ret)),
-  //   );
-
-  // func.types = {
-  //   arg,
-  //   ret,
-  //   vars,
-  // };
-
-  // return func;
+  m.addFunction(
+    name,
+    createType(Object.values(arg).map(v => createType(asArray(v)))),
+    createType(asArray(ret)),
+    Object.values(vars).map(v => createType(asArray(v))),
+    m.block(null as any, bodyItems),
+  );
+  if (exported) m.addFunctionExport(name, name);
+  return (...args: ExpressionRef[]) =>
+    call(name, args, createType(asArray(ret)));
 };
