@@ -1,13 +1,12 @@
-import { Module } from 'binaryen';
+import { Module, i32, i64, f32, f64 } from 'binaryen';
 
-const m = new Module();
+const module = new Module();
 
-export const {
-  i32: i32ops,
-  i64: i64ops,
-  f32: f32ops,
-  f64: f64ops,
-  tuple,
-  local,
-  call,
-} = m;
+export const primitives = {
+  [i32]: module.i32,
+  [i64]: module.i64,
+  [f32]: module.f32,
+  [f64]: module.f64,
+};
+
+export const { tuple, local, call } = module;
