@@ -1,5 +1,5 @@
 import { Module, createType, ExpressionRef, none } from 'binaryen';
-import { BodyDef, FuncDef, Callable, Dict, InitFunc } from './types';
+import { BodyDef, FuncDef, Callable, InitFunc } from './types';
 import { tuple, call } from './core';
 import { stripTupleProxy } from './tuples';
 import { makeDictProxy } from './variables';
@@ -55,12 +55,11 @@ export const moduleCompile = (
   module: Module,
   imports: any = {},
   options: CompileOptions = { optimize: true, validate: true },
-) => {
+): any => {
   if (options.optimize) module.optimize();
   if (options.validate && !module.validate())
     throw new Error('validation error');
   const compiled = new WebAssembly.Module(module.emitBinary());
-  const instance = new WebAssembly.Instance(compiled, imports as any);
-  const exported = instance.exports as any;
-  return exported;
+  const instance = new WebAssembly.Instance(compiled, imports);
+  return instance.exports;
 };
