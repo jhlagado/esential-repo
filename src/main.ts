@@ -6,7 +6,7 @@ import { val } from './utils';
 
 const { add: i32Add } = prims[i32];
 
-const mod = makeModule((makeFunc: MakeFunc) => {
+export const mainModule = makeModule((makeFunc: MakeFunc) => {
   const addition = makeFunc(
     { arg: { a: i32, b: i32 }, ret: i32, vars: { u: i32 } },
     (arg: Var, ret: RetFunc, vars: Var) => {
@@ -90,9 +90,9 @@ const mod = makeModule((makeFunc: MakeFunc) => {
   };
 });
 
-console.log('Raw:', mod.emitText());
-const exported = moduleCompile(mod);
-console.log('Optimized:', mod.emitText());
+console.log('Raw:', mainModule.emitText());
+const exported = moduleCompile(mainModule);
+console.log('Optimized:', mainModule.emitText());
 
 console.log(exported.addition(41, 1));
 console.log(exported.selectRight());

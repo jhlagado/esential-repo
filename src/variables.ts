@@ -32,8 +32,5 @@ export const makeDictProxy = (
       bodyItems.push(local.set(index,assignment(expressionRef1,target[prop])));
       return true;
     },
-    apply(target: any) {
-      return target;
-    },
   });
 };

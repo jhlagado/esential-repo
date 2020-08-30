@@ -28,9 +28,6 @@ export const makeTupleProxy = (
         return tuple.extract(expressionRef, index);
       }
     },
-    apply() {
-      return typeDef;
-    },
   });
   tupleProxies.add(proxy);
   return proxy;
