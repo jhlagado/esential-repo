@@ -1,6 +1,8 @@
 import { Module, i32 } from 'binaryen';
-import { makeFunc, NIL, val } from './utils';
+import { makeFunc, moduleExport } from './modules';
 import { prims } from './core';
+import { Var, RetFunc } from './types';
+import { val } from './utils';
 
 const { add: i32Add } = prims[i32];
 
@@ -10,26 +12,23 @@ m.setFeatures(512);
 const func = makeFunc(m);
 
 const addition = func(
-  'addition',
   { arg: { a: i32, b: i32 }, ret: i32, vars: { u: i32 } },
-  (arg: any, ret: any, vars: any) => {
+  (arg: Var, ret: RetFunc, vars: Var) => {
     vars.u = i32Add(arg.a, arg.b);
     ret(vars.u);
   },
 );
 
 const returnTwo = func(
-  'returnTwo',
-  { ret: [i32, i32], vars: { u: [i32, i32] } },
-  (arg: any, ret: any, vars: any) => {
-    vars.u = [val(1), val(2)];
+  { name: 'returnTwo', ret: [i32, i32], vars: { u: [i32, i32] } },
+  (arg: Var, ret: RetFunc, vars: Var) => {
+    vars.u = [val(1), val(2)] as any;
     ret(vars.u);
   },
 );
 
 const selectRight = func(
-  'selectRight',
-  { ret: i32, vars: { u: [i32, i32] } },
+  { name: 'selectRight', ret: i32, vars: { u: [i32, i32] } },
   (arg: any, ret: any, vars: any) => {
     vars.u = returnTwo();
     ret(vars.u[1]);
@@ -37,8 +36,7 @@ const selectRight = func(
 );
 
 const addTwo = func(
-  'addTwo',
-  { ret: i32, vars: { u: [i32, i32] } },
+  { name: 'addTwo', ret: i32, vars: { u: [i32, i32] } },
   (arg: any, ret: any, vars: any) => {
     vars.u = returnTwo();
     ret(addition(vars.u[0], vars.u[1]));
@@ -46,18 +44,19 @@ const addTwo = func(
 );
 
 const addThree = func(
-  'addThree',
-  { arg: { a: i32 }, ret: i32, vars: { u: [i32, i32] } },
+  { name: 'addThree', arg: { a: i32 }, ret: i32, vars: { u: [i32, i32] } },
   (arg: any, ret: any, vars: any) => {
     vars.u = returnTwo();
     ret(addition(arg.a, addition(vars.u[0], vars.u[1])));
   },
 );
 
-// func('addThree', [i32, i32, [pair]], ([a, u]) => [
-//   u(returnTwo()),
-//   addition(a(), addition(u[0], u[1])),
-// ]);
+moduleExport(m, {
+  addition,
+  selectRight,
+  addTwo,
+  addThree,
+});
 
 console.log('Raw:', m.emitText());
 

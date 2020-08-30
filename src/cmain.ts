@@ -1,5 +1,5 @@
 import { Module, i32 } from 'binaryen';
-import { makeFunc, NIL } from './utils';
+import { makeFunc, NIL } from './modules';
 import { i32ops } from './core';
 
 const { add, const: val } = i32ops;
