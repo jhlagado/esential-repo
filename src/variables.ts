@@ -1,8 +1,8 @@
 import { Dict, TypeDef, Var } from './types';
 import { ExpressionRef, createType } from 'binaryen';
-import { makeTupleProxy, stripTupleProxy } from './tuples';
-import { local, tuple } from './core';
-import { asTypeArray } from './utils';
+import { makeTupleProxy } from './tuples';
+import { local } from './core';
+import { asTypeArray, assignment } from './utils';
 
 export const makeDictProxy = (
   receiver: Dict<TypeDef>,
@@ -28,30 +28,8 @@ export const makeDictProxy = (
       prop: string,
       expressionRef1: ExpressionRef | ExpressionRef[] | Dict<ExpressionRef>,
     ) {
-      const expressionRef = stripTupleProxy(expressionRef1);
       const index = varNames.indexOf(prop);
-      if (index < 0) {
-        throw `Unknown variable '${prop}'`;
-      }
-      if (typeof expressionRef === 'object') {
-        const typeDef = target[prop];
-        if (typeof typeDef !== 'object') {
-          throw `Can only accept primitive types`;
-        }
-        if (Array.isArray(expressionRef)) {
-          bodyItems.push(local.set(index, tuple.make(expressionRef)));
-        } else {
-          const array = Object.keys(typeDef).map(key => {
-            if (!(key in expressionRef)) {
-              throw `Could not find ${key} in record`;
-            }
-            return expressionRef[key];
-          });
-          bodyItems.push(local.set(index, tuple.make(array)));
-        }
-      } else {
-        bodyItems.push(local.set(index, stripTupleProxy(expressionRef)));
-      }
+      bodyItems.push(local.set(index,assignment(expressionRef1,target[prop])));
       return true;
     },
     apply(target: any) {

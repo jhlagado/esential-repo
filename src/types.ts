@@ -22,3 +22,4 @@ export type CompileOptions = {
 };
 export type MakeFunc = (funcDef: FuncDef, bodyDef: BodyDef) => Callable;
 export type InitFunc = (makeFunc: MakeFunc) => Dict<Callable>;
+export type Expression = ExpressionRef | ExpressionRef[] | Dict<ExpressionRef>;

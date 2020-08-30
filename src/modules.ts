@@ -1,9 +1,14 @@
 import { Module, createType, ExpressionRef, none } from 'binaryen';
-import { BodyDef, FuncDef, Callable, InitFunc, Dict } from './types';
-import { tuple, call } from './core';
-import { stripTupleProxy } from './tuples';
+import {
+  BodyDef,
+  FuncDef,
+  Callable,
+  InitFunc,
+  Expression,
+} from './types';
+import { call } from './core';
 import { makeDictProxy } from './variables';
-import { asArray, asTypeArray } from './utils';
+import { asTypeArray, assignment } from './utils';
 import { CompileOptions } from './types';
 
 export const initMakeFunc = (module: Module, nameMap: any) => (
@@ -16,29 +21,8 @@ export const initMakeFunc = (module: Module, nameMap: any) => (
   const bodyItems: ExpressionRef[] = [];
   const argProxy = makeDictProxy(arg, varNames, bodyItems);
   const varsProxy = makeDictProxy(vars, varNames, bodyItems);
-  const retFunc = (
-    expressionRef1: ExpressionRef | ExpressionRef[] | Dict<ExpressionRef>,
-  ) => {
-    const expressionRef = stripTupleProxy(expressionRef1);
-    if (typeof expressionRef === 'object') {
-      const typeDef = ret;
-      if (typeof typeDef !== 'object') {
-        throw `Can only accept primitive types`;
-      }
-      if (Array.isArray(expressionRef)) {
-        bodyItems.push(tuple.make(expressionRef));
-      } else {
-        const array = Object.keys(typeDef).map(key => {
-          if (!(key in expressionRef)) {
-            throw `Could not find ${key} in record`;
-          }
-          return expressionRef[key];
-        });
-        bodyItems.push(tuple.make(array));
-      }
-    } else {
-      bodyItems.push(stripTupleProxy(expressionRef));
-    }
+  const retFunc = (expression: Expression) => {
+    bodyItems.push(assignment(expression, ret));
   };
   bodyDef(argProxy, retFunc, varsProxy);
   const retType = createType(asTypeArray(ret));
