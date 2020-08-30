@@ -1,4 +1,4 @@
-import { compileAdder } from './main';
+import { compileAdder } from './main-1';
 
 it('should!', async done => {
   const importObject = {

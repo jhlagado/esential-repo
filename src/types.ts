@@ -16,3 +16,10 @@ export type TupleObj = {
   typeDef: TypeDef;
 };
 export type Callable = (...args: ExpressionRef[]) => ExpressionRef;
+export type CompileOptions = {
+  optimize: boolean;
+  validate: boolean;
+};
+export type MakeFunc = (funcDef: FuncDef, bodyDef: BodyDef) => Callable;
+export type InitFunc = (makeFunc: MakeFunc) => Dict<Callable>;
+

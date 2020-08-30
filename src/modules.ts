@@ -1,18 +1,17 @@
 import { Module, createType, ExpressionRef, none } from 'binaryen';
-import { BodyDef, FuncDef, Callable, Dict } from './types';
+import { BodyDef, FuncDef, Callable, Dict, InitFunc } from './types';
 import { tuple, call } from './core';
 import { stripTupleProxy } from './tuples';
 import { makeDictProxy } from './variables';
 import { asArray } from './utils';
+import { CompileOptions } from './types';
 
-let count = 0;
-const nameMap = new WeakMap();
-
-export const makeFunc = (m: Module) => (
+export const initMakeFunc = (module: Module, nameMap: any) => (
   funcDef: FuncDef,
   bodyDef: BodyDef,
 ): Callable => {
-  const { name = `func${count++}`, arg = {}, ret = none, vars = {} } = funcDef;
+  const count = nameMap.size;
+  const { name = `func${count}`, arg = {}, ret = none, vars = {} } = funcDef;
   const varNames = Object.keys({ ...arg, ...vars });
   const bodyItems: ExpressionRef[] = [];
   const argProxy = makeDictProxy(arg, varNames, bodyItems);
@@ -25,12 +24,12 @@ export const makeFunc = (m: Module) => (
     }
   };
   bodyDef(argProxy, retFunc, varsProxy);
-  m.addFunction(
+  module.addFunction(
     name,
     createType(Object.values(arg).map(v => createType(asArray(v)))),
     createType(asArray(ret)),
     Object.values(vars).map(v => createType(asArray(v))),
-    m.block(null as any, bodyItems),
+    module.block(null as any, bodyItems),
   );
   const callable = (...args: ExpressionRef[]) =>
     call(name, args, createType(asArray(ret)));
@@ -38,11 +37,30 @@ export const makeFunc = (m: Module) => (
   return callable;
 };
 
-export const moduleExport = (m: Module, exported: Dict<Callable>) => {
-  for (const [externalName, callable] of Object.entries(exported)) {
+export const makeModule = (initFunc: InitFunc) => {
+  const module = new Module();
+  module.setFeatures(512);
+  const nameMap = new Map();
+  const makeFunc = initMakeFunc(module, nameMap);
+  Object.entries(initFunc(makeFunc)).forEach(([externalName, callable]) => {
     const internalName = nameMap.get(callable);
     if (internalName) {
-      m.addFunctionExport(internalName, externalName);
+      module.addFunctionExport(internalName, externalName);
     }
-  }
+  });
+  return module;
+};
+
+export const moduleCompile = (
+  module: Module,
+  imports: any = {},
+  options: CompileOptions = { optimize: true, validate: true },
+) => {
+  if (options.optimize) module.optimize();
+  if (options.validate && !module.validate())
+    throw new Error('validation error');
+  const compiled = new WebAssembly.Module(module.emitBinary());
+  const instance = new WebAssembly.Instance(compiled, imports as any);
+  const exported = instance.exports as any;
+  return exported;
 };
