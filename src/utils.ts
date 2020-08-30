@@ -1,7 +1,15 @@
-import { Type, i32, ExpressionRef } from "binaryen";
-import { prims } from "./core";
+import { Type, i32, ExpressionRef } from 'binaryen';
+import { prims } from './core';
+import { TypeDef } from './types';
 
 export const asArray = (arg: any) => (Array.isArray(arg) ? arg : [arg]);
+
+export const asTypeArray = (typeDef: TypeDef) =>
+  Number.isInteger(typeDef)
+    ? [typeDef]
+    : Array.isArray(typeDef)
+    ? typeDef
+    : Object.values(typeDef);
 
 export const val = (value: number, typeDef: Type = i32): ExpressionRef => {
   if (typeDef in prims) {

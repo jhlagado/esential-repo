@@ -1,6 +1,6 @@
-import { ExpressionRef } from "binaryen";
-import { TypeDef, TupleObj } from "./types";
-import { tuple } from "./core";
+import { ExpressionRef } from 'binaryen';
+import { TypeDef, TupleObj } from './types';
+import { tuple } from './core';
 
 const tupleProxies = new WeakSet();
 
@@ -12,6 +12,8 @@ export const makeTupleProxy = (
     get(target: any, prop: number | string) {
       if (prop === 'valueOf') {
         return () => expressionRef;
+      } else if (Number.isInteger(typeDef)) {
+        throw `Cannot index a primitive value`;
       } else if (Array.isArray(typeDef)) {
         const index = prop as number;
         if (index >= typeDef.length) {
@@ -19,8 +21,15 @@ export const makeTupleProxy = (
         }
         return tuple.extract(expressionRef, index);
       } else {
-        throw `Cannot index a primitive value`;
+        const index = Object.keys(typeDef).indexOf(prop as string);
+        if (index < 0) {
+          throw `Could not find ${prop} in record`;
+        }
+        return tuple.extract(expressionRef, index);
       }
+    },
+    apply() {
+      return typeDef;
     },
   });
   tupleProxies.add(proxy);
@@ -32,4 +41,3 @@ export const stripTupleProxy = (expressionRef: any) => {
     ? expressionRef.valueOf()
     : expressionRef;
 };
-

@@ -1,9 +1,9 @@
 import { Module, createType, ExpressionRef, none } from 'binaryen';
-import { BodyDef, FuncDef, Callable, InitFunc } from './types';
+import { BodyDef, FuncDef, Callable, InitFunc, Dict } from './types';
 import { tuple, call } from './core';
 import { stripTupleProxy } from './tuples';
 import { makeDictProxy } from './variables';
-import { asArray } from './utils';
+import { asArray, asTypeArray } from './utils';
 import { CompileOptions } from './types';
 
 export const initMakeFunc = (module: Module, nameMap: any) => (
@@ -16,23 +16,40 @@ export const initMakeFunc = (module: Module, nameMap: any) => (
   const bodyItems: ExpressionRef[] = [];
   const argProxy = makeDictProxy(arg, varNames, bodyItems);
   const varsProxy = makeDictProxy(vars, varNames, bodyItems);
-  const retFunc = (expressionRef: ExpressionRef | ExpressionRef[]) => {
-    if (Array.isArray(expressionRef)) {
-      bodyItems.push(tuple.make(expressionRef));
+  const retFunc = (
+    expressionRef1: ExpressionRef | ExpressionRef[] | Dict<ExpressionRef>,
+  ) => {
+    const expressionRef = stripTupleProxy(expressionRef1);
+    if (typeof expressionRef === 'object') {
+      const typeDef = ret;
+      if (typeof typeDef !== 'object') {
+        throw `Can only accept primitive types`;
+      }
+      if (Array.isArray(expressionRef)) {
+        bodyItems.push(tuple.make(expressionRef));
+      } else {
+        const array = Object.keys(typeDef).map(key => {
+          if (!(key in expressionRef)) {
+            throw `Could not find ${key} in record`;
+          }
+          return expressionRef[key];
+        });
+        bodyItems.push(tuple.make(array));
+      }
     } else {
       bodyItems.push(stripTupleProxy(expressionRef));
     }
   };
   bodyDef(argProxy, retFunc, varsProxy);
+  const retType = createType(asTypeArray(ret));
   module.addFunction(
     name,
-    createType(Object.values(arg).map(v => createType(asArray(v)))),
-    createType(asArray(ret)),
-    Object.values(vars).map(v => createType(asArray(v))),
+    createType(Object.values(arg).map(v => createType(asTypeArray(v)))),
+    retType,
+    Object.values(vars).map(v => createType(asTypeArray(v))),
     module.block(null as any, bodyItems),
   );
-  const callable = (...args: ExpressionRef[]) =>
-    call(name, args, createType(asArray(ret)));
+  const callable = (...args: ExpressionRef[]) => call(name, args, retType);
   nameMap.set(callable, name);
   return callable;
 };
