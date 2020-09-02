@@ -1,5 +1,5 @@
-import { Type, i32, ExpressionRef } from 'binaryen';
-import { prims, tuple } from './core';
+import { Type, i32, ExpressionRef, i64, f32, f64 } from 'binaryen';
+import { ops, tuple } from './core';
 import { TypeDef, Expression } from './types';
 import { stripTupleProxy } from './tuples';
 
@@ -11,9 +11,15 @@ export const asTypeArray = (typeDef: TypeDef) =>
     : Object.values(typeDef);
 
 export const val = (value: number, typeDef: Type = i32): ExpressionRef => {
-  if (typeDef in prims) {
+  const opDict = {
+    [i32]: ops.i32,
+    [i64]: ops.i64,
+    [f32]: ops.f32,
+    [f64]: ops.f64,
+  };
+  if (typeDef in opDict) {
     // override type checking because of error in type definition for i64.const
-    return (prims[typeDef] as any).const(value);
+    return (opDict[typeDef] as any).const(value);
   }
   throw `Can only use primtive types in val, not ${typeDef}`;
 };

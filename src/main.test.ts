@@ -1,9 +1,9 @@
 import { moduleCompile } from './modules';
-import { mainModule } from './main';
+import { addFuncs } from './main';
 
-console.log('Raw:', mainModule.emitText());
-const exported = moduleCompile(mainModule);
-console.log('Optimized:', mainModule.emitText());
+console.log('Raw:', addFuncs.emitText());
+const exported = moduleCompile(addFuncs);
+console.log('Optimized:', addFuncs.emitText());
 
 it('should add 2 number', () => {
   expect(exported.addition(41, 1)).toBe(42);

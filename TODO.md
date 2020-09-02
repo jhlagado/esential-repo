@@ -2,24 +2,11 @@
 
 ## stuff to build
 
-### simple memory allocator
+### get & set a tuple/record in memory
 
-- bump allocator
-- buddy allocator
-
-### simple closure
-
-### get a record
-
-- takes a pointer to mem
-- takes a pointer to typedef
-- pushes items from mem on stack
-
-### set a record
-
-- takes a pointer to mem
-- takes a pointer to typedef
-- pops items on stack and puts in mem
+- takes a pointer to memory
+- write a tuple to memory
+- read a tuple from memory
 
 ### a typedef is an array of bytes
 
@@ -31,3 +18,11 @@
   - composite types?
   - pointer to typedef could be its type
     - therefore numbers below a number could be builtins
+
+### simple closure
+
+### simple memory allocator
+
+- bump allocator
+- buddy allocator
+

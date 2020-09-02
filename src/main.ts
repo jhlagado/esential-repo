@@ -1,29 +1,38 @@
-import { i32 } from 'binaryen';
-import { moduleCompile, makeModule } from './modules';
-import { prims } from './core';
-import { Var, RetFunc, MakeFunc } from './types';
+import { i32, Module } from 'binaryen';
+import { ops } from './core';
+import { Var, RetFunc, InitFunc, ModType } from './types';
 import { val } from './utils';
+import { Mod } from './modules';
 
-const { add: i32Add } = prims[i32];
+const {
+  i32: { add },
+} = ops;
 
-export const mainModule = makeModule((makeFunc: MakeFunc) => {
-  const addition = makeFunc(
+const addLib = (mod: ModType) => {
+  const addition = mod.makeFunc(
     { arg: { a: i32, b: i32 }, ret: i32, vars: { u: i32 } },
     (arg: Var, ret: RetFunc, vars: Var) => {
-      vars.u = i32Add(arg.a, arg.b);
+      vars.u = add(arg.a, arg.b);
       ret(vars.u);
     },
   );
+  return {
+    addition,
+  };
+};
 
-  const returnTwo = makeFunc(
-    { ret: [i32, i32], vars: { u: [i32, i32] } },
+const tupleLib = (mod: ModType) => {
+  const { addition } = mod.initLib(addLib);
+
+  const returnTwo = mod.makeFunc(
+    { ret: [i32, i32], vars: { u: [i32, i32] }, export: false },
     (arg: Var, ret: RetFunc, vars: Var) => {
       vars.u = [val(1), val(2)];
       ret(vars.u);
     },
   );
 
-  const selectRight = makeFunc(
+  const selectRight = mod.makeFunc(
     { ret: i32, vars: { u: [i32, i32] } },
     (arg: Var, ret: RetFunc, vars: Var) => {
       vars.u = returnTwo();
@@ -31,7 +40,7 @@ export const mainModule = makeModule((makeFunc: MakeFunc) => {
     },
   );
 
-  const addTwo = makeFunc(
+  const addTwo = mod.makeFunc(
     { ret: i32, vars: { u: [i32, i32] } },
     (arg: Var, ret: RetFunc, vars: Var) => {
       vars.u = returnTwo();
@@ -39,7 +48,7 @@ export const mainModule = makeModule((makeFunc: MakeFunc) => {
     },
   );
 
-  const addThree = makeFunc(
+  const addThree = mod.makeFunc(
     { arg: { a: i32 }, ret: i32, vars: { u: [i32, i32] } },
     (arg: Var, ret: RetFunc, vars: Var) => {
       vars.u = returnTwo();
@@ -47,15 +56,25 @@ export const mainModule = makeModule((makeFunc: MakeFunc) => {
     },
   );
 
-  const returnTwoRecord = makeFunc(
-    { ret: { x: i32, y: i32 }, vars: { u: { x: i32, y: i32 } } },
+  return {
+    selectRight,
+    addTwo,
+    addThree,
+  };
+};
+
+const recordLib = (mod: ModType) => {
+  const { addition } = mod.initLib(addLib);
+
+  const returnTwoRecord = mod.makeFunc(
+    { ret: { x: i32, y: i32 }, vars: { u: { x: i32, y: i32 } }, export: false },
     (arg: Var, ret: RetFunc, vars: Var) => {
       vars.u = { x: val(1), y: val(2) };
       ret(vars.u);
     },
   );
 
-  const selectRightRecord = makeFunc(
+  const selectRightRecord = mod.makeFunc(
     { ret: i32, vars: { u: { x: i32, y: i32 } } },
     (arg: Var, ret: RetFunc, vars: Var) => {
       vars.u = returnTwoRecord();
@@ -63,7 +82,7 @@ export const mainModule = makeModule((makeFunc: MakeFunc) => {
     },
   );
 
-  const addTwoRecord = makeFunc(
+  const addTwoRecord = mod.makeFunc(
     { ret: i32, vars: { u: { x: i32, y: i32 } } },
     (arg: Var, ret: RetFunc, vars: Var) => {
       vars.u = returnTwoRecord();
@@ -71,12 +90,26 @@ export const mainModule = makeModule((makeFunc: MakeFunc) => {
     },
   );
 
-  const addThreeRecord = makeFunc(
+  const addThreeRecord = mod.makeFunc(
     { arg: { a: i32 }, ret: i32, vars: { u: { x: i32, y: i32 } } },
     (arg: Var, ret: RetFunc, vars: Var) => {
-      vars.u = returnTwo();
+      vars.u = returnTwoRecord();
       ret(addition(arg.a, addition(vars.u.x, vars.u.y)));
     },
+  );
+
+  return {
+    selectRightRecord,
+    addTwoRecord,
+    addThreeRecord,
+  };
+};
+
+const mainLib = (mod: ModType) => {
+  const { addition } = mod.initLib(addLib as InitFunc);
+  const { selectRight, addTwo, addThree } = mod.initLib(tupleLib);
+  const { selectRightRecord, addTwoRecord, addThreeRecord } = mod.initLib(
+    recordLib,
   );
 
   return {
@@ -88,11 +121,15 @@ export const mainModule = makeModule((makeFunc: MakeFunc) => {
     addTwoRecord,
     addThreeRecord,
   };
-});
+};
 
-console.log('Raw:', mainModule.emitText());
-const exported = moduleCompile(mainModule);
-console.log('Optimized:', mainModule.emitText());
+const module = new Module();
+const mod = Mod(module);
+mod.initLib(mainLib);
+
+console.log('Raw:', mod.emitText());
+const exported = mod.compile();
+console.log('Optimized:', mod.emitText());
 
 console.log(exported.addition(41, 1));
 console.log(exported.selectRight());
