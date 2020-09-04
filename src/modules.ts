@@ -7,6 +7,8 @@ import {
   Expression,
   Lib,
   ModType,
+  Dict,
+  TypeDef,
 } from './types';
 import { call } from './core';
 import { makeDictProxy } from './variables';
@@ -15,17 +17,27 @@ import { CompileOptions } from './types';
 
 const FEATURE_MULTIVALUE = 512; // hardwired because of error in enum in binaryen.js .d.ts
 
-export const Mod = (module: Module) => {
+export const Mod = (imports: Dict<FuncDef>) => {
+  const module = new Module();
   module.setFeatures(FEATURE_MULTIVALUE);
-
   const nameMap = new Map<Callable, string>();
   const callableMap = new Map<string, Callable>();
   const libMap = new Map<InitFunc, Lib>();
   const exportedSet = new Set<Callable>();
-
+  Object.entries(imports).forEach(([name, { arg, ret }]) => {
+    module.addFunctionImport(
+      name,
+      name,
+      name,
+      createType(
+        Object.values(arg as TypeDef).map(v => createType(asTypeArray(v))),
+      ),
+      createType(asTypeArray(ret as TypeDef)),
+    );
+  });
   const { emitText } = module;
   const self: ModType = {
-    initLib(func: InitFunc) {
+    lib(func: InitFunc) {
       if (libMap.has(func)) {
         return libMap.get(func);
       }
@@ -44,7 +56,7 @@ export const Mod = (module: Module) => {
       return lib;
     },
 
-    makeFunc(funcDef: FuncDef, bodyDef: BodyDef): Callable {
+    func(funcDef: FuncDef, bodyDef: BodyDef): Callable {
       const count = nameMap.size;
       const {
         name = `func${count}`,
@@ -91,6 +103,11 @@ export const Mod = (module: Module) => {
       const instance = new WebAssembly.Instance(compiled, imports);
       return instance.exports;
     },
+
+    getModule() {
+      return module;
+    },
+
     ...{ emitText },
   };
   return self;

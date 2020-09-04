@@ -1,4 +1,4 @@
-import { ExpressionRef, Type } from 'binaryen';
+import { ExpressionRef, Type, Module } from 'binaryen';
 
 export type Dict<T> = { [key: string]: T };
 export type Expression = ExpressionRef | ExpressionRef[] | Dict<ExpressionRef>;
@@ -27,8 +27,9 @@ export type CompileOptions = {
 };
 export type Lib = Dict<Callable>;
 export type ModType = {
-  initLib: (func: InitFunc) => any;
-  makeFunc: (funcDef: FuncDef, bodyDef: BodyDef) => Callable;
+  lib: (func: InitFunc) => any;
+  func: (funcDef: FuncDef, bodyDef: BodyDef) => Callable;
   compile: (imports?: any, options?: CompileOptions) => any;
+  getModule(): Module;
   emitText: () => string;
 };

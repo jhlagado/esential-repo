@@ -1,9 +1,11 @@
-import { moduleCompile } from './modules';
-import { addFuncs } from './main';
+import { mainLib } from './main';
+import { Mod } from './modules';
 
-console.log('Raw:', addFuncs.emitText());
-const exported = moduleCompile(addFuncs);
-console.log('Optimized:', addFuncs.emitText());
+const mod = Mod({});
+mod.lib(mainLib);
+
+console.log('Raw:', mod.emitText());
+const exported = mod.compile();
 
 it('should add 2 number', () => {
   expect(exported.addition(41, 1)).toBe(42);
