@@ -1,25 +1,20 @@
 import { i32 } from 'binaryen';
 import { ops } from './core';
-import { Var, RetFunc, ModType } from './types';
+import { Var, RetFunc, ModDef } from './types';
 import { val } from './utils';
 
 const {
   i32: { add },
 } = ops;
 
-export const addLib = (mod: ModType) => {
-  const addition = mod.func(
+export const addLib = ({ func }: ModDef) => {
+  const addition = func(
     { arg: { a: i32, b: i32 }, ret: i32, vars: { u: i32 } },
 
-
     (arg: Var, ret: RetFunc, vars: Var) => {
-
-
       vars.u = add(arg.a, arg.b);
 
       ret(vars.u);
-
-
     },
   );
   return {
@@ -27,10 +22,10 @@ export const addLib = (mod: ModType) => {
   };
 };
 
-export const tupleLib = (mod: ModType) => {
-  const { addition } = mod.lib(addLib);
+export const tupleLib = ({ lib, func }: ModDef) => {
+  const { addition } = lib(addLib);
 
-  const returnTwo = mod.func(
+  const returnTwo = func(
     { ret: [i32, i32], vars: { u: [i32, i32] }, export: false },
     (arg: Var, ret: RetFunc, vars: Var) => {
       vars.u = [val(1), val(2)];
@@ -38,7 +33,7 @@ export const tupleLib = (mod: ModType) => {
     },
   );
 
-  const selectRight = mod.func(
+  const selectRight = func(
     { ret: i32, vars: { u: [i32, i32] } },
     (arg: Var, ret: RetFunc, vars: Var) => {
       vars.u = returnTwo();
@@ -46,7 +41,7 @@ export const tupleLib = (mod: ModType) => {
     },
   );
 
-  const addTwo = mod.func(
+  const addTwo = func(
     { ret: i32, vars: { u: [i32, i32] } },
     (arg: Var, ret: RetFunc, vars: Var) => {
       vars.u = returnTwo();
@@ -54,7 +49,7 @@ export const tupleLib = (mod: ModType) => {
     },
   );
 
-  const addThree = mod.func(
+  const addThree = func(
     { arg: { a: i32 }, ret: i32, vars: { u: [i32, i32] } },
     (arg: Var, ret: RetFunc, vars: Var) => {
       vars.u = returnTwo();
@@ -69,10 +64,10 @@ export const tupleLib = (mod: ModType) => {
   };
 };
 
-export const recordLib = (mod: ModType) => {
-  const { addition } = mod.lib(addLib);
+export const recordLib = ({ lib, func }: ModDef) => {
+  const { addition } = lib(addLib);
 
-  const returnTwoRecord = mod.func(
+  const returnTwoRecord = func(
     { ret: { x: i32, y: i32 }, vars: { u: { x: i32, y: i32 } }, export: false },
     (arg: Var, ret: RetFunc, vars: Var) => {
       vars.u = { x: val(1), y: val(2) };
@@ -80,7 +75,7 @@ export const recordLib = (mod: ModType) => {
     },
   );
 
-  const selectRightRecord = mod.func(
+  const selectRightRecord = func(
     { ret: i32, vars: { u: { x: i32, y: i32 } } },
     (arg: Var, ret: RetFunc, vars: Var) => {
       vars.u = returnTwoRecord();
@@ -88,7 +83,7 @@ export const recordLib = (mod: ModType) => {
     },
   );
 
-  const addTwoRecord = mod.func(
+  const addTwoRecord = func(
     { ret: i32, vars: { u: { x: i32, y: i32 } } },
     (arg: Var, ret: RetFunc, vars: Var) => {
       vars.u = returnTwoRecord();
@@ -96,7 +91,7 @@ export const recordLib = (mod: ModType) => {
     },
   );
 
-  const addThreeRecord = mod.func(
+  const addThreeRecord = func(
     { arg: { a: i32 }, ret: i32, vars: { u: { x: i32, y: i32 } } },
     (arg: Var, ret: RetFunc, vars: Var) => {
       vars.u = returnTwoRecord();
@@ -111,3 +106,18 @@ export const recordLib = (mod: ModType) => {
   };
 };
 
+export const mainLib = ({ lib }: ModDef) => {
+  const { addition } = lib(addLib);
+  const { selectRight, addTwo, addThree } = lib(tupleLib);
+  const { selectRightRecord, addTwoRecord, addThreeRecord } = lib(recordLib);
+
+  return {
+    addition,
+    selectRight,
+    addTwo,
+    addThree,
+    selectRightRecord,
+    addTwoRecord,
+    addThreeRecord,
+  };
+};

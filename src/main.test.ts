@@ -1,5 +1,5 @@
-import { mainLib } from './main';
 import { Mod } from './modules';
+import { mainLib } from './demo-libs';
 
 const mod = Mod({});
 mod.lib(mainLib);

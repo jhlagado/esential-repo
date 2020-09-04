@@ -1,31 +1,12 @@
-import { InitFunc, ModType } from './types';
 import { Mod } from './modules';
-import { addLib, tupleLib, recordLib } from './demo-libs';
+import { mainLib } from './demo-libs';
 
-export const mainLib = (mod: ModType) => {
-  const { addition } = mod.lib(addLib as InitFunc);
-  const { selectRight, addTwo, addThree } = mod.lib(tupleLib);
-  const { selectRightRecord, addTwoRecord, addThreeRecord } = mod.lib(
-    recordLib,
-  );
+const { lib, emitText, compile } = Mod({});
+lib(mainLib);
 
-  return {
-    addition,
-    selectRight,
-    addTwo,
-    addThree,
-    selectRightRecord,
-    addTwoRecord,
-    addThreeRecord,
-  };
-};
-
-const mod = Mod({});
-mod.lib(mainLib);
-
-console.log('Raw:', mod.emitText());
-const exported = mod.compile();
-console.log('Optimized:', mod.emitText());
+console.log('Raw:', emitText());
+const exported = compile();
+console.log('Optimized:', emitText());
 
 console.log(exported.addition(41, 1));
 console.log(exported.selectRight());

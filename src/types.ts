@@ -17,18 +17,22 @@ export type FuncDef = {
 };
 export type Var = Dict<any>;
 export type RetFunc = (expressionRef: ExpressionRef) => void;
-export type BodyDef = (arg: Var, ret: RetFunc, vars: Var) => void;
+export type FuncImpl = (arg: Var, ret: RetFunc, vars: Var) => void;
 
-export type InitFunc = (mod: ModType) => Dict<Callable>;
+export type LibFunc = (mod: ModDef) => Dict<Callable>;
 export type Callable = (...args: ExpressionRef[]) => ExpressionRef;
 export type CompileOptions = {
   optimize?: boolean;
   validate?: boolean;
 };
 export type Lib = Dict<Callable>;
-export type ModType = {
-  lib: (func: InitFunc) => any;
-  func: (funcDef: FuncDef, bodyDef: BodyDef) => Callable;
+
+export type ModDef = {
+  lib: (func: LibFunc) => any;
+  func: (funcDef: FuncDef, funcImpl: FuncImpl) => Callable;
+}
+
+export type ModType = ModDef & {
   compile: (imports?: any, options?: CompileOptions) => any;
   getModule(): Module;
   emitText: () => string;

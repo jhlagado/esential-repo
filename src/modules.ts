@@ -1,9 +1,9 @@
 import { Module, createType, ExpressionRef, none } from 'binaryen';
 import {
-  BodyDef,
+  FuncImpl,
   FuncDef,
   Callable,
-  InitFunc,
+  LibFunc,
   Expression,
   Lib,
   ModType,
@@ -17,12 +17,12 @@ import { CompileOptions } from './types';
 
 const FEATURE_MULTIVALUE = 512; // hardwired because of error in enum in binaryen.js .d.ts
 
-export const Mod = (imports: Dict<FuncDef>) => {
+export const Mod = (imports: Dict<FuncDef>): ModType => {
   const module = new Module();
   module.setFeatures(FEATURE_MULTIVALUE);
   const nameMap = new Map<Callable, string>();
   const callableMap = new Map<string, Callable>();
-  const libMap = new Map<InitFunc, Lib>();
+  const libMap = new Map<LibFunc, Lib>();
   const exportedSet = new Set<Callable>();
   Object.entries(imports).forEach(([name, { arg, ret }]) => {
     module.addFunctionImport(
@@ -37,11 +37,11 @@ export const Mod = (imports: Dict<FuncDef>) => {
   });
   const { emitText } = module;
   const self: ModType = {
-    lib(func: InitFunc) {
+    lib(func: LibFunc) {
       if (libMap.has(func)) {
         return libMap.get(func);
       }
-      const lib = func(this);
+      const lib = func(self);
       Object.entries(lib).forEach(([externalName, callable]) => {
         if (exportedSet.has(callable)) {
           const internalName = nameMap.get(callable);
@@ -56,7 +56,7 @@ export const Mod = (imports: Dict<FuncDef>) => {
       return lib;
     },
 
-    func(funcDef: FuncDef, bodyDef: BodyDef): Callable {
+    func(funcDef: FuncDef, funcImpl: FuncImpl): Callable {
       const count = nameMap.size;
       const {
         name = `func${count}`,
@@ -75,7 +75,7 @@ export const Mod = (imports: Dict<FuncDef>) => {
       const retFunc = (expression: Expression) => {
         bodyItems.push(assignment(expression, ret));
       };
-      bodyDef(argProxy, retFunc, varsProxy);
+      funcImpl(argProxy, retFunc, varsProxy);
       const retType = createType(asTypeArray(ret));
       module.addFunction(
         name,
