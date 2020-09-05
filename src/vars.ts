@@ -4,12 +4,12 @@ import { makeTupleProxy } from './tuples';
 import { local } from './core';
 import { asTypeArray, assignment } from './utils';
 
-export const makeDictProxy = (
-  receiver: Dict<TypeDef>,
-  varNames: string[],
+export const makeVarsProxy = (
+  variables: Dict<TypeDef>,
   bodyItems: ExpressionRef[] = [],
 ): Var => {
-  return new Proxy(receiver, {
+  const varNames = Object.keys(variables);
+  return new Proxy(variables, {
     get(target: any, prop: string) {
       if (!(prop in target)) {
         throw new Error(`Unknown variable '${prop}'`);

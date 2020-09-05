@@ -10,7 +10,7 @@ export const asTypeArray = (typeDef: TypeDef) =>
     ? typeDef
     : Object.values(typeDef);
 
-export const val = (value: number, typeDef: Type = i32): ExpressionRef => {
+export const _ = (value: number, typeDef: Type = i32): ExpressionRef => {
   const opDict = {
     [i32]: ops.i32,
     [i64]: ops.i64,

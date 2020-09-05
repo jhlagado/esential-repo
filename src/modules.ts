@@ -11,7 +11,7 @@ import {
   TypeDef,
 } from './types';
 import { call } from './core';
-import { makeDictProxy } from './variables';
+import { makeVarsProxy } from './vars';
 import { asTypeArray, assignment } from './utils';
 import { CompileOptions } from './types';
 
@@ -63,28 +63,25 @@ export const Mod = (imports: Dict<FuncDef>): ModType => {
           name = `func${count}`,
           arg = {},
           ret = none,
-          vars = {},
+          locals = {},
           export: exported = true,
         } = funcDef;
         const bodyItems: ExpressionRef[] = [];
         if (callableMap.has(name)) {
           return callableMap.get(name) as Callable;
         }
-        const variables = { ...arg, ...vars };
-        const varNames = Object.keys(variables);
-        const variablesProxy = makeDictProxy(variables, varNames, bodyItems);
-        // const argProxy = makeDictProxy(arg, varNames, bodyItems);
-        // const varsProxy = makeDictProxy(vars, varNames, bodyItems);
+        const vars = { ...arg, ...locals };
+        const varsProxy = makeVarsProxy(vars, bodyItems);
         const retFunc = (expression: Expression) => {
           bodyItems.push(assignment(expression, ret));
         };
-        funcImpl(variablesProxy, retFunc);
+        funcImpl(varsProxy, retFunc);
         const retType = createType(asTypeArray(ret));
         module.addFunction(
           name,
           createType(Object.values(arg).map(v => createType(asTypeArray(v)))),
           retType,
-          Object.values(vars).map(v => createType(asTypeArray(v))),
+          Object.values(locals).map(v => createType(asTypeArray(v))),
           module.block(null as any, bodyItems),
         );
         const callable = (...args: ExpressionRef[]) =>
