@@ -25,7 +25,7 @@ export const Mod = (imports: Dict<FuncDef>): ModType => {
   const callableMap = new Map<string, Callable>();
   const libMap = new Map<LibFunc, Lib>();
   const exportedSet = new Set<Callable>();
-  Object.entries(imports).forEach(([name, { arg, ret }]) => {
+  Object.entries(imports).forEach(([name, { arg, result: ret }]) => {
     module.addFunctionImport(
       name,
       name,
@@ -63,7 +63,7 @@ export const Mod = (imports: Dict<FuncDef>): ModType => {
         const {
           name = `func${count}`,
           arg = {},
-          ret = none,
+          result: ret = none,
           locals = {},
           export: exported = true,
         } = funcDef;

@@ -10,11 +10,11 @@ const {
 
 export const addLib = ({ func }: ModDef) => {
   const addition = func(
-    { arg: { a: i32, b: i32 }, ret: i32, locals: { u: i32 } },
+    { arg: { a: i32, b: i32 }, result: i32, locals: { u: i32 } },
 
-    ($, ret) => {
+    ($, result) => {
       $.u = add($.a, $.b);
-      ret($.u);
+      result($.u);
     },
   );
   return {
@@ -26,28 +26,28 @@ export const tupleLib = ({ lib, func }: ModDef) => {
   const { addition } = lib(addLib);
 
   const returnTwo = func(
-    { ret: [i32, i32], locals: { u: [i32, i32] }, export: false },
-    ($, ret) => {
+    { result: [i32, i32], locals: { u: [i32, i32] }, export: false },
+    ($, result) => {
       $.u = [literal(1), literal(2)];
-      ret($.u);
+      result($.u);
     },
   );
 
-  const selectRight = func({ ret: i32, locals: { u: [i32, i32] } }, ($, ret) => {
+  const selectRight = func({ result: i32, locals: { u: [i32, i32] } }, ($, result) => {
     $.u = returnTwo();
-    ret($.u[1]);
+    result($.u[1]);
   });
 
-  const addTwo = func({ ret: i32, locals: { u: [i32, i32] } }, ($, ret) => {
+  const addTwo = func({ result: i32, locals: { u: [i32, i32] } }, ($, result) => {
     $.u = returnTwo();
-    ret(addition($.u[0], $.u[1]));
+    result(addition($.u[0], $.u[1]));
   });
 
   const addThree = func(
-    { arg: { a: i32 }, ret: i32, locals: { u: [i32, i32] } },
-    ($, ret) => {
+    { arg: { a: i32 }, result: i32, locals: { u: [i32, i32] } },
+    ($, result) => {
       $.u = returnTwo();
-      ret(addition($.a, addition($.u[0], $.u[1])));
+      result(addition($.a, addition($.u[0], $.u[1])));
     },
   );
 
@@ -62,34 +62,34 @@ export const recordLib = ({ lib, func }: ModDef) => {
   const { addition } = lib(addLib);
 
   const returnTwoRecord = func(
-    { ret: { x: i32, y: i32 }, locals: { u: { x: i32, y: i32 } }, export: false },
-    ($, ret) => {
+    { result: { x: i32, y: i32 }, locals: { u: { x: i32, y: i32 } }, export: false },
+    ($, result) => {
       $.u = { x: literal(1), y: literal(2) };
-      ret($.u);
+      result($.u);
     },
   );
 
   const selectRightRecord = func(
-    { ret: i32, locals: { u: { x: i32, y: i32 } } },
-    ($, ret) => {
+    { result: i32, locals: { u: { x: i32, y: i32 } } },
+    ($, result) => {
       $.u = returnTwoRecord();
-      ret($.u.y);
+      result($.u.y);
     },
   );
 
   const addTwoRecord = func(
-    { ret: i32, locals: { u: { x: i32, y: i32 } } },
-    ($, ret) => {
+    { result: i32, locals: { u: { x: i32, y: i32 } } },
+    ($, result) => {
       $.u = returnTwoRecord();
-      ret(addition($.u.x, $.u.y));
+      result(addition($.u.x, $.u.y));
     },
   );
 
   const addThreeRecord = func(
-    { arg: { a: i32 }, ret: i32, locals: { u: { x: i32, y: i32 } } },
-    ($, ret) => {
+    { arg: { a: i32 }, result: i32, locals: { u: { x: i32, y: i32 } } },
+    ($, result) => {
       $.u = returnTwoRecord();
-      ret(addition($.a, addition($.u.x, $.u.y)));
+      result(addition($.a, addition($.u.x, $.u.y)));
     },
   );
 

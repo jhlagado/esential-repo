@@ -14,12 +14,12 @@ export type Vars = Dict<any>;
 export type FuncDef = {
   name?: string;
   arg?: VarsDefs;
-  ret?: TypeDef;
+  result?: TypeDef;
   locals?: VarsDefs;
   export?: boolean;
 };
 export type RetFunc = (expr: ExpressionRef) => void;
-export type FuncImpl = (variables: Vars, ret: RetFunc) => void;
+export type FuncImpl = (variables: Vars, result: RetFunc) => void;
 
 export type LibFunc = (mod: ModDef) => Dict<Callable>;
 export type Callable = (...args: ExpressionRef[]) => ExpressionRef;

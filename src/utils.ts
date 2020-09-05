@@ -6,8 +6,6 @@ import {
   f32,
   f64,
   createType,
-  getFunctionInfo,
-  expandType,
 } from 'binaryen';
 import { ops } from './core';
 import { TypeDef } from './types';
