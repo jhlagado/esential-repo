@@ -1,6 +1,7 @@
+/* eslint-disable no-empty-pattern */
 import { i32 } from 'binaryen';
 import { ops } from './core';
-import { Var, RetFunc, ModDef } from './types';
+import { ModDef } from './types';
 import { val } from './utils';
 
 const {
@@ -11,10 +12,9 @@ export const addLib = ({ func }: ModDef) => {
   const addition = func(
     { arg: { a: i32, b: i32 }, ret: i32, vars: { u: i32 } },
 
-    (arg: Var, ret: RetFunc, vars: Var) => {
-      vars.u = add(arg.a, arg.b);
-
-      ret(vars.u);
+    (_, ret) => {
+      _.u = add(_.a, _.b);
+      ret(_.u);
     },
   );
   return {
@@ -27,33 +27,27 @@ export const tupleLib = ({ lib, func }: ModDef) => {
 
   const returnTwo = func(
     { ret: [i32, i32], vars: { u: [i32, i32] }, export: false },
-    (arg: Var, ret: RetFunc, vars: Var) => {
-      vars.u = [val(1), val(2)];
-      ret(vars.u);
+    (_, ret) => {
+      _.u = [val(1), val(2)];
+      ret(_.u);
     },
   );
 
-  const selectRight = func(
-    { ret: i32, vars: { u: [i32, i32] } },
-    (arg: Var, ret: RetFunc, vars: Var) => {
-      vars.u = returnTwo();
-      ret(vars.u[1]);
-    },
-  );
+  const selectRight = func({ ret: i32, vars: { u: [i32, i32] } }, (_, ret) => {
+    _.u = returnTwo();
+    ret(_.u[1]);
+  });
 
-  const addTwo = func(
-    { ret: i32, vars: { u: [i32, i32] } },
-    (arg: Var, ret: RetFunc, vars: Var) => {
-      vars.u = returnTwo();
-      ret(addition(vars.u[0], vars.u[1]));
-    },
-  );
+  const addTwo = func({ ret: i32, vars: { u: [i32, i32] } }, (_, ret) => {
+    _.u = returnTwo();
+    ret(addition(_.u[0], _.u[1]));
+  });
 
   const addThree = func(
     { arg: { a: i32 }, ret: i32, vars: { u: [i32, i32] } },
-    (arg: Var, ret: RetFunc, vars: Var) => {
-      vars.u = returnTwo();
-      ret(addition(arg.a, addition(vars.u[0], vars.u[1])));
+    (_, ret) => {
+      _.u = returnTwo();
+      ret(addition(_.a, addition(_.u[0], _.u[1])));
     },
   );
 
@@ -69,33 +63,33 @@ export const recordLib = ({ lib, func }: ModDef) => {
 
   const returnTwoRecord = func(
     { ret: { x: i32, y: i32 }, vars: { u: { x: i32, y: i32 } }, export: false },
-    (arg: Var, ret: RetFunc, vars: Var) => {
-      vars.u = { x: val(1), y: val(2) };
-      ret(vars.u);
+    (_, ret) => {
+      _.u = { x: val(1), y: val(2) };
+      ret(_.u);
     },
   );
 
   const selectRightRecord = func(
     { ret: i32, vars: { u: { x: i32, y: i32 } } },
-    (arg: Var, ret: RetFunc, vars: Var) => {
-      vars.u = returnTwoRecord();
-      ret(vars.u.y);
+    (_, ret) => {
+      _.u = returnTwoRecord();
+      ret(_.u.y);
     },
   );
 
   const addTwoRecord = func(
     { ret: i32, vars: { u: { x: i32, y: i32 } } },
-    (arg: Var, ret: RetFunc, vars: Var) => {
-      vars.u = returnTwoRecord();
-      ret(addition(vars.u.x, vars.u.y));
+    (_, ret) => {
+      _.u = returnTwoRecord();
+      ret(addition(_.u.x, _.u.y));
     },
   );
 
   const addThreeRecord = func(
     { arg: { a: i32 }, ret: i32, vars: { u: { x: i32, y: i32 } } },
-    (arg: Var, ret: RetFunc, vars: Var) => {
-      vars.u = returnTwoRecord();
-      ret(addition(arg.a, addition(vars.u.x, vars.u.y)));
+    (_, ret) => {
+      _.u = returnTwoRecord();
+      ret(addition(_.a, addition(_.u.x, _.u.y)));
     },
   );
 

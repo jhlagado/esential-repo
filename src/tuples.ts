@@ -13,17 +13,17 @@ export const makeTupleProxy = (
       if (prop === 'valueOf') {
         return () => expressionRef;
       } else if (Number.isInteger(typeDef)) {
-        throw `Cannot index a primitive value`;
+        throw new Error(`Cannot index a primitive value`);
       } else if (Array.isArray(typeDef)) {
         const index = prop as number;
         if (index >= typeDef.length) {
-          throw `Max tuple index should be ${typeDef.length} but received ${prop}`;
+          throw new Error(`Max tuple index should be ${typeDef.length} but received ${prop}`);
         }
         return tuple.extract(expressionRef, index);
       } else {
         const index = Object.keys(typeDef).indexOf(prop as string);
         if (index < 0) {
-          throw `Could not find ${prop} in record`;
+          throw new Error(`Could not find ${prop} in record`);
         }
         return tuple.extract(expressionRef, index);
       }

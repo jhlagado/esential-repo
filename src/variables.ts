@@ -12,9 +12,9 @@ export const makeDictProxy = (
   return new Proxy(receiver, {
     get(target: any, prop: string) {
       if (!(prop in target)) {
-        throw `Unknown variable '${prop}'`;
+        throw new Error(`Unknown variable '${prop}'`);
       }
-      const index = varNames.indexOf(prop);
+      const index = varNames.lastIndexOf(prop);
       const typeDef = target[prop];
       return Number.isInteger(typeDef)
         ? local.get(index, typeDef)
@@ -28,7 +28,7 @@ export const makeDictProxy = (
       prop: string,
       expressionRef1: ExpressionRef | ExpressionRef[] | Dict<ExpressionRef>,
     ) {
-      const index = varNames.indexOf(prop);
+      const index = varNames.lastIndexOf(prop);
       bodyItems.push(local.set(index,assignment(expressionRef1,target[prop])));
       return true;
     },

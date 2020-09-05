@@ -21,7 +21,7 @@ export const val = (value: number, typeDef: Type = i32): ExpressionRef => {
     // override type checking because of error in type definition for i64.const
     return (opDict[typeDef] as any).const(value);
   }
-  throw `Can only use primtive types in val, not ${typeDef}`;
+  throw new Error(`Can only use primtive types in val, not ${typeDef}`);
 };
 
 export const assignment = (expression: Expression, typeDef: TypeDef) => {
@@ -30,16 +30,16 @@ export const assignment = (expression: Expression, typeDef: TypeDef) => {
     return expr;
   } else if (Array.isArray(expr)) {
     if (!Array.isArray(typeDef)) {
-      throw `Tuple type expected`;
+      throw new Error(`Tuple type expected`);
     }
     return tuple.make(expr);
   } else {
     if (typeof typeDef !== 'object') {
-      throw `Record type expected`;
+      throw new Error(`Record type expected`);
     }
     const array = Object.keys(typeDef).map(key => {
       if (!(key in expr)) {
-        throw `Could not find ${key} in record`;
+        throw new Error(`Could not find ${key} in record`);
       }
       return expr[key];
     });

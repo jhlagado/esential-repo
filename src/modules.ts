@@ -57,39 +57,47 @@ export const Mod = (imports: Dict<FuncDef>): ModType => {
     },
 
     func(funcDef: FuncDef, funcImpl: FuncImpl): Callable {
-      const count = nameMap.size;
-      const {
-        name = `func${count}`,
-        arg = {},
-        ret = none,
-        vars = {},
-        export: exported = true,
-      } = funcDef;
-      if (callableMap.has(name)) {
-        return callableMap.get(name) as Callable;
+      try {
+        const count = nameMap.size;
+        const {
+          name = `func${count}`,
+          arg = {},
+          ret = none,
+          vars = {},
+          export: exported = true,
+        } = funcDef;
+        const bodyItems: ExpressionRef[] = [];
+        if (callableMap.has(name)) {
+          return callableMap.get(name) as Callable;
+        }
+        const variables = { ...arg, ...vars };
+        const varNames = Object.keys(variables);
+        const variablesProxy = makeDictProxy(variables, varNames, bodyItems);
+        // const argProxy = makeDictProxy(arg, varNames, bodyItems);
+        // const varsProxy = makeDictProxy(vars, varNames, bodyItems);
+        const retFunc = (expression: Expression) => {
+          bodyItems.push(assignment(expression, ret));
+        };
+        funcImpl(variablesProxy, retFunc);
+        const retType = createType(asTypeArray(ret));
+        module.addFunction(
+          name,
+          createType(Object.values(arg).map(v => createType(asTypeArray(v)))),
+          retType,
+          Object.values(vars).map(v => createType(asTypeArray(v))),
+          module.block(null as any, bodyItems),
+        );
+        const callable = (...args: ExpressionRef[]) =>
+          call(name, args, retType);
+        nameMap.set(callable, name);
+        if (exported) {
+          exportedSet.add(callable);
+        }
+        return callable;
+      } catch (error) {
+        console.error(error);
+        throw error
       }
-      const varNames = Object.keys({ ...arg, ...vars });
-      const bodyItems: ExpressionRef[] = [];
-      const argProxy = makeDictProxy(arg, varNames, bodyItems);
-      const varsProxy = makeDictProxy(vars, varNames, bodyItems);
-      const retFunc = (expression: Expression) => {
-        bodyItems.push(assignment(expression, ret));
-      };
-      funcImpl(argProxy, retFunc, varsProxy);
-      const retType = createType(asTypeArray(ret));
-      module.addFunction(
-        name,
-        createType(Object.values(arg).map(v => createType(asTypeArray(v)))),
-        retType,
-        Object.values(vars).map(v => createType(asTypeArray(v))),
-        module.block(null as any, bodyItems),
-      );
-      const callable = (...args: ExpressionRef[]) => call(name, args, retType);
-      nameMap.set(callable, name);
-      if (exported) {
-        exportedSet.add(callable);
-      }
-      return callable;
     },
 
     compile(

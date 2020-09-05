@@ -17,7 +17,7 @@ export type FuncDef = {
 };
 export type Var = Dict<any>;
 export type RetFunc = (expressionRef: ExpressionRef) => void;
-export type FuncImpl = (arg: Var, ret: RetFunc, vars: Var) => void;
+export type FuncImpl = (variables: Var, ret: RetFunc) => void;
 
 export type LibFunc = (mod: ModDef) => Dict<Callable>;
 export type Callable = (...args: ExpressionRef[]) => ExpressionRef;
