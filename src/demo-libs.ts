@@ -2,7 +2,7 @@
 import { i32 } from 'binaryen';
 import { ops } from './core';
 import { ModDef } from './types';
-import { _ } from './utils';
+import { literal } from './utils';
 
 const {
   i32: { add },
@@ -28,7 +28,7 @@ export const tupleLib = ({ lib, func }: ModDef) => {
   const returnTwo = func(
     { ret: [i32, i32], locals: { u: [i32, i32] }, export: false },
     ($, ret) => {
-      $.u = [_(1), _(2)];
+      $.u = [literal(1), literal(2)];
       ret($.u);
     },
   );
@@ -64,7 +64,7 @@ export const recordLib = ({ lib, func }: ModDef) => {
   const returnTwoRecord = func(
     { ret: { x: i32, y: i32 }, locals: { u: { x: i32, y: i32 } }, export: false },
     ($, ret) => {
-      $.u = { x: _(1), y: _(2) };
+      $.u = { x: literal(1), y: literal(2) };
       ret($.u);
     },
   );

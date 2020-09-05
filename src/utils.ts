@@ -1,6 +1,8 @@
-import { Type, i32, ExpressionRef, i64, f32, f64 } from 'binaryen';
+import { Type, i32, ExpressionRef, i64, f32, f64, createType } from 'binaryen';
 import { ops } from './core';
 import { TypeDef } from './types';
+
+const expressionTypes = new Map<ExpressionRef, Type>();
 
 export const asTypeArray = (typeDef: TypeDef) =>
   Number.isInteger(typeDef)
@@ -9,7 +11,16 @@ export const asTypeArray = (typeDef: TypeDef) =>
     ? typeDef
     : Object.values(typeDef);
 
-export const _ = (value: number, typeDef: Type = i32): ExpressionRef => {
+export const asType = (typeDef: TypeDef) => createType(asTypeArray(typeDef));
+
+export const setType = (expr: ExpressionRef, type: Type) => {
+  expressionTypes.set(expr, type);
+};
+
+export const getType = (expr: ExpressionRef): Type | undefined =>
+  expressionTypes.get(expr);
+
+export const literal = (value: number, typeDef: Type = i32): ExpressionRef => {
   const opDict = {
     [i32]: ops.i32,
     [i64]: ops.i64,
@@ -22,4 +33,3 @@ export const _ = (value: number, typeDef: Type = i32): ExpressionRef => {
   }
   throw new Error(`Can only use primtive types in val, not ${typeDef}`);
 };
-

@@ -1,40 +1,39 @@
 import { ExpressionRef } from 'binaryen';
-import { TypeDef, TupleObj } from './types';
+import { TypeDef, TupleObj, Expression } from './types';
 import { tuple } from './core';
 
-const tupleProxies = new WeakSet();
+const tupleProxies = new Map();
 
 export const makeTupleProxy = (
-  expressionRef: ExpressionRef,
+  expr: ExpressionRef,
   typeDef: TypeDef,
 ): TupleObj => {
-  const proxy = new Proxy(new Number(expressionRef), {
-    get(target: any, prop: number | string) {
-      if (prop === 'valueOf') {
-        return () => expressionRef;
-      } else if (Number.isInteger(typeDef)) {
+  const boxed = new Number(expr);
+  const proxy = new Proxy(boxed, {
+    get(_target: any, prop: number | string) {
+      if (Number.isInteger(typeDef)) {
         throw new Error(`Cannot index a primitive value`);
       } else if (Array.isArray(typeDef)) {
         const index = prop as number;
         if (index >= typeDef.length) {
-          throw new Error(`Max tuple index should be ${typeDef.length} but received ${prop}`);
+          throw new Error(
+            `Max tuple index should be ${typeDef.length} but received ${prop}`,
+          );
         }
-        return tuple.extract(expressionRef, index);
+        return tuple.extract(expr, index);
       } else {
         const index = Object.keys(typeDef).indexOf(prop as string);
         if (index < 0) {
           throw new Error(`Could not find ${prop} in record`);
         }
-        return tuple.extract(expressionRef, index);
+        return tuple.extract(expr, index);
       }
     },
   });
-  tupleProxies.add(proxy);
+  tupleProxies.set(proxy, expr);
   return proxy;
 };
 
-export const stripTupleProxy = (expressionRef: any) => {
-  return tupleProxies.has(expressionRef as any)
-    ? expressionRef.valueOf()
-    : expressionRef;
+export const stripTupleProxy = (expr: Expression): Expression => {
+  return tupleProxies.has(expr as any) ? tupleProxies.get(expr) : expr;
 };

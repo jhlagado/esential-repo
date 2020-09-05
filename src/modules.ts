@@ -75,23 +75,31 @@ export const Mod = (imports: Dict<FuncDef>): ModType => {
 
         const varsProxy = new Proxy(varDefs, {
           get: getter,
-          set(varDefs: VarsDefs, prop: string, expressionRef: Expression) {
-            const expression = setter(varDefs, prop, expressionRef);
-            bodyItems.push(expression);
+          set(varDefs: VarsDefs, prop: string, expression: Expression) {
+            const expr = setter(varDefs, prop, expression);
+            bodyItems.push(expr);
             return true;
           },
         });
 
-        const retFunc = (expression: Expression) => {
-          bodyItems.push(getAssignable(expression, ret));
+        const retFunc = (expr: Expression) => {
+          bodyItems.push(getAssignable(expr, ret));
         };
         funcImpl(varsProxy, retFunc);
+
+        const argType = createType(
+          Object.values(arg).map(v => createType(asTypeArray(v))),
+        );
         const retType = createType(asTypeArray(ret));
+        const localType = Object.values(locals).map(v =>
+          createType(asTypeArray(v)),
+        );
+
         module.addFunction(
           name,
-          createType(Object.values(arg).map(v => createType(asTypeArray(v)))),
+          argType,
           retType,
-          Object.values(locals).map(v => createType(asTypeArray(v))),
+          localType,
           module.block(null as any, bodyItems),
         );
         const callable = (...args: ExpressionRef[]) =>

@@ -4,7 +4,7 @@ export type Dict<T> = { [key: string]: T };
 export type Expression = ExpressionRef | ExpressionRef[] | Dict<ExpressionRef>;
 export type TypeDef = Type | Type[] | Dict<Type>;
 export type TupleObj = {
-  expressionRef: ExpressionRef;
+  expr: ExpressionRef;
   typeDef: TypeDef;
 };
 
@@ -18,7 +18,7 @@ export type FuncDef = {
   locals?: VarsDefs;
   export?: boolean;
 };
-export type RetFunc = (expressionRef: ExpressionRef) => void;
+export type RetFunc = (expr: ExpressionRef) => void;
 export type FuncImpl = (variables: Vars, ret: RetFunc) => void;
 
 export type LibFunc = (mod: ModDef) => Dict<Callable>;
@@ -32,7 +32,7 @@ export type Lib = Dict<Callable>;
 export type ModDef = {
   lib: (func: LibFunc) => any;
   func: (funcDef: FuncDef, funcImpl: FuncImpl) => Callable;
-}
+};
 
 export type ModType = ModDef & {
   compile: (imports?: any, options?: CompileOptions) => any;
