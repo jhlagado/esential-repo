@@ -4,9 +4,9 @@ import { mainLib } from './demo-libs';
 const { lib, emitText, compile } = Mod({});
 lib(mainLib);
 
-console.log('Raw:', emitText());
+// console.log('Raw:', emitText());
 const exported = compile();
-console.log('Optimized:', emitText());
+// console.log('Optimized:', emitText());
 
 console.log(exported.addition(41, 1));
 console.log(exported.selectRight());

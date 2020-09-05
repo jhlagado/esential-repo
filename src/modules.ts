@@ -13,7 +13,7 @@ import {
 } from './types';
 import { call } from './core';
 import { getter, setter, getAssignable } from './vars';
-import { asTypeArray } from './utils';
+import { asTypeArray, setType } from './utils';
 import { CompileOptions } from './types';
 
 const FEATURE_MULTIVALUE = 512; // hardwired because of error in enum in binaryen.js .d.ts
@@ -82,8 +82,9 @@ export const Mod = (imports: Dict<FuncDef>): ModType => {
           },
         });
 
-        const retFunc = (expr: Expression) => {
-          bodyItems.push(getAssignable(expr, ret));
+        const retFunc = (expression: Expression) => {
+          const expr = getAssignable(expression, ret);
+          bodyItems.push(expr);
         };
         funcImpl(varsProxy, retFunc);
 
@@ -102,8 +103,11 @@ export const Mod = (imports: Dict<FuncDef>): ModType => {
           localType,
           module.block(null as any, bodyItems),
         );
-        const callable = (...args: ExpressionRef[]) =>
-          call(name, args, retType);
+        const callable = (...args: ExpressionRef[]) => {
+          const expr = call(name, args, retType);
+          setType(expr, retType);
+          return expr;
+        };
         nameMap.set(callable, name);
         if (exported) {
           exportedSet.add(callable);

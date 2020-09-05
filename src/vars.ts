@@ -1,4 +1,4 @@
-import { ExpressionRef, expandType } from 'binaryen';
+import { ExpressionRef, expandType, createType } from 'binaryen';
 import { VarsDefs, Expression, TypeDef, Dict } from './types';
 import { makeTupleProxy, stripTupleProxy } from './tuples';
 import { local, tuple } from './core';
@@ -9,34 +9,46 @@ export const getAssignable = (
   typeDef: TypeDef,
 ): ExpressionRef => {
   const stripped = stripTupleProxy(expression);
+  const type = asType(typeDef);
   if (Number.isInteger(stripped)) {
-    const exprType = getType(stripped as ExpressionRef);
-    if (exprType != null) {
-      if (exprType !== asType(typeDef)) {
-        new Error(
-          `Type Mismatch: Expected ${typeDef} instead of ${expandType(
-            exprType,
-          )}`,
-        );
-      }
+    const expr = stripped as ExpressionRef;
+    const exprType = getType(expr, type);
+    if (exprType !== type) {
+      new Error(
+        `Type Mismatch: Expected ${typeDef} instead of ${expandType(exprType)}`,
+      );
     }
-    return stripped as ExpressionRef;
+    return expr;
   } else if (Array.isArray(stripped)) {
-    if (!Array.isArray(typeDef)) {
-      throw new Error(`Tuple type expected`);
+    const exprArray = stripped;
+    const exprTypeDef = exprArray.map(item => getType(item, type));
+    const exprType = createType(exprTypeDef);
+    if (exprType !== type) {
+      new Error(
+        `Type Mismatch: Expected ${typeDef} instead of ${expandType(exprType)}`,
+      );
     }
-    return tuple.make(stripped);
+    const expr = tuple.make(stripped);
+    setType(expr, exprType);
+    return expr;
   } else {
-    if (typeof typeDef !== 'object') {
-      throw new Error(`Record type expected`);
-    }
-    const array = Object.keys(typeDef).map(key => {
-      if (!(key in (stripped as object))) {
+    const exprDict = stripped as Dict<ExpressionRef>;
+    const exprValues = Object.keys(typeDef).map(key => {
+      if (!(key in exprDict)) {
         throw new Error(`Could not find ${key} in record`);
       }
-      return (stripped as Dict<ExpressionRef>)[key];
+      return exprDict[key];
     });
-    return tuple.make(array);
+    const exprTypeDef = Object.values(typeDef);
+    const exprType = createType(exprTypeDef);
+    if (exprType !== type) {
+      new Error(
+        `Type Mismatch: Expected ${typeDef} instead of ${expandType(exprType)}`,
+      );
+    }
+    const expr = tuple.make(exprValues);
+    setType(expr, type);
+    return expr;
   }
 };
 
@@ -64,15 +76,6 @@ export const setter = (
   const varNames = Object.keys(varDefs);
   const index = varNames.lastIndexOf(prop);
   const typeDef = varDefs[prop];
-  const type = asType(typeDef);
-  const expr = getAssignable(expression, typeDef);
-  const exprType = getType(expr);
-  if (exprType != null) {
-    if (exprType !== type) {
-      new Error(
-        `Type Mismatch: Expected ${typeDef} instead of ${expandType(exprType)}`,
-      );
-    }
-  }
-  return local.set(index, expr);
+  const assignable = getAssignable(expression, typeDef) as ExpressionRef;
+  return local.set(index, assignable);
 };

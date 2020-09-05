@@ -1,6 +1,7 @@
 import { ExpressionRef } from 'binaryen';
-import { TypeDef, TupleObj, Expression } from './types';
+import { TypeDef, TupleObj, Expression, Dict } from './types';
 import { tuple } from './core';
+import { setType, asType } from './utils';
 
 const tupleProxies = new Map();
 
@@ -20,13 +21,20 @@ export const makeTupleProxy = (
             `Max tuple index should be ${typeDef.length} but received ${prop}`,
           );
         }
-        return tuple.extract(expr, index);
+        const valueExpr = tuple.extract(expr, index);
+        const valueType = asType(typeDef[index]);
+        setType(valueExpr, valueType)
+        return valueExpr;
       } else {
+        const typeDefDict = typeDef as Dict<TypeDef>
         const index = Object.keys(typeDef).indexOf(prop as string);
         if (index < 0) {
           throw new Error(`Could not find ${prop} in record`);
         }
-        return tuple.extract(expr, index);
+        const valueExpr = tuple.extract(expr, index);
+        const valueType = asType(typeDefDict[prop]);
+        setType(valueExpr, valueType)
+        return valueExpr;
       }
     },
   });
