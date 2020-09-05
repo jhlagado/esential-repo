@@ -9,10 +9,11 @@ import {
   ModType,
   Dict,
   TypeDef,
+  VarsDefs,
 } from './types';
 import { call } from './core';
-import { makeVarsProxy } from './vars';
-import { asTypeArray, assignment } from './utils';
+import { getter, setter, getAssignable } from './vars';
+import { asTypeArray } from './utils';
 import { CompileOptions } from './types';
 
 const FEATURE_MULTIVALUE = 512; // hardwired because of error in enum in binaryen.js .d.ts
@@ -70,10 +71,19 @@ export const Mod = (imports: Dict<FuncDef>): ModType => {
         if (callableMap.has(name)) {
           return callableMap.get(name) as Callable;
         }
-        const vars = { ...arg, ...locals };
-        const varsProxy = makeVarsProxy(vars, bodyItems);
+        const varDefs = { ...arg, ...locals };
+
+        const varsProxy = new Proxy(varDefs, {
+          get: getter,
+          set(varDefs: VarsDefs, prop: string, expressionRef: Expression) {
+            const expression = setter(varDefs, prop, expressionRef);
+            bodyItems.push(expression);
+            return true;
+          },
+        });
+
         const retFunc = (expression: Expression) => {
-          bodyItems.push(assignment(expression, ret));
+          bodyItems.push(getAssignable(expression, ret));
         };
         funcImpl(varsProxy, retFunc);
         const retType = createType(asTypeArray(ret));
@@ -93,7 +103,7 @@ export const Mod = (imports: Dict<FuncDef>): ModType => {
         return callable;
       } catch (error) {
         console.error(error);
-        throw error
+        throw error;
       }
     },
 

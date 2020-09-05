@@ -1,7 +1,6 @@
 import { Type, i32, ExpressionRef, i64, f32, f64 } from 'binaryen';
-import { ops, tuple } from './core';
-import { TypeDef, Expression } from './types';
-import { stripTupleProxy } from './tuples';
+import { ops } from './core';
+import { TypeDef } from './types';
 
 export const asTypeArray = (typeDef: TypeDef) =>
   Number.isInteger(typeDef)
@@ -24,25 +23,3 @@ export const _ = (value: number, typeDef: Type = i32): ExpressionRef => {
   throw new Error(`Can only use primtive types in val, not ${typeDef}`);
 };
 
-export const assignment = (expression: Expression, typeDef: TypeDef) => {
-  const expr = stripTupleProxy(expression);
-  if (Number.isInteger(expr)) {
-    return expr;
-  } else if (Array.isArray(expr)) {
-    if (!Array.isArray(typeDef)) {
-      throw new Error(`Tuple type expected`);
-    }
-    return tuple.make(expr);
-  } else {
-    if (typeof typeDef !== 'object') {
-      throw new Error(`Record type expected`);
-    }
-    const array = Object.keys(typeDef).map(key => {
-      if (!(key in expr)) {
-        throw new Error(`Could not find ${key} in record`);
-      }
-      return expr[key];
-    });
-    return tuple.make(array);
-  }
-};
