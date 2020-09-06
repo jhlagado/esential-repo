@@ -26,28 +26,25 @@ export const addLib = ({ func }: ModDef) => {
 export const tupleLib = ({ lib, func }: ModDef) => {
   const { addition } = lib(addLib);
 
-  const returnTwo = func({ result: [i32, i32], export: false }, ($, result) => {
+  const returnTwo = func({ export: false }, ($, result) => {
     $.u = [literal(1), literal(2)];
     result($.u);
   });
 
-  const selectRight = func({ result: i32 }, ($, result) => {
+  const selectRight = func({}, ($, result) => {
     $.u = returnTwo();
     result($.u[1]);
   });
 
-  const addTwo = func({ result: i32 }, ($, result) => {
+  const addTwo = func({}, ($, result) => {
     $.u = returnTwo();
     result(addition($.u[0], $.u[1]));
   });
 
-  const addThree = func(
-    { args: { a: i32 }, result: i32, locals: { u: [i32, i32] } },
-    ($, result) => {
-      $.u = returnTwo();
-      result(addition($.a, addition($.u[0], $.u[1])));
-    },
-  );
+  const addThree = func({ args: { a: i32 } }, ($, result) => {
+    $.u = returnTwo();
+    result(addition($.a, addition($.u[0], $.u[1])));
+  });
 
   return {
     selectRight,
@@ -70,17 +67,17 @@ export const recordLib = ({ lib, func }: ModDef) => {
     },
   );
 
-  const selectRightRecord = func({ result: i32 }, ($, result) => {
+  const selectRightRecord = func({}, ($, result) => {
     $.u = returnTwoRecord();
     result($.u.y);
   });
 
-  const addTwoRecord = func({ result: i32 }, ($, result) => {
+  const addTwoRecord = func({}, ($, result) => {
     $.u = returnTwoRecord();
     result(addition($.u.x, $.u.y));
   });
 
-  const addThreeRecord = func({ args: { a: i32 }, result: i32 }, ($, result) => {
+  const addThreeRecord = func({ args: { a: i32 } }, ($, result) => {
     $.u = returnTwoRecord();
     result(addition($.a, addition($.u.x, $.u.y)));
   });
