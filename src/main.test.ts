@@ -1,7 +1,7 @@
 import { Mod } from './modules';
 import { mainLib } from './demo-libs';
 
-const mod = Mod({});
+const mod = Mod();
 mod.lib(mainLib);
 
 console.log('Raw:', mod.emitText());

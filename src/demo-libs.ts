@@ -1,4 +1,4 @@
-import { i32 } from 'binaryen';
+import { i32, none } from 'binaryen';
 import { ops } from './core';
 import { ModDef } from './types';
 import { literal, builtin } from './utils';
@@ -8,6 +8,27 @@ const {
 } = ops;
 
 const add1 = builtin(add, i32);
+
+export const importsLib = ({ imp, func }: ModDef) => {
+  const log = imp(
+    { namespace: 'env', name: 'log', args: { a: i32 } },
+
+    (a: number) => {
+      console.log(a);
+    },
+  );
+
+  const print100 = func({}, ($, result, effect) => {
+    effect(log(literal(100)));
+    $.u = literal(100);
+    result($.u);
+  });
+
+  return {
+    log,
+    print100,
+  };
+};
 
 export const addLib = ({ func }: ModDef) => {
   const addition = func(
@@ -84,17 +105,10 @@ export const recordLib = ({ lib, func }: ModDef) => {
 };
 
 export const mainLib = ({ lib }: ModDef) => {
-  const { addition } = lib(addLib);
-  const { selectRight, addTwo, addThree } = lib(tupleLib);
-  const { selectRightRecord, addTwoRecord, addThreeRecord } = lib(recordLib);
+  lib(importsLib);
+  // lib(addLib);
+  // lib(tupleLib);
+  // lib(recordLib);
 
-  return {
-    addition,
-    selectRight,
-    addTwo,
-    addThree,
-    selectRightRecord,
-    addTwoRecord,
-    addThreeRecord,
-  };
+  return {};
 };

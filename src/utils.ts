@@ -1,25 +1,14 @@
-import {
-  Type,
-  i32,
-  ExpressionRef,
-  i64,
-  f32,
-  f64,
-  createType,
-} from 'binaryen';
+import { Type, i32, ExpressionRef, i64, f32, f64, createType } from 'binaryen';
 import { ops } from './core';
 import { TypeDef } from './types';
 
 const expressionTypeDefs = new Map<ExpressionRef, TypeDef>();
 
-export const asTypeArray = (typeDef: TypeDef) =>
-  Number.isInteger(typeDef)
-    ? [typeDef]
-    : Array.isArray(typeDef)
-    ? typeDef
-    : Object.values(typeDef);
+export const asTypeArray = (typeDef: TypeDef): Type[] =>
+  Number.isInteger(typeDef) ? [typeDef] : Array.isArray(typeDef) ? typeDef : Object.values(typeDef);
 
-export const asType = (typeDef: TypeDef) => createType(asTypeArray(typeDef));
+export const asType = (typeDef: TypeDef): Type =>
+  Number.isInteger(typeDef) ? (typeDef as Type) : createType(asTypeArray(typeDef));
 
 export const setTypeDef = (expr: ExpressionRef, typeDef: TypeDef) => {
   expressionTypeDefs.set(expr, typeDef);
@@ -31,7 +20,6 @@ export const getTypeDef = (expr: ExpressionRef): TypeDef => {
   }
   throw new Error(`Could not find typeDef for ${expr}`);
 };
-
 
 export const builtin = (func: Function, resultTypeDef: TypeDef) => {
   return (...args: any[]) => {
