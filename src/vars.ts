@@ -56,7 +56,6 @@ export const setter = (varDefs: VarDefs, prop: string, expression: Expression): 
   let typeDef = varDefs[prop];
   if (typeDef == null) {
     typeDef = inferTypeDef(expression);
-    console.log(typeDef);
     varDefs[prop] = typeDef;
     setTypeDef(expr, typeDef);
   } else {
