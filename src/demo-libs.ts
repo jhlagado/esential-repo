@@ -11,7 +11,7 @@ const add1 = builtin(add, i32);
 
 export const addLib = ({ func }: ModDef) => {
   const addition = func(
-    { arg: { a: i32, b: i32 }, result: i32 },
+    { args: { a: i32, b: i32 }, result: i32 },
 
     ($, result) => {
       $.u = add1($.a, $.b);
@@ -42,7 +42,7 @@ export const tupleLib = ({ lib, func }: ModDef) => {
   });
 
   const addThree = func(
-    { arg: { a: i32 }, result: i32, locals: { u: [i32, i32] } },
+    { args: { a: i32 }, result: i32, locals: { u: [i32, i32] } },
     ($, result) => {
       $.u = returnTwo();
       result(addition($.a, addition($.u[0], $.u[1])));
@@ -80,7 +80,7 @@ export const recordLib = ({ lib, func }: ModDef) => {
     result(addition($.u.x, $.u.y));
   });
 
-  const addThreeRecord = func({ arg: { a: i32 }, result: i32 }, ($, result) => {
+  const addThreeRecord = func({ args: { a: i32 }, result: i32 }, ($, result) => {
     $.u = returnTwoRecord();
     result(addition($.a, addition($.u.x, $.u.y)));
   });

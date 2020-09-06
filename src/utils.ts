@@ -10,7 +10,6 @@ import {
 import { ops } from './core';
 import { TypeDef } from './types';
 
-const expressionTypes = new Map<ExpressionRef, Type>();
 const expressionTypeDefs = new Map<ExpressionRef, TypeDef>();
 
 export const asTypeArray = (typeDef: TypeDef) =>
@@ -21,17 +20,6 @@ export const asTypeArray = (typeDef: TypeDef) =>
     : Object.values(typeDef);
 
 export const asType = (typeDef: TypeDef) => createType(asTypeArray(typeDef));
-
-export const setType = (expr: ExpressionRef, type: Type) => {
-  expressionTypes.set(expr, type);
-};
-
-export const getType = (expr: ExpressionRef): Type => {
-  if (expressionTypes.has(expr)) {
-    return expressionTypes.get(expr) as Type;
-  }
-  throw new Error(`Could not find type for ${expr}`);
-};
 
 export const setTypeDef = (expr: ExpressionRef, typeDef: TypeDef) => {
   expressionTypeDefs.set(expr, typeDef);

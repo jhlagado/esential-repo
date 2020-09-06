@@ -13,7 +13,7 @@ export type Vars = Dict<any>;
 
 export type FuncDef = {
   name?: string;
-  arg?: VarDefs;
+  args?: VarDefs;
   result?: TypeDef;
   locals?: VarDefs;
   export?: boolean;

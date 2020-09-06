@@ -1,4 +1,4 @@
-import { Module, createType, ExpressionRef, none } from 'binaryen';
+import { Module, createType, ExpressionRef, none, auto } from 'binaryen';
 import {
   FuncImpl,
   FuncDef,
@@ -12,7 +12,7 @@ import {
   VarDefs,
 } from './types';
 import { call } from './core';
-import { getter, setter, getAssignable } from './vars';
+import { getter, setter, getAssignable, inferTypeDef } from './vars';
 import { asType, setTypeDef, getTypeDef } from './utils';
 import { CompileOptions } from './types';
 
@@ -25,7 +25,7 @@ export const Mod = (imports: Dict<FuncDef>): ModType => {
   const callableMap = new Map<string, Callable>();
   const libMap = new Map<LibFunc, Lib>();
   const exportedSet = new Set<Callable>();
-  Object.entries(imports).forEach(([name, { arg, result: ret }]) => {
+  Object.entries(imports).forEach(([name, { args: arg, result: ret }]) => {
     module.addFunctionImport(
       name,
       name,
@@ -60,16 +60,16 @@ export const Mod = (imports: Dict<FuncDef>): ModType => {
         const count = nameMap.size;
         const {
           name = `func${count}`,
-          arg = {},
-          result: ret = none,
-          locals = {},
+          args: argDefs = {},
+          result: resultDef = auto,
+          locals: localDefs = {},
           export: exported = true,
         } = funcDef;
         const bodyItems: ExpressionRef[] = [];
         if (callableMap.has(name)) {
           return callableMap.get(name) as Callable;
         }
-        const varDefs = { ...arg, ...locals };
+        const varDefs = { ...argDefs, ...localDefs };
         const varsProxy = new Proxy(varDefs, {
           get: getter,
           set(varDefs: VarDefs, prop: string, expression: Expression) {
@@ -79,32 +79,40 @@ export const Mod = (imports: Dict<FuncDef>): ModType => {
           },
         });
 
-        const retFunc = (expression: Expression) => {
+        let resultType = none;
+        const resultFunc = (expression: Expression) => {
           const expr = getAssignable(expression);
-          const typeDef = getTypeDef(expr);
-          if (asType(typeDef) != asType(ret)) {
-            throw new Error(
-              `Wrong return type, expected  ${ret} and got ${typeDef}`,
-            );
+          if (resultDef === auto) {
+            const exprTypeDef = inferTypeDef(expr);
+            resultType = asType(exprTypeDef);
+            setTypeDef(expr, exprTypeDef);
+          } else {
+            resultType = asType(resultDef);
+            const exprTypeDef = getTypeDef(expr);
+            if (asType(exprTypeDef) != asType(resultDef)) {
+              throw new Error(`Wrong return type, expected ${resultDef} and got ${exprTypeDef}`);
+            }
           }
           bodyItems.push(expr);
         };
-        funcImpl(varsProxy, retFunc);
+        funcImpl(varsProxy, resultFunc);
+        console.log({ resultType });
 
-        const argType = createType(Object.values(arg).map(asType));
-        const retType = asType(ret);
-        const localType = Object.values(varDefs).slice(Object.values(arg).length).map(asType);
+        const argType = createType(Object.values(argDefs).map(asType));
+        const localType = Object.values(varDefs)
+          .slice(Object.values(argDefs).length)
+          .map(asType);
 
         module.addFunction(
           name,
           argType,
-          retType,
+          resultType,
           localType,
           module.block(null as any, bodyItems),
         );
         const callable = (...args: ExpressionRef[]) => {
-          const expr = call(name, args, retType);
-          setTypeDef(expr, ret);
+          const expr = call(name, args, resultType);
+          setTypeDef(expr, resultDef);
           return expr;
         };
         nameMap.set(callable, name);
@@ -118,13 +126,9 @@ export const Mod = (imports: Dict<FuncDef>): ModType => {
       }
     },
 
-    compile(
-      imports: any = {},
-      options: CompileOptions = { optimize: true, validate: true },
-    ): any {
+    compile(imports: any = {}, options: CompileOptions = { optimize: true, validate: true }): any {
       if (options.optimize) module.optimize();
-      if (options.validate && !module.validate())
-        throw new Error('validation error');
+      if (options.validate && !module.validate()) throw new Error('validation error');
       const compiled = new WebAssembly.Module(module.emitBinary());
       const instance = new WebAssembly.Instance(compiled, imports);
       return instance.exports;

@@ -51,13 +51,20 @@ export const setter = (
   prop: string,
   expression: Expression,
 ): ExpressionRef => {
-  const assignable = getAssignable(expression) as ExpressionRef;
+  const expr = getAssignable(expression) as ExpressionRef;
   let typeDef = varDefs[prop];
   if (typeDef == null) {
     typeDef = inferTypeDef(expression);
     varDefs[prop] = typeDef;
-    setTypeDef(assignable, typeDef);
+    setTypeDef(expr, typeDef);
+  } else {
+    const exprTypeDef = getTypeDef(expr);
+    if (asType(exprTypeDef) !== asType(typeDef)) {
+      throw new Error(
+        `Wrong assignment type, expected ${typeDef} and got ${exprTypeDef}`,
+      );
+    }
   }
   const index = Object.keys(varDefs).lastIndexOf(prop);
-  return local.set(index, assignable);
+  return local.set(index, expr);
 };
