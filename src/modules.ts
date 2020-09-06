@@ -82,10 +82,11 @@ export const Mod = (imports: Dict<FuncDef>): ModType => {
         const resultFunc = (expression: Expression) => {
           const expr = getAssignable(expression);
           if (resultDef === auto) {
-            resultDef = inferTypeDef(expr);
-            if (resultDef == null) {
+            const typeDef = inferTypeDef(expr);
+            if (typeDef == null) {
               throw new Error(`Couldn't infer ${expr}`);
             }
+            resultDef = typeDef;
             setTypeDef(expr, resultDef);
           } else {
             const exprTypeDef = getTypeDef(expr);

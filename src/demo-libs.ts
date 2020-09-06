@@ -56,16 +56,10 @@ export const tupleLib = ({ lib, func }: ModDef) => {
 export const recordLib = ({ lib, func }: ModDef) => {
   const { addition } = lib(addLib);
 
-  const returnTwoRecord = func(
-    {
-      result: { x: i32, y: i32 },
-      export: false,
-    },
-    ($, result) => {
-      $.u = { x: literal(1), y: literal(2) };
-      result($.u);
-    },
-  );
+  const returnTwoRecord = func({ export: false }, ($, result) => {
+    $.u = { x: literal(1), y: literal(2) };
+    result($.u);
+  });
 
   const selectRightRecord = func({}, ($, result) => {
     $.u = returnTwoRecord();

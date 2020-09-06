@@ -1,4 +1,4 @@
-import { ExpressionRef } from 'binaryen';
+import { ExpressionRef, Type } from 'binaryen';
 import { VarDefs, Expression, TypeDef, Dict } from './types';
 import { makeTupleProxy, stripTupleProxy } from './tuples';
 import { local, tuple } from './core';
@@ -10,12 +10,17 @@ export const inferTypeDef = (expression: Expression): TypeDef => {
     const expr = stripped as ExpressionRef;
     return getTypeDef(expr);
   } else {
-    const exprArray = Array.isArray(stripped)
-      ? stripped
-      : Object.keys(stripped)
-          .sort()
-          .map(key => (stripped as Dict<ExpressionRef>)[key]);
-    return exprArray.map(item => asType(getTypeDef(item)));
+    if (Array.isArray(stripped)) {
+      return stripped.map(item => asType(getTypeDef(item)));
+    } else {
+      const typeDef = Object.entries(stripped)
+        .sort(([key1], [key2]) => (key1 === key2 ? 0 : key1 < key2 ? -1 : 1))
+        .reduce((acc, [key, value]) => {
+          acc[key] = asType(getTypeDef(value));
+          return acc;
+        }, {} as Dict<Type>);
+      return typeDef;
+    }
   }
 };
 
@@ -46,23 +51,18 @@ export const getter = (varDefs: VarDefs, prop: string) => {
   return Number.isInteger(typeDef) ? expr : makeTupleProxy(expr, typeDef);
 };
 
-export const setter = (
-  varDefs: VarDefs,
-  prop: string,
-  expression: Expression,
-): ExpressionRef => {
+export const setter = (varDefs: VarDefs, prop: string, expression: Expression): ExpressionRef => {
   const expr = getAssignable(expression) as ExpressionRef;
   let typeDef = varDefs[prop];
   if (typeDef == null) {
     typeDef = inferTypeDef(expression);
+    console.log(typeDef);
     varDefs[prop] = typeDef;
     setTypeDef(expr, typeDef);
   } else {
     const exprTypeDef = getTypeDef(expr);
     if (asType(exprTypeDef) !== asType(typeDef)) {
-      throw new Error(
-        `Wrong assignment type, expected ${typeDef} and got ${exprTypeDef}`,
-      );
+      throw new Error(`Wrong assignment type, expected ${typeDef} and got ${exprTypeDef}`);
     }
   }
   const index = Object.keys(varDefs).lastIndexOf(prop);
