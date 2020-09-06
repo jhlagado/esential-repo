@@ -1,4 +1,4 @@
-import { ExpressionRef } from 'binaryen';
+import { ExpressionRef, expandType } from 'binaryen';
 import { VarDefs, Expression, TypeDef, Dict } from './types';
 import { makeTupleProxy, stripTupleProxy } from './tuples';
 import { local, tuple } from './core';
@@ -8,7 +8,7 @@ export const inferTypeDef = (expression: Expression): TypeDef => {
   const stripped = stripTupleProxy(expression);
   if (Number.isInteger(stripped)) {
     const expr = stripped as ExpressionRef;
-    return getType(expr);
+    return expandType(getType(expr));
   } else {
     const exprArray = Array.isArray(stripped)
       ? stripped

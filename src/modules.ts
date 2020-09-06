@@ -70,7 +70,6 @@ export const Mod = (imports: Dict<FuncDef>): ModType => {
           return callableMap.get(name) as Callable;
         }
         const varDefs = { ...arg, ...locals };
-
         const varsProxy = new Proxy(varDefs, {
           get: getter,
           set(varDefs: VarDefs, prop: string, expression: Expression) {
@@ -80,11 +79,10 @@ export const Mod = (imports: Dict<FuncDef>): ModType => {
           },
         });
 
-        const retType = asType(ret);
         const retFunc = (expression: Expression) => {
           const expr = getAssignable(expression);
           const type = getType(expr);
-          if (type != retType) {
+          if (type != asType(ret)) {
             throw new Error(
               `Wrong return type, expected  ${ret} and got ${expandType(type)}`,
             );
@@ -94,7 +92,8 @@ export const Mod = (imports: Dict<FuncDef>): ModType => {
         funcImpl(varsProxy, retFunc);
 
         const argType = createType(Object.values(arg).map(asType));
-        const localType = Object.values(locals).map(asType);
+        const retType = asType(ret);
+        const localType = Object.values(varDefs).slice(Object.values(arg).length).map(asType);
 
         module.addFunction(
           name,
