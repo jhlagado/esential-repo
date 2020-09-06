@@ -13,7 +13,7 @@ import {
 } from './types';
 import { call } from './core';
 import { getter, setter, getAssignable } from './vars';
-import { setType, getType, asType } from './utils';
+import { setType, getType, asType, setTypeDef, getTypeDef } from './utils';
 import { CompileOptions } from './types';
 
 const FEATURE_MULTIVALUE = 512; // hardwired because of error in enum in binaryen.js .d.ts
@@ -81,10 +81,10 @@ export const Mod = (imports: Dict<FuncDef>): ModType => {
 
         const retFunc = (expression: Expression) => {
           const expr = getAssignable(expression);
-          const type = getType(expr);
-          if (type != asType(ret)) {
+          const typeDef = getTypeDef(expr);
+          if (asType(typeDef) != asType(ret)) {
             throw new Error(
-              `Wrong return type, expected  ${ret} and got ${expandType(type)}`,
+              `Wrong return type, expected  ${ret} and got ${typeDef}`,
             );
           }
           bodyItems.push(expr);
@@ -104,7 +104,7 @@ export const Mod = (imports: Dict<FuncDef>): ModType => {
         );
         const callable = (...args: ExpressionRef[]) => {
           const expr = call(name, args, retType);
-          setType(expr, retType);
+          setTypeDef(expr, ret);
           return expr;
         };
         nameMap.set(callable, name);

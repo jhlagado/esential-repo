@@ -1,14 +1,14 @@
-import { ExpressionRef, expandType } from 'binaryen';
+import { ExpressionRef } from 'binaryen';
 import { VarDefs, Expression, TypeDef, Dict } from './types';
 import { makeTupleProxy, stripTupleProxy } from './tuples';
 import { local, tuple } from './core';
-import { getType, asType, setType } from './utils';
+import { getType, asType, setType, setTypeDef, getTypeDef } from './utils';
 
 export const inferTypeDef = (expression: Expression): TypeDef => {
   const stripped = stripTupleProxy(expression);
   if (Number.isInteger(stripped)) {
     const expr = stripped as ExpressionRef;
-    return expandType(getType(expr));
+    return getTypeDef(expr);
   } else {
     const exprArray = Array.isArray(stripped)
       ? stripped
@@ -42,7 +42,7 @@ export const getter = (varDefs: VarDefs, prop: string) => {
   const typeDef = varDefs[prop];
   const type = asType(typeDef);
   const expr = local.get(index, type);
-  setType(expr, type);
+  setTypeDef(expr, typeDef);
   return Number.isInteger(typeDef) ? expr : makeTupleProxy(expr, typeDef);
 };
 
@@ -56,7 +56,7 @@ export const setter = (
   if (typeDef == null) {
     typeDef = inferTypeDef(expression);
     varDefs[prop] = typeDef;
-    setType(assignable, asType(typeDef));
+    setTypeDef(assignable, typeDef);
   }
   const index = Object.keys(varDefs).lastIndexOf(prop);
   return local.set(index, assignable);
