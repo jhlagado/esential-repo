@@ -2,18 +2,20 @@
 import { i32 } from 'binaryen';
 import { ops } from './core';
 import { ModDef } from './types';
-import { literal } from './utils';
+import { literal, builtin } from './utils';
 
 const {
   i32: { add },
 } = ops;
+
+const add1 = builtin(add, i32);
 
 export const addLib = ({ func }: ModDef) => {
   const addition = func(
     { arg: { a: i32, b: i32 }, result: i32, locals: { u: i32 } },
 
     ($, result) => {
-      $.u = add($.a, $.b);
+      $.u = add1($.a, $.b);
       result($.u);
     },
   );
@@ -33,15 +35,21 @@ export const tupleLib = ({ lib, func }: ModDef) => {
     },
   );
 
-  const selectRight = func({ result: i32, locals: { u: [i32, i32] } }, ($, result) => {
-    $.u = returnTwo();
-    result($.u[1]);
-  });
+  const selectRight = func(
+    { result: i32, locals: { u: [i32, i32] } },
+    ($, result) => {
+      $.u = returnTwo();
+      result($.u[1]);
+    },
+  );
 
-  const addTwo = func({ result: i32, locals: { u: [i32, i32] } }, ($, result) => {
-    $.u = returnTwo();
-    result(addition($.u[0], $.u[1]));
-  });
+  const addTwo = func(
+    { result: i32, locals: { u: [i32, i32] } },
+    ($, result) => {
+      $.u = returnTwo();
+      result(addition($.u[0], $.u[1]));
+    },
+  );
 
   const addThree = func(
     { arg: { a: i32 }, result: i32, locals: { u: [i32, i32] } },
@@ -62,7 +70,11 @@ export const recordLib = ({ lib, func }: ModDef) => {
   const { addition } = lib(addLib);
 
   const returnTwoRecord = func(
-    { result: { x: i32, y: i32 }, locals: { u: { x: i32, y: i32 } }, export: false },
+    {
+      result: { x: i32, y: i32 },
+      locals: { u: { x: i32, y: i32 } },
+      export: false,
+    },
     ($, result) => {
       $.u = { x: literal(1), y: literal(2) };
       result($.u);

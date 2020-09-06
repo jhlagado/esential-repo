@@ -8,14 +8,14 @@ export type TupleObj = {
   typeDef: TypeDef;
 };
 
-export type VarsDefs = Dict<TypeDef>;
+export type VarDefs = Dict<TypeDef>;
 export type Vars = Dict<any>;
 
 export type FuncDef = {
   name?: string;
-  arg?: VarsDefs;
+  arg?: VarDefs;
   result?: TypeDef;
-  locals?: VarsDefs;
+  locals?: VarDefs;
   export?: boolean;
 };
 export type RetFunc = (expr: ExpressionRef) => void;

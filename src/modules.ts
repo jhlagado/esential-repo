@@ -1,4 +1,4 @@
-import { Module, createType, ExpressionRef, none } from 'binaryen';
+import { Module, createType, ExpressionRef, none, expandType } from 'binaryen';
 import {
   FuncImpl,
   FuncDef,
@@ -9,11 +9,11 @@ import {
   ModType,
   Dict,
   TypeDef,
-  VarsDefs,
+  VarDefs,
 } from './types';
 import { call } from './core';
 import { getter, setter, getAssignable } from './vars';
-import { asTypeArray, setType } from './utils';
+import { setType, getType, asType } from './utils';
 import { CompileOptions } from './types';
 
 const FEATURE_MULTIVALUE = 512; // hardwired because of error in enum in binaryen.js .d.ts
@@ -30,10 +30,8 @@ export const Mod = (imports: Dict<FuncDef>): ModType => {
       name,
       name,
       name,
-      createType(
-        Object.values(arg as TypeDef).map(v => createType(asTypeArray(v))),
-      ),
-      createType(asTypeArray(ret as TypeDef)),
+      createType(Object.values(arg as TypeDef).map(asType)),
+      asType(ret as TypeDef),
     );
   });
   const { emitText } = module;
@@ -75,26 +73,28 @@ export const Mod = (imports: Dict<FuncDef>): ModType => {
 
         const varsProxy = new Proxy(varDefs, {
           get: getter,
-          set(varDefs: VarsDefs, prop: string, expression: Expression) {
+          set(varDefs: VarDefs, prop: string, expression: Expression) {
             const expr = setter(varDefs, prop, expression);
             bodyItems.push(expr);
             return true;
           },
         });
 
+        const retType = asType(ret);
         const retFunc = (expression: Expression) => {
-          const expr = getAssignable(expression, ret);
+          const expr = getAssignable(expression);
+          const type = getType(expr);
+          if (type != retType) {
+            throw new Error(
+              `Wrong return type, expected  ${ret} and got ${expandType(type)}`,
+            );
+          }
           bodyItems.push(expr);
         };
         funcImpl(varsProxy, retFunc);
 
-        const argType = createType(
-          Object.values(arg).map(v => createType(asTypeArray(v))),
-        );
-        const retType = createType(asTypeArray(ret));
-        const localType = Object.values(locals).map(v =>
-          createType(asTypeArray(v)),
-        );
+        const argType = createType(Object.values(arg).map(asType));
+        const localType = Object.values(locals).map(asType);
 
         module.addFunction(
           name,

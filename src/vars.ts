@@ -1,58 +1,39 @@
-import { ExpressionRef, expandType, createType } from 'binaryen';
-import { VarsDefs, Expression, TypeDef, Dict } from './types';
+import { ExpressionRef } from 'binaryen';
+import { VarDefs, Expression, TypeDef, Dict } from './types';
 import { makeTupleProxy, stripTupleProxy } from './tuples';
 import { local, tuple } from './core';
 import { getType, asType, setType } from './utils';
 
-export const getAssignable = (
-  expression: Expression,
-  typeDef: TypeDef,
-): ExpressionRef => {
+export const inferTypeDef = (expression: Expression): TypeDef => {
   const stripped = stripTupleProxy(expression);
-  const type = asType(typeDef);
   if (Number.isInteger(stripped)) {
     const expr = stripped as ExpressionRef;
-    const exprType = getType(expr, type);
-    if (exprType !== type) {
-      new Error(
-        `Type Mismatch: Expected ${typeDef} instead of ${expandType(exprType)}`,
-      );
-    }
-    return expr;
-  } else if (Array.isArray(stripped)) {
-    const exprArray = stripped;
-    const exprTypeDef = exprArray.map(item => getType(item, type));
-    const exprType = createType(exprTypeDef);
-    if (exprType !== type) {
-      new Error(
-        `Type Mismatch: Expected ${typeDef} instead of ${expandType(exprType)}`,
-      );
-    }
-    const expr = tuple.make(stripped);
-    setType(expr, exprType);
-    return expr;
+    return getType(expr);
   } else {
-    const exprDict = stripped as Dict<ExpressionRef>;
-    const exprValues = Object.keys(typeDef).map(key => {
-      if (!(key in exprDict)) {
-        throw new Error(`Could not find ${key} in record`);
-      }
-      return exprDict[key];
-    });
-    const exprTypeDef = Object.values(typeDef);
-    const exprType = createType(exprTypeDef);
-    if (exprType !== type) {
-      new Error(
-        `Type Mismatch: Expected ${typeDef} instead of ${expandType(exprType)}`,
-      );
-    }
-    const expr = tuple.make(exprValues);
-    setType(expr, type);
-    return expr;
+    const exprArray = Array.isArray(stripped)
+      ? stripped
+      : Object.keys(stripped)
+          .sort()
+          .map(key => (stripped as Dict<ExpressionRef>)[key]);
+    return exprArray.map(getType);
   }
 };
 
-export const getter = (varDefs: VarsDefs, prop: string) => {
+export const getAssignable = (expression: Expression): ExpressionRef => {
+  const stripped = stripTupleProxy(expression);
+  if (Number.isInteger(stripped)) {
+    return stripped as ExpressionRef;
+  } else {
+    const exprArray = Array.isArray(stripped)
+      ? stripped
+      : Object.keys(stripped)
+          .sort()
+          .map(key => (stripped as Dict<ExpressionRef>)[key]);
+    return tuple.make(exprArray);
+  }
+};
+
+export const getter = (varDefs: VarDefs, prop: string) => {
   if (!(prop in varDefs)) {
     throw new Error(`Getter: unknown variable '${prop}'`);
   }
@@ -66,16 +47,17 @@ export const getter = (varDefs: VarsDefs, prop: string) => {
 };
 
 export const setter = (
-  varDefs: VarsDefs,
+  varDefs: VarDefs,
   prop: string,
   expression: Expression,
 ): ExpressionRef => {
-  if (!(prop in varDefs)) {
-    throw new Error(`Setter: unknown variable '${prop}'`);
+  const assignable = getAssignable(expression) as ExpressionRef;
+  let typeDef = varDefs[prop];
+  if (typeDef == null) {
+    typeDef = inferTypeDef(expression);
+    varDefs[prop] = typeDef;
+    setType(assignable, asType(typeDef));
   }
-  const varNames = Object.keys(varDefs);
-  const index = varNames.lastIndexOf(prop);
-  const typeDef = varDefs[prop];
-  const assignable = getAssignable(expression, typeDef) as ExpressionRef;
+  const index = Object.keys(varDefs).lastIndexOf(prop);
   return local.set(index, assignable);
 };

@@ -25,13 +25,19 @@ export const setType = (expr: ExpressionRef, type: Type) => {
   expressionTypes.set(expr, type);
 };
 
-export const getType = (
-  expr: ExpressionRef,
-  deflt: ExpressionRef,
-): Type => {
-  return expressionTypes.has(expr)
-    ? (expressionTypes.get(expr) as Type)
-    : deflt;
+export const getType = (expr: ExpressionRef): Type => {
+  if (expressionTypes.has(expr)) {
+    return expressionTypes.get(expr) as Type;
+  }
+  throw new Error(`Could not find type for ${expr}`);
+};
+
+export const builtin = (func: Function, resultType: Type) => {
+  return (...args: any[]) => {
+    const expr = func(...args);
+    setType(expr, resultType);
+    return expr;
+  };
 };
 
 export const literal = (value: number, type: Type = i32): ExpressionRef => {
