@@ -83,6 +83,9 @@ export const Mod = (imports: Dict<FuncDef>): ModType => {
           const expr = getAssignable(expression);
           if (resultDef === auto) {
             resultDef = inferTypeDef(expr);
+            if (resultDef == null) {
+              throw new Error(`Couldn't infer ${expr}`);
+            }
             setTypeDef(expr, resultDef);
           } else {
             const exprTypeDef = getTypeDef(expr);
@@ -99,13 +102,6 @@ export const Mod = (imports: Dict<FuncDef>): ModType => {
           .map(asType);
 
         const resultType = asType(resultDef);
-        module.addFunction(
-          name,
-          argType,
-          resultType,
-          localType,
-          module.block(null as any, bodyItems),
-        );
         const callable = (...args: ExpressionRef[]) => {
           const expr = call(name, args, resultType);
           setTypeDef(expr, resultDef);
@@ -115,6 +111,13 @@ export const Mod = (imports: Dict<FuncDef>): ModType => {
         if (exported) {
           exportedSet.add(callable);
         }
+        module.addFunction(
+          name,
+          argType,
+          resultType,
+          localType,
+          module.block(null as any, bodyItems),
+        );
         return callable;
       } catch (error) {
         console.error(error);
