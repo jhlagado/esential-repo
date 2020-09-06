@@ -2,7 +2,7 @@ import { ExpressionRef } from 'binaryen';
 import { VarDefs, Expression, TypeDef, Dict } from './types';
 import { makeTupleProxy, stripTupleProxy } from './tuples';
 import { local, tuple } from './core';
-import { getType, asType, setType, setTypeDef, getTypeDef } from './utils';
+import { asType, setTypeDef, getTypeDef } from './utils';
 
 export const inferTypeDef = (expression: Expression): TypeDef => {
   const stripped = stripTupleProxy(expression);
@@ -15,7 +15,7 @@ export const inferTypeDef = (expression: Expression): TypeDef => {
       : Object.keys(stripped)
           .sort()
           .map(key => (stripped as Dict<ExpressionRef>)[key]);
-    return exprArray.map(getType);
+    return exprArray.map(item => asType(getTypeDef(item)));
   }
 };
 

@@ -1,4 +1,3 @@
-/* eslint-disable no-empty-pattern */
 import { i32 } from 'binaryen';
 import { ops } from './core';
 import { ModDef } from './types';
@@ -72,7 +71,7 @@ export const recordLib = ({ lib, func }: ModDef) => {
   const returnTwoRecord = func(
     {
       result: { x: i32, y: i32 },
-      locals: { u: { x: i32, y: i32 } },
+      locals: { ux: { x: i32, y: i32 } },
       export: false,
     },
     ($, result) => {

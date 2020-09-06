@@ -1,4 +1,4 @@
-import { Module, createType, ExpressionRef, none, expandType } from 'binaryen';
+import { Module, createType, ExpressionRef, none } from 'binaryen';
 import {
   FuncImpl,
   FuncDef,
@@ -13,7 +13,7 @@ import {
 } from './types';
 import { call } from './core';
 import { getter, setter, getAssignable } from './vars';
-import { setType, getType, asType, setTypeDef, getTypeDef } from './utils';
+import { asType, setTypeDef, getTypeDef } from './utils';
 import { CompileOptions } from './types';
 
 const FEATURE_MULTIVALUE = 512; // hardwired because of error in enum in binaryen.js .d.ts

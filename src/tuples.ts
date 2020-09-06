@@ -1,7 +1,7 @@
 import { ExpressionRef } from 'binaryen';
 import { TypeDef, TupleObj, Expression, Dict } from './types';
 import { tuple } from './core';
-import { setType, asType, setTypeDef } from './utils';
+import { setTypeDef } from './utils';
 
 const tupleProxies = new Map();
 
