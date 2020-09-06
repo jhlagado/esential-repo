@@ -1,4 +1,4 @@
-import { Module, createType, ExpressionRef, none, auto } from 'binaryen';
+import { Module, createType, ExpressionRef, none, auto, i32 } from 'binaryen';
 import {
   FuncImpl,
   FuncDef,
@@ -61,7 +61,7 @@ export const Mod = (imports: Dict<FuncDef>): ModType => {
         const {
           name = `func${count}`,
           args: argDefs = {},
-          result: resultDef = auto,
+          result = auto,
           locals: localDefs = {},
           export: exported = true,
         } = funcDef;
@@ -78,16 +78,13 @@ export const Mod = (imports: Dict<FuncDef>): ModType => {
             return true;
           },
         });
-
-        let resultType = none;
+        let resultDef = result;
         const resultFunc = (expression: Expression) => {
           const expr = getAssignable(expression);
           if (resultDef === auto) {
-            const exprTypeDef = inferTypeDef(expr);
-            resultType = asType(exprTypeDef);
-            setTypeDef(expr, exprTypeDef);
+            resultDef = inferTypeDef(expr);
+            setTypeDef(expr, resultDef);
           } else {
-            resultType = asType(resultDef);
             const exprTypeDef = getTypeDef(expr);
             if (asType(exprTypeDef) != asType(resultDef)) {
               throw new Error(`Wrong return type, expected ${resultDef} and got ${exprTypeDef}`);
@@ -96,13 +93,12 @@ export const Mod = (imports: Dict<FuncDef>): ModType => {
           bodyItems.push(expr);
         };
         funcImpl(varsProxy, resultFunc);
-        console.log({ resultType });
-
         const argType = createType(Object.values(argDefs).map(asType));
         const localType = Object.values(varDefs)
           .slice(Object.values(argDefs).length)
           .map(asType);
 
+        const resultType = asType(resultDef);
         module.addFunction(
           name,
           argType,

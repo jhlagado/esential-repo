@@ -11,7 +11,7 @@ const add1 = builtin(add, i32);
 
 export const addLib = ({ func }: ModDef) => {
   const addition = func(
-    { args: { a: i32, b: i32 }, result: i32 },
+    { args: { a: i32, b: i32 } },
 
     ($, result) => {
       $.u = add1($.a, $.b);
