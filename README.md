@@ -1,15 +1,15 @@
-# watwasm - wat wasm experimenting
+# esen - Web Assembly is Javascript
 
-setup tests in vscode
-Jest: Path To Jest
-The path to the Jest binary, or an npm command to run tests suffixed with `--` e.g. `node_modules/.bin/jest` or `npm test --`
+## Running with experimental switches
 
-### Running with experimetal switches
+This code relies on a post-MVP feature, multi-value returns. To run from Node, it needs to be started with an experimental flag to enable muti-value returns
 
-Node needs to be run with a flag to enable muti-value returns
-
-#### Running jest with switch
+### Running jest with switch
 node --experimental-wasm-mv node_modules/.bin/jest
 
-#### Running ts-node with switch
+### Running ts-node with switch
 node --experimental-wasm-mv -r ts-node/register
+
+### setup tests in vscode
+Jest: Path To Jest
+`node --experimental-wasm-mv node_modules/jest/bin/jest.js`

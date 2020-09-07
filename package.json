@@ -1,12 +1,12 @@
 {
-  "name": "watwasm",
+  "name": "esen",
   "version": "1.0.0",
   "description": "A recoil based form example",
   "main": "index.js",
   "scripts": {
     "start": "node --experimental-wasm-mv -r ts-node/register src/main",
     "lint": "eslint src/**/*.ts* --fix",
-    "test": "yarn lint && node --experimental-wasm-mv node_modules/.bin/jest --coverage",
+    "test": "node --experimental-wasm-mv node_modules/.bin/jest --coverage",
     "life": "parcel src/life/index.html"
   },
   "staticFiles": {
@@ -40,5 +40,13 @@
     "ts-node": "^8.10.2",
     "typescript": "^3.9.3",
     "wabt": "1.0.19-nightly.20200812"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jhlagado/esen.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jhlagado/esen/issues"
+  },
+  "homepage": "https://github.com/jhlagado/esen#readme"
 }

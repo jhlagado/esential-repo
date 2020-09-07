@@ -1,16 +1,19 @@
 import { Mod } from './modules';
-import { importsLib, addLib, tupleLib, recordLib } from './demo-libs';
+import { ioLib } from './libs/io-lib';
+import { addLib } from './libs/add-lib';
+import { tupleLib } from './libs/tuple-lib';
+import { recordLib } from './libs/record-lib';
 
 const { lib, emitText, compile } = Mod();
-lib(importsLib);
+lib(ioLib);
 lib(addLib);
 lib(tupleLib);
 lib(recordLib);
 
 console.log('---------------------------------------');
-console.log('Raw:', emitText());
+// console.log('Raw:', emitText());
 const exported = compile();
-console.log('Optimized:', emitText());
+// console.log('Optimized:', emitText());
 
 console.log(exported.addition(41, 1));
 console.log(exported.selectRight());

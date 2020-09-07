@@ -7,8 +7,6 @@ import {
   Expression,
   Lib,
   ModType,
-  Dict,
-  TypeDef,
   VarDefs,
 } from './types';
 import { call } from './core';
@@ -117,7 +115,7 @@ export const Mod = (): ModType => {
           bodyItems.push(expr);
         });
       };
-      funcImpl(varsProxy, resultFunc, effectFunc);
+      funcImpl({ $: varsProxy, result: resultFunc, effect: effectFunc });
       if (resultDef === auto) {
         resultDef = none;
       }
@@ -136,7 +134,6 @@ export const Mod = (): ModType => {
       if (exported) {
         exportedSet.add(callable);
       }
-      console.log(resultType);
       module.addFunction(id, argType, resultType, localType, module.block(null as any, bodyItems));
       return callable;
     },

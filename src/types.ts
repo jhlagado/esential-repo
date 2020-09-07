@@ -11,18 +11,14 @@ export type TupleObj = {
 export type VarDefs = Dict<TypeDef>;
 export type Vars = Dict<any>;
 
-export type FuncDef = {
-  namespace?: string;
-  name?: string;
-  id?: string;
-  args?: VarDefs;
-  result?: TypeDef;
-  locals?: VarDefs;
-  export?: boolean;
-};
 export type ResultFunc = (expr: ExpressionRef) => void;
 export type EffectFunc = (...exprs: ExpressionRef[]) => void;
-export type FuncImpl = (variables: Vars, result: ResultFunc, effect: EffectFunc) => void;
+export type FuncImplDef = {
+  $: Vars;
+  result: ResultFunc;
+  effect: EffectFunc;
+};
+export type FuncImpl = (funcImplDef: FuncImplDef) => void;
 
 export type LibFunc = (mod: ModDef) => Dict<Callable>;
 export type Callable = (...args: ExpressionRef[]) => ExpressionRef;
@@ -32,6 +28,15 @@ export type CompileOptions = {
 };
 export type Lib = Dict<Callable>;
 
+export type FuncDef = {
+  namespace?: string;
+  name?: string;
+  id?: string;
+  args?: VarDefs;
+  result?: TypeDef;
+  locals?: VarDefs;
+  export?: boolean;
+};
 export type ModDef = {
   lib: (func: LibFunc) => any;
   imp: (funcDef: FuncDef, fn: Function) => Callable;

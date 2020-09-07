@@ -1,11 +1,19 @@
 import { Mod } from './modules';
-import { mainLib } from './demo-libs';
+import { addLib } from './libs/add-lib';
+import { tupleLib } from './libs/tuple-lib';
+import { recordLib } from './libs/record-lib';
+import { ioLib } from './libs/io-lib';
 
-const mod = Mod();
-mod.lib(mainLib);
+const { lib, emitText, compile } = Mod();
+lib(ioLib);
+lib(addLib);
+lib(tupleLib);
+lib(recordLib);
 
-console.log('Raw:', mod.emitText());
-const exported = mod.compile();
+console.log('---------------------------------------');
+console.log('Raw:', emitText());
+const exported = compile();
+console.log('Optimized:', emitText());
 
 it('should add 2 number', () => {
   expect(exported.addition(41, 1)).toBe(42);
