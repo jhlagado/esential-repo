@@ -1,4 +1,4 @@
-# esen - Web Assembly is Javascript
+# ESen - ECMAScripten - Web Assembly is Javascript
 
 ## Running with experimental switches
 
