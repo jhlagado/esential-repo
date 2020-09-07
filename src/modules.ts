@@ -94,9 +94,8 @@ export const Mod = (): ModType => {
         },
       });
       let resultDef = result;
-      const resultFunc = (expression?: Expression) => {
-        if (expression == null) return;
-        const expr = getAssignable(expression as Expression);
+      const resultFunc = (expression: Expression) => {
+        const expr = getAssignable(expression);
         if (resultDef === auto) {
           const typeDef = inferTypeDef(expr);
           if (typeDef == null) {
@@ -112,11 +111,11 @@ export const Mod = (): ModType => {
         }
         bodyItems.push(module.return(expr));
       };
-      const effectFunc = (expression?: Expression) => {
-        if (expression == null) return;
-        const expr = getAssignable(expression);
-        console.log('effect: ', expr);
-        bodyItems.push(expr);
+      const effectFunc = (...expressions: Expression[]) => {
+        expressions.map(expression => {
+          const expr = getAssignable(expression);
+          bodyItems.push(expr);
+        });
       };
       funcImpl(varsProxy, resultFunc, effectFunc);
       if (resultDef === auto) {

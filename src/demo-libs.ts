@@ -9,7 +9,7 @@ const {
 
 const add1 = builtin(add, i32);
 
-export const importsLib = ({ imp, func, getModule }: ModDef) => {
+export const importsLib = ({ imp, func }: ModDef) => {
   const log = imp(
     { namespace: 'env', name: 'log', args: { a: i32 } },
 
@@ -19,15 +19,13 @@ export const importsLib = ({ imp, func, getModule }: ModDef) => {
     },
   );
 
-  const print100 = func({}, ($, result, effect) => {
-    effect(log(literal(100)));
-    // result(literal(0));
-    // result();
+  const print123 = func({}, ($, result, effect) => {
+    effect(log(literal(100)), log(literal(1)), log(literal(2)), log(literal(3)));
   });
 
   return {
-    // log,
-    print100,
+    log,
+    print123,
   };
 };
 

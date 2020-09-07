@@ -20,8 +20,9 @@ export type FuncDef = {
   locals?: VarDefs;
   export?: boolean;
 };
-export type CallbackFunc = (expr?: ExpressionRef) => void;
-export type FuncImpl = (variables: Vars, result: CallbackFunc, effect: CallbackFunc) => void;
+export type ResultFunc = (expr: ExpressionRef) => void;
+export type EffectFunc = (...exprs: ExpressionRef[]) => void;
+export type FuncImpl = (variables: Vars, result: ResultFunc, effect: EffectFunc) => void;
 
 export type LibFunc = (mod: ModDef) => Dict<Callable>;
 export type Callable = (...args: ExpressionRef[]) => ExpressionRef;
