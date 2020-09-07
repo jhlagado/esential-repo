@@ -1,4 +1,4 @@
-import { i32, none } from 'binaryen';
+import { i32, none, i64 } from 'binaryen';
 import { ops } from './core';
 import { ModDef } from './types';
 import { literal, builtin } from './utils';
@@ -9,23 +9,24 @@ const {
 
 const add1 = builtin(add, i32);
 
-export const importsLib = ({ imp, func }: ModDef) => {
+export const importsLib = ({ imp, func, getModule }: ModDef) => {
   const log = imp(
     { namespace: 'env', name: 'log', args: { a: i32 } },
 
     (a: number) => {
       console.log(a);
+      return;
     },
   );
 
   const print100 = func({}, ($, result, effect) => {
     effect(log(literal(100)));
-    $.u = literal(100);
-    result($.u);
+    // result(literal(0));
+    // result();
   });
 
   return {
-    log,
+    // log,
     print100,
   };
 };

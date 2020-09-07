@@ -16,4 +16,4 @@ const exported = compile();
 // console.log(exported.addTwoRecord());
 // console.log(exported.addThreeRecord(10));
 
-console.log(exported.print100());
+exported.print100();

@@ -21,6 +21,7 @@ const FEATURE_MULTIVALUE = 512; // hardwired because of error in enum in binarye
 export const Mod = (): ModType => {
   const module = new Module();
   module.setFeatures(FEATURE_MULTIVALUE);
+  module.autoDrop();
 
   let imports = {};
   const idMap = new Map<Callable, string>();
@@ -93,8 +94,9 @@ export const Mod = (): ModType => {
         },
       });
       let resultDef = result;
-      const resultFunc = (expression: Expression) => {
-        const expr = getAssignable(expression);
+      const resultFunc = (expression?: Expression) => {
+        if (expression == null) return;
+        const expr = getAssignable(expression as Expression);
         if (resultDef === auto) {
           const typeDef = inferTypeDef(expr);
           if (typeDef == null) {
@@ -108,15 +110,18 @@ export const Mod = (): ModType => {
             throw new Error(`Wrong return type, expected ${resultDef} and got ${exprTypeDef}`);
           }
         }
-        bodyItems.push(expr);
+        bodyItems.push(module.return(expr));
       };
-      const effectFunc = (expression: Expression) => {
+      const effectFunc = (expression?: Expression) => {
+        if (expression == null) return;
         const expr = getAssignable(expression);
-        console.log('effect: ', expr)
+        console.log('effect: ', expr);
         bodyItems.push(expr);
       };
-
       funcImpl(varsProxy, resultFunc, effectFunc);
+      if (resultDef === auto) {
+        resultDef = none;
+      }
       const argType = createType(Object.values(argDefs).map(asType));
       const localType = Object.values(varDefs)
         .slice(Object.values(argDefs).length)
@@ -132,6 +137,7 @@ export const Mod = (): ModType => {
       if (exported) {
         exportedSet.add(callable);
       }
+      console.log(resultType);
       module.addFunction(id, argType, resultType, localType, module.block(null as any, bodyItems));
       return callable;
     },
