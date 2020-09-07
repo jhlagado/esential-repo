@@ -21,7 +21,7 @@ export const tupleLib = ({ lib, func }: ModDef) => {
     result(addition($.u[0], $.u[1]));
   });
 
-  const addThree = func({ args: { a: i32 } }, ({$, result}) => {
+  const addThree = func({ params: { a: i32 } }, ({$, result}) => {
     $.u = returnTwo();
     result(addition($.a, addition($.u[0], $.u[1])));
   });

@@ -21,7 +21,7 @@ export const recordLib = ({ lib, func }: ModDef) => {
     result(addition($.u.x, $.u.y));
   });
 
-  const addThreeRecord = func({ args: { a: i32 } }, ({$, result}) => {
+  const addThreeRecord = func({ params: { a: i32 } }, ({$, result}) => {
     $.u = returnTwoRecord();
     result(addition($.a, addition($.u.x, $.u.y)));
   });

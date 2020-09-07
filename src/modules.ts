@@ -8,6 +8,9 @@ import {
   Lib,
   ModType,
   VarDefs,
+  Dict,
+  ExternalDef,
+  MemDef,
 } from './types';
 import { call } from './core';
 import { getter, setter, getAssignable, inferTypeDef } from './vars';
@@ -21,50 +24,77 @@ export const Mod = (): ModType => {
   module.setFeatures(FEATURE_MULTIVALUE);
   module.autoDrop();
 
-  let imports = {};
-  const idMap = new Map<Callable, string>();
+  let imports: Dict<Dict<any>> = {};
+  const callableIdMap = new Map<Callable, string>();
   const libMap = new Map<LibFunc, Lib>();
   const exportedSet = new Set<Callable>();
   const { emitText } = module;
   const self: ModType = {
-    lib(func: LibFunc) {
-      if (libMap.has(func)) {
-        return libMap.get(func);
+    lib(libFunc: LibFunc, args: Dict<any> = {}) {
+      if (libMap.has(libFunc)) {
+        return libMap.get(libFunc);
       }
-      const lib = func(self);
+      const lib = libFunc(self, args);
       Object.entries(lib).forEach(([externalName, callable]) => {
         if (exportedSet.has(callable)) {
-          const internalName = idMap.get(callable);
+          const internalName = callableIdMap.get(callable);
           if (internalName) {
             module.addFunctionExport(internalName, externalName);
             exportedSet.delete(callable);
           }
         }
       });
-      libMap.set(func, lib);
+      libMap.set(libFunc, lib);
       return lib;
     },
 
-    imp(funcDef: FuncDef, fn: Function): Callable {
-      const count = idMap.size;
-      const {
-        namespace = 'namspace',
-        name = 'name',
-        id = `func${count}`,
-        args: argDefs = {},
-        result: resultDef = none,
-      } = funcDef;
-      const argType = createType(Object.values(argDefs).map(asType));
-      const resultType = asType(resultDef);
-      const callable = (...args: ExpressionRef[]) => {
-        const expr = call(id, args, resultType);
-        setTypeDef(expr, resultDef);
-        return expr;
-      };
-      idMap.set(callable, id);
+    mem(def: MemDef, memObj: any): any {
+      const count = callableIdMap.size;
+      const { namespace = 'namespace', name = 'name', id = `func${count}` } = def;
       imports = {
         ...imports,
         [namespace]: {
+          ...imports[namespace],
+          [name]: memObj,
+        },
+      };
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const callable = (...params: ExpressionRef[]) => {
+          const [index = 0, value = 0] = params;
+          // const expr = module.i32.load(0,0,index);
+          const expr = index;
+          setTypeDef(expr, i32);
+          return expr;
+        } /* TODO a mem access function*/;
+      callableIdMap.set(callable, id);
+      const memSize = 10;
+      module.addMemoryImport(id, namespace, name);
+      module.setMemory(10, 200, name);
+      // module.addMemoryExport(id, name);
+      return callable;
+    },
+
+    external(def: ExternalDef, fn: Function): Callable {
+      const count = callableIdMap.size;
+      const {
+        namespace = 'namespace',
+        name = 'name',
+        id = `func${count}`,
+        params: paramDefs = {},
+        result: resultDef = none,
+      } = def;
+      const argType = createType(Object.values(paramDefs).map(asType));
+      const resultType = asType(resultDef);
+      const callable = (...params: ExpressionRef[]) => {
+        const expr = call(id, params, resultType);
+        setTypeDef(expr, resultDef);
+        return expr;
+      };
+      callableIdMap.set(callable, id);
+      imports = {
+        ...imports,
+        [namespace]: {
+          ...imports[namespace],
           [name]: fn,
         },
       };
@@ -72,17 +102,17 @@ export const Mod = (): ModType => {
       return callable;
     },
 
-    func(funcDef: FuncDef, funcImpl: FuncImpl): Callable {
-      const count = idMap.size;
+    func(def: FuncDef, funcImpl: FuncImpl): Callable {
+      const count = callableIdMap.size;
       const {
         id = `func${count}`,
-        args: argDefs = {},
+        params: paramDefs = {},
         result = auto,
         locals: localDefs = {},
         export: exported = true,
-      } = funcDef;
+      } = def;
       const bodyItems: ExpressionRef[] = [];
-      const varDefs = { ...argDefs, ...localDefs };
+      const varDefs = { ...paramDefs, ...localDefs };
       const varsProxy = new Proxy(varDefs, {
         get: getter,
         set(varDefs: VarDefs, prop: string, expression: Expression) {
@@ -119,18 +149,18 @@ export const Mod = (): ModType => {
       if (resultDef === auto) {
         resultDef = none;
       }
-      const argType = createType(Object.values(argDefs).map(asType));
+      const argType = createType(Object.values(paramDefs).map(asType));
       const localType = Object.values(varDefs)
-        .slice(Object.values(argDefs).length)
+        .slice(Object.values(paramDefs).length)
         .map(asType);
 
       const resultType = asType(resultDef);
-      const callable = (...args: ExpressionRef[]) => {
-        const expr = call(id, args, resultType);
+      const callable = (...params: ExpressionRef[]) => {
+        const expr = call(id, params, resultType);
         setTypeDef(expr, resultDef);
         return expr;
       };
-      idMap.set(callable, id);
+      callableIdMap.set(callable, id);
       if (exported) {
         exportedSet.add(callable);
       }

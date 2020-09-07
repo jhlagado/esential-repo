@@ -1,6 +1,13 @@
 import { Type, i32, ExpressionRef, i64, f32, f64, createType } from 'binaryen';
 import { ops } from './core';
-import { TypeDef } from './types';
+import { TypeDef, Entry, Dict } from './types';
+
+export const asObject = <T>(entries: Entry<T>[]) =>
+  entries.reduce((acc, entry) => {
+    const [key, value] = entry;
+    acc[key] = value;
+    return acc;
+  }, {} as Dict<T>);
 
 const expressionTypeDefs = new Map<ExpressionRef, TypeDef>();
 
