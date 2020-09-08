@@ -2,7 +2,7 @@ import { Type, i32, ExpressionRef, i64, f32, f64, createType } from 'binaryen';
 import { ops } from './core';
 import { TypeDef, Entry, Dict, MapFunc } from './types';
 
-export const asObject = <T>(entries: Entry<T>[]) =>
+export const asDict = <T>(entries: Entry<T>[]) =>
   entries.reduce((acc, entry) => {
     const [key, value] = entry;
     acc[key] = value;
@@ -10,7 +10,7 @@ export const asObject = <T>(entries: Entry<T>[]) =>
   }, {} as Dict<T>);
 
 export const mapDict = <T, R>(dict: Dict<T>, mapFunc: MapFunc<T, R>) =>
-  asObject<R>(Object.entries(dict).map(([key, value]) => [key, mapFunc(value)]));
+  asDict<R>(Object.entries(dict).map(([key, value]) => [key, mapFunc(value)]));
 
 const expressionTypeDefs = new Map<ExpressionRef, TypeDef>();
 

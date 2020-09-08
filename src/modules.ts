@@ -1,4 +1,4 @@
-import { Module, createType, ExpressionRef, none, auto, i32 } from 'binaryen';
+import { Module, createType, ExpressionRef, none, auto } from 'binaryen';
 import {
   FuncImpl,
   FuncDef,
