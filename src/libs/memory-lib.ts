@@ -1,20 +1,19 @@
 import { ModDef, Dict, LibFunc } from '../types';
-import { ioLib } from './io-lib';
-import { literal } from '../utils';
+import { builtin, literal } from '../utils';
 import { i32 } from 'binaryen';
+import { ops } from '../core';
+
+const load = builtin(ops.i32.load, i32);
+const store = builtin(ops.i32.store, i32);
 
 export const memoryLib: LibFunc = (
-  { lib, mem, external, func }: ModDef,
+  { memory, external, func }: ModDef,
   { width = 500, height = 500 }: Dict<any> = {},
 ) => {
   // const { log } = lib(ioLib);
-
-  const size = ((width / 2) * height) / 2;
   // const byteSize = size * 4 * 2; // input & output (here: 4b per cell)
-  const byteSize = Math.floor((1024 * 1024 * 1024) / 65536);
-
-  const memory = mem(
-    { namespace: 'env', name: 'memory' },
+  memory(
+    { namespace: 'env', name: 'memory', initial: 10 },
 
     new WebAssembly.Memory({
       // initial: ((byteSize + 0xffff) & ~0xffff) >>> 16,
@@ -32,11 +31,9 @@ export const memoryLib: LibFunc = (
     },
   );
 
-  const mem256 = func({}, ({ effect }) => {
-    effect(
-     log(memory(literal(0)))
-      // memory(literal(0), literal(256)), log(memory(literal(0)))
-    );
+  const mem256 = func({ result: [i32] }, ({ $, block, result }) => {
+    $.u = block(store(0, 0, literal(0), literal(346)), load(0, 0, literal(0)));
+    result(log(literal(1)), $.u);
   });
 
   return {

@@ -6,7 +6,7 @@ import {
   LibFunc,
   Expression,
   Lib,
-  ModType,
+  ModDef,
   VarDefs,
   Dict,
   ExternalDef,
@@ -19,7 +19,7 @@ import { CompileOptions } from './types';
 
 const FEATURE_MULTIVALUE = 512; // hardwired because of error in enum in binaryen.js .d.ts
 
-export const Mod = (): ModType => {
+export const Mod = (): ModDef => {
   const module = new Module();
   module.setFeatures(FEATURE_MULTIVALUE);
   module.autoDrop();
@@ -29,7 +29,7 @@ export const Mod = (): ModType => {
   const libMap = new Map<LibFunc, Lib>();
   const exportedSet = new Set<Callable>();
   const { emitText } = module;
-  const self: ModType = {
+  const self: ModDef = {
     lib(libFunc: LibFunc, args: Dict<any> = {}) {
       if (libMap.has(libFunc)) {
         return libMap.get(libFunc);
@@ -48,9 +48,8 @@ export const Mod = (): ModType => {
       return lib;
     },
 
-    mem(def: MemDef, memObj: any): any {
-      const count = callableIdMap.size;
-      const { namespace = 'namespace', name = 'name', id = `func${count}` } = def;
+    memory(def: MemDef, memObj: any): any {
+      const { namespace = 'namespace', name = 'name', initial = 10, maximum = 100 } = def;
       imports = {
         ...imports,
         [namespace]: {
@@ -58,20 +57,8 @@ export const Mod = (): ModType => {
           [name]: memObj,
         },
       };
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const callable = (...params: ExpressionRef[]) => {
-          const [index = 0, value = 0] = params;
-          // const expr = module.i32.load(0,0,index);
-          const expr = index;
-          setTypeDef(expr, i32);
-          return expr;
-        } /* TODO a mem access function*/;
-      callableIdMap.set(callable, id);
-      const memSize = 10;
-      module.addMemoryImport(id, namespace, name);
-      module.setMemory(10, 200, name);
-      // module.addMemoryExport(id, name);
-      return callable;
+      module.addMemoryImport('0', namespace, name);
+      module.setMemory(initial, maximum, name);
     },
 
     external(def: ExternalDef, fn: Function): Callable {
@@ -122,8 +109,14 @@ export const Mod = (): ModType => {
         },
       });
       let resultDef = result;
-      const resultFunc = (expression: Expression) => {
-        const expr = getAssignable(expression);
+      const resultFunc = (...expressions: Expression[]) => {
+        const exprs = expressions.map(getAssignable);
+        const { length } = exprs;
+        if (length === 0) {
+          throw new Error(`Result function must have at least one arg`);
+        }
+        bodyItems.push(...exprs.slice(0, -1));
+        const [expr] = exprs.slice(-1);
         if (resultDef === auto) {
           const typeDef = inferTypeDef(expr);
           if (typeDef == null) {
@@ -139,13 +132,19 @@ export const Mod = (): ModType => {
         }
         bodyItems.push(module.return(expr));
       };
-      const effectFunc = (...expressions: Expression[]) => {
-        expressions.map(expression => {
-          const expr = getAssignable(expression);
-          bodyItems.push(expr);
-        });
+      const blockFunc = (...expressions: Expression[]) => {
+        const { length } = expressions;
+        if (length === 0) {
+          throw new Error(`Block must have at least one item`);
+        }
+        const exprs = expressions.map(getAssignable);
+        const [lastExpr] = exprs.slice(-1);
+        const lastTypeDef = getTypeDef(lastExpr);
+        const blk = module.block(null as any, exprs, asType(lastTypeDef));
+        setTypeDef(blk, lastTypeDef);
+        return blk;
       };
-      funcImpl({ $: varsProxy, result: resultFunc, effect: effectFunc });
+      funcImpl({ $: varsProxy, result: resultFunc, block: blockFunc });
       if (resultDef === auto) {
         resultDef = none;
       }

@@ -12,8 +12,8 @@ export const ioLib = ({ external, func }: ModDef) => {
     },
   );
 
-  const print123 = func({}, ({ effect }) => {
-    effect(log(literal(1)), log(literal(2)), log(literal(3)));
+  const print123 = func({}, ({ block }) => {
+    block(log(literal(1)), log(literal(2)), log(literal(3)));
   });
 
   return {

@@ -1,5 +1,6 @@
 import { ExpressionRef, Type, Module } from 'binaryen';
 
+export type MapFunc<T, R> = (item: T) => R;
 export type Entry<T> = [string, T];
 export type Dict<T> = { [key: string]: T };
 export type Expression = ExpressionRef | ExpressionRef[] | Dict<ExpressionRef>;
@@ -12,12 +13,12 @@ export type TupleObj = {
 export type VarDefs = Dict<TypeDef>;
 export type Vars = Dict<any>;
 
-export type ResultFunc = (expr: ExpressionRef) => void;
-export type EffectFunc = (...exprs: ExpressionRef[]) => void;
+export type ResultFunc = (...exprs: ExpressionRef[]) => void;
+export type BlockFunc = (...exprs: ExpressionRef[]) => ExpressionRef;
 export type FuncImplDef = {
   $: Vars;
   result: ResultFunc;
-  effect: EffectFunc;
+  block: BlockFunc;
 };
 export type FuncImpl = (funcImplDef: FuncImplDef) => void;
 
@@ -32,8 +33,8 @@ export type Lib = Dict<Callable>;
 export type MemDef = {
   namespace: string;
   name: string;
-  id?: string;
-  export?: boolean;
+  initial: number;
+  maximum?: number;
 };
 export type ExternalDef = {
   namespace: string;
@@ -52,13 +53,9 @@ export type FuncDef = {
 };
 export type ModDef = {
   lib: (func: LibFunc, args?: Dict<any>) => any;
-  mem: (def: MemDef, memObj: any) => Callable;
+  memory: (def: MemDef, memObj: any) => void;
   external: (def: ExternalDef, fn: Function) => Callable;
   func: (def: FuncDef, funcImpl: FuncImpl) => Callable;
-  getModule: Function;
-};
-
-export type ModType = ModDef & {
   compile: (options?: CompileOptions) => any;
   getModule(): Module;
   emitText: () => string;

@@ -1,6 +1,6 @@
 import { Type, i32, ExpressionRef, i64, f32, f64, createType } from 'binaryen';
 import { ops } from './core';
-import { TypeDef, Entry, Dict } from './types';
+import { TypeDef, Entry, Dict, MapFunc } from './types';
 
 export const asObject = <T>(entries: Entry<T>[]) =>
   entries.reduce((acc, entry) => {
@@ -8,6 +8,9 @@ export const asObject = <T>(entries: Entry<T>[]) =>
     acc[key] = value;
     return acc;
   }, {} as Dict<T>);
+
+export const mapDict = <T, R>(dict: Dict<T>, mapFunc: MapFunc<T, R>) =>
+  asObject<R>(Object.entries(dict).map(([key, value]) => [key, mapFunc(value)]));
 
 const expressionTypeDefs = new Map<ExpressionRef, TypeDef>();
 
@@ -28,7 +31,7 @@ export const getTypeDef = (expr: ExpressionRef): TypeDef => {
   throw new Error(`Could not find typeDef for ${expr}`);
 };
 
-export const builtin = (func: Function, resultTypeDef: TypeDef) => {
+export const builtin = (func: Function, resultTypeDef: TypeDef): Function => {
   return (...args: any[]) => {
     const expr = func(...args);
     setTypeDef(expr, resultTypeDef);

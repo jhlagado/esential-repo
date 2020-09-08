@@ -26,4 +26,4 @@ const exported = compile();
 // console.log(exported.addThreeRecord(10));
 
 // exported.print123();
-exported.mem256();
+console.log(exported.mem256());
