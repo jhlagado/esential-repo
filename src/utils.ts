@@ -54,3 +54,6 @@ export const literal = (value: number, type: Type = i32): ExpressionRef => {
   }
   throw new Error(`Can only use primtive types in val, not ${type}`);
 };
+
+export const asPages = (bytes: number) => ((bytes + 0xffff) & ~0xffff) >>> 16;
+export const asBytes = (pages: number) => pages << 16;

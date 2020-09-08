@@ -53,7 +53,7 @@ export type FuncDef = {
 };
 export type ModDef = {
   lib: (func: LibFunc, args?: Dict<any>) => any;
-  memory: (def: MemDef, memObj: any) => void;
+  memory: (def: MemDef) => void;
   external: (def: ExternalDef, fn: Function) => Callable;
   func: (def: FuncDef, funcImpl: FuncImpl) => Callable;
   compile: (options?: CompileOptions) => any;

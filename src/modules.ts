@@ -48,8 +48,12 @@ export const Mod = (): ModDef => {
       return lib;
     },
 
-    memory(def: MemDef, memObj: any): any {
+    memory(def: MemDef): any {
       const { namespace = 'namespace', name = 'name', initial = 10, maximum = 100 } = def;
+      const memObj = new WebAssembly.Memory({
+        initial,
+        maximum,
+      });
       imports = {
         ...imports,
         [namespace]: {
