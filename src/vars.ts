@@ -1,5 +1,5 @@
 import { ExpressionRef } from 'binaryen';
-import { VarDefs, Expression, TypeDef, Dict } from './types';
+import { VarDefs, Expression, TypeDef, Dict, Callable } from './types';
 import { makeTupleProxy, stripTupleProxy } from './tuples';
 import { local, tuple } from './core';
 import { asType, setTypeDef, getTypeDef, asDict } from './utils';
@@ -65,4 +65,34 @@ export const setter = (varDefs: VarDefs, prop: string, expression: Expression): 
   }
   const index = Object.keys(varDefs).lastIndexOf(prop);
   return local.set(index, expr);
+};
+
+export const getVarsProxy = (varDefs: Dict<TypeDef>, bodyItems: ExpressionRef[]) =>
+  new Proxy(varDefs, {
+    get: getter,
+    set(varDefs: VarDefs, prop: string, expression: Expression) {
+      const expr = setter(varDefs, prop, expression);
+      bodyItems.push(expr);
+      return true;
+    },
+  });
+
+export const getCallable = (
+  id: string,
+  exported: boolean,
+  exprFunc: (...params: ExpressionRef[]) => ExpressionRef,
+  resultDef: TypeDef,
+  callableIdMap: Map<Callable, string>,
+  exportedSet?: Set<Callable>,
+) => {
+  const callable = (...params: ExpressionRef[]) => {
+    const expr = exprFunc(...params);
+    setTypeDef(expr, resultDef);
+    return expr;
+  };
+  callableIdMap.set(callable, id);
+  if (exported && exportedSet) {
+    exportedSet.add(callable);
+  }
+  return callable;
 };

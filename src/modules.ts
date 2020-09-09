@@ -1,7 +1,8 @@
 import { Module } from 'binaryen';
 import { Callable, LibFunc, Lib, ModDef, Dict, MemDef, IndirectInfo, updateFunc } from './types';
 import { CompileOptions } from './types';
-import { getExternalFunc, funcFunc, getFunc } from './callables';
+import { getFunc } from './funcs';
+import { getExternalFunc } from './externals';
 
 const FEATURE_MULTIVALUE = 512; // hardwired because of error in enum in binaryen.js .d.ts
 

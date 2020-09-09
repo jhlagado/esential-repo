@@ -1,24 +1,8 @@
 import { Type, i32, ExpressionRef, i64, f32, f64, createType } from 'binaryen';
 import { ops } from './core';
-import { TypeDef, Entry, Dict, MapFunc } from './types';
-
-export const asDict = <T>(entries: Entry<T>[]) =>
-  entries.reduce((acc, entry) => {
-    const [key, value] = entry;
-    acc[key] = value;
-    return acc;
-  }, {} as Dict<T>);
-
-export const mapDict = <T, R>(dict: Dict<T>, mapFunc: MapFunc<T, R>) =>
-  asDict<R>(Object.entries(dict).map(([key, value]) => [key, mapFunc(value)]));
+import { TypeDef, Entry, Dict } from './types';
 
 const expressionTypeDefs = new Map<ExpressionRef, TypeDef>();
-
-export const asTypeArray = (typeDef: TypeDef): Type[] =>
-  Number.isInteger(typeDef) ? [typeDef] : Array.isArray(typeDef) ? typeDef : Object.values(typeDef);
-
-export const asType = (typeDef: TypeDef): Type =>
-  Number.isInteger(typeDef) ? (typeDef as Type) : createType(asTypeArray(typeDef));
 
 export const setTypeDef = (expr: ExpressionRef, typeDef: TypeDef) => {
   expressionTypeDefs.set(expr, typeDef);
@@ -29,6 +13,15 @@ export const getTypeDef = (expr: ExpressionRef): TypeDef => {
     return expressionTypeDefs.get(expr) as Type;
   }
   throw new Error(`Could not find typeDef for ${expr}`);
+};
+
+export const asType = (typeDef: TypeDef): Type => {
+  if (Number.isInteger(typeDef)) {
+    return typeDef as Type;
+  } else {
+    const typeArray: Type[] = Array.isArray(typeDef) ? typeDef : Object.values(typeDef);
+    return createType(typeArray);
+  }
 };
 
 export const builtin = (func: Function, resultTypeDef: TypeDef): Function => {
@@ -55,5 +48,15 @@ export const literal = (value: number, type: Type = i32): ExpressionRef => {
   throw new Error(`Can only use primtive types in val, not ${type}`);
 };
 
+export const asDict = <T>(entries: Entry<T>[]) =>
+  entries.reduce((acc, entry) => {
+    const [key, value] = entry;
+    acc[key] = value;
+    return acc;
+  }, {} as Dict<T>);
+
 export const asPages = (bytes: number) => ((bytes + 0xffff) & ~0xffff) >>> 16;
 export const asBytes = (pages: number) => pages << 16;
+
+// export const mapDict = <T, R>(dict: Dict<T>, mapFunc: MapFunc<T, R>) =>
+//   asDict<R>(Object.entries(dict).map(([key, value]) => [key, mapFunc(value)]));
