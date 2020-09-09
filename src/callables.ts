@@ -67,7 +67,6 @@ const getBlockFunc = (module: Module) => (...expressions: Expression[]) => {
 };
 
 const getCallable = (
-  module: Module,
   id: string,
   exported: boolean,
   exprFunc: (...params: ExpressionRef[]) => ExpressionRef,
@@ -84,38 +83,6 @@ const getCallable = (
   if (exported) {
     exportedSet.add(callable);
   }
-  return callable;
-};
-
-export const externalFunc = (
-  module: Module,
-  callableIdMap: Map<Callable, string>,
-  updateImports: (fn: updateFunc<any>) => void,
-) => (def: ExternalDef, fn: Function): Callable => {
-  const count = callableIdMap.size;
-  const {
-    namespace = 'namespace',
-    name = 'name',
-    id = `external${count}`,
-    params: paramDefs = {},
-    result: resultDef = none,
-  } = def;
-  const paramsType = createType(Object.values(paramDefs).map(asType));
-  const resultType = asType(resultDef);
-  module.addFunctionImport(id, namespace, name, paramsType, resultType);
-  const callable = (...params: ExpressionRef[]) => {
-    const expr = module.call(id, params, resultType);
-    setTypeDef(expr, resultDef);
-    return expr;
-  };
-  callableIdMap.set(callable, id);
-  updateImports((imports: any) => ({
-    ...imports,
-    [namespace]: {
-      ...imports[namespace],
-      [name]: fn,
-    },
-  }));
   return callable;
 };
 
@@ -151,22 +118,15 @@ export const funcFunc = (
   const resultType = asType(resultDef);
   module.addFunction(id, paramsType, resultType, localType, module.block(null as any, bodyItems));
 
-  return getCallable(
-    module,
-    id,
-    exported,
-    (...params: ExpressionRef[]) => module.call(id, params, resultType),
-    resultDef,
-    callableIdMap,
-    exportedSet,
-  );
+  const exprFunc = (...params: ExpressionRef[]) => module.call(id, params, resultType);
+  return getCallable(id, exported, exprFunc, resultDef, callableIdMap, exportedSet);
 };
 
-export const indirectFunc = (
+export const getFunc = (
   module: Module,
   callableIdMap: Map<Callable, string>,
-  indirectTable: IndirectInfo[],
   exportedSet: Set<Callable>,
+  indirectTable?: IndirectInfo[],
 ) => (def: FuncDef, funcImpl: FuncImpl): Callable => {
   const count = callableIdMap.size;
   const {
@@ -196,17 +156,47 @@ export const indirectFunc = (
   const resultType = asType(resultDef);
   module.addFunction(id, paramsType, resultType, localType, module.block(null as any, bodyItems));
 
-  const { length: index } = indirectTable;
-  indirectTable.push({ index, id, paramDefs, resultDef });
-
-  return getCallable(
-    module,
-    id,
-    exported,
-    (...params: ExpressionRef[]) =>
-      module.call_indirect(literal(index), params, paramsType, resultType),
-    resultDef,
-    callableIdMap,
-    exportedSet,
-  );
+  let exprFunc;
+  if (indirectTable == null) {
+    exprFunc = (...params: ExpressionRef[]) => module.call(id, params, resultType);
+  } else {
+    const { length: index } = indirectTable;
+    indirectTable.push({ index, id, paramDefs, resultDef });
+    exprFunc = (...params: ExpressionRef[]) =>
+      module.call_indirect(literal(index), params, paramsType, resultType);
+  }
+  return getCallable(id, exported, exprFunc, resultDef, callableIdMap, exportedSet);
 };
+
+export const getExternalFunc = (
+  module: Module,
+  callableIdMap: Map<Callable, string>,
+  updateImports: (fn: updateFunc<any>) => void,
+) => (def: ExternalDef, fn: Function): Callable => {
+  const count = callableIdMap.size;
+  const {
+    namespace = 'namespace',
+    name = 'name',
+    id = `external${count}`,
+    params: paramDefs = {},
+    result: resultDef = none,
+  } = def;
+  const paramsType = createType(Object.values(paramDefs).map(asType));
+  const resultType = asType(resultDef);
+  module.addFunctionImport(id, namespace, name, paramsType, resultType);
+  const callable = (...params: ExpressionRef[]) => {
+    const expr = module.call(id, params, resultType);
+    setTypeDef(expr, resultDef);
+    return expr;
+  };
+  callableIdMap.set(callable, id);
+  updateImports((imports: any) => ({
+    ...imports,
+    [namespace]: {
+      ...imports[namespace],
+      [name]: fn,
+    },
+  }));
+  return callable;
+};
+

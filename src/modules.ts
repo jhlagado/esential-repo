@@ -1,16 +1,7 @@
 import { Module } from 'binaryen';
-import {
-  Callable,
-  LibFunc,
-  Lib,
-  ModDef,
-  Dict,
-  MemDef,
-  IndirectInfo,
-  updateFunc,
-} from './types';
+import { Callable, LibFunc, Lib, ModDef, Dict, MemDef, IndirectInfo, updateFunc } from './types';
 import { CompileOptions } from './types';
-import { externalFunc, funcFunc, indirectFunc } from './callables';
+import { getExternalFunc, funcFunc, getFunc } from './callables';
 
 const FEATURE_MULTIVALUE = 512; // hardwired because of error in enum in binaryen.js .d.ts
 
@@ -67,11 +58,9 @@ export const Mod = (): ModDef => {
       module.setMemory(initial, maximum, name);
     },
 
-    external: externalFunc(module, callableIdMap, updateImports),
-
-    func: funcFunc(module, callableIdMap, exportedSet),
-
-    indirect: indirectFunc(module, callableIdMap, indirectTable, exportedSet),
+    func: getFunc(module, callableIdMap, exportedSet),
+    indirect: getFunc(module, callableIdMap, exportedSet, indirectTable),
+    external: getExternalFunc(module, callableIdMap, updateImports),
 
     compile(options: CompileOptions = { optimize: true, validate: true }): any {
       const ids = indirectTable.map(item => item.id);
