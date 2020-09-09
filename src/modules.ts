@@ -12,19 +12,14 @@ import {
   ExternalDef,
   MemDef,
   TypeDef,
+  IndirectInfo,
 } from './types';
 import { call } from './core';
 import { getter, setter, getAssignable, inferTypeDef } from './vars';
-import { asType, setTypeDef, getTypeDef } from './utils';
+import { asType, setTypeDef, getTypeDef, literal } from './utils';
 import { CompileOptions } from './types';
 
 const FEATURE_MULTIVALUE = 512; // hardwired because of error in enum in binaryen.js .d.ts
-
-export type IndirectDef = {
-  id: string;
-  paramDefs: Dict<TypeDef>;
-  resultDef: TypeDef;
-};
 
 export const Mod = (): ModDef => {
   const module = new Module();
@@ -33,9 +28,10 @@ export const Mod = (): ModDef => {
 
   let imports: Dict<Dict<any>> = {};
   const callableIdMap = new Map<Callable, string>();
+  const callableIndirectMap = new Map<Callable, IndirectInfo>();
   const libMap = new Map<LibFunc, Lib>();
   const exportedSet = new Set<Callable>();
-  const indirectTable: IndirectDef[] = [];
+  const indirectTable: IndirectInfo[] = [];
 
   const { emitText } = module;
   const self: ModDef = {
@@ -251,15 +247,6 @@ export const Mod = (): ModDef => {
         .map(asType);
 
       const resultType = asType(resultDef);
-      const callable = (...params: ExpressionRef[]) => {
-        const expr = call(id, params, resultType);
-        setTypeDef(expr, resultDef);
-        return expr;
-      };
-      callableIdMap.set(callable, id);
-      if (exported) {
-        exportedSet.add(callable);
-      }
       module.addFunction(
         id,
         paramsType,
@@ -267,7 +254,17 @@ export const Mod = (): ModDef => {
         localType,
         module.block(null as any, bodyItems),
       );
-      indirectTable.push({ id, paramDefs, resultDef });
+      const { length: index } = indirectTable;
+      const callable = (...params: ExpressionRef[]) => {
+        const expr = module.call_indirect(literal(index), params, paramsType, resultType);
+        setTypeDef(expr, resultDef);
+        return expr;
+      };
+      indirectTable.push({ index, id, paramDefs, resultDef });
+      callableIdMap.set(callable, id);
+      if (exported) {
+        exportedSet.add(callable);
+      }
       return callable;
     },
 
@@ -281,6 +278,10 @@ export const Mod = (): ModDef => {
       const compiled = new WebAssembly.Module(module.emitBinary());
       const instance = new WebAssembly.Instance(compiled, imports);
       return instance.exports;
+    },
+
+    getIndirectInfo(callable: Callable) {
+      return callableIndirectMap.get(callable);
     },
 
     getModule() {

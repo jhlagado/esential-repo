@@ -51,6 +51,14 @@ export type FuncDef = {
   locals?: VarDefs;
   export?: boolean;
 };
+
+export type IndirectInfo = {
+  index: number;
+  id: string;
+  paramDefs: Dict<TypeDef>;
+  resultDef: TypeDef;
+};
+
 export type ModDef = {
   lib: (func: LibFunc, args?: Dict<any>) => any;
   memory: (def: MemDef) => void;
@@ -58,6 +66,7 @@ export type ModDef = {
   func: (def: FuncDef, funcImpl: FuncImpl) => Callable;
   indirect: (def: FuncDef, funcImpl: FuncImpl) => any;
   compile: (options?: CompileOptions) => any;
+  getIndirectInfo(callable: Callable): IndirectInfo | undefined;
   getModule(): Module;
   emitText: () => string;
 };

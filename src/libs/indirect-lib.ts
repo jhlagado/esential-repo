@@ -1,8 +1,7 @@
-import { i32, none } from 'binaryen';
+import { i32 } from 'binaryen';
 import { ops } from '../core';
 import { ModDef } from '../types';
-import { builtin, literal, setTypeDef, asType } from '../utils';
-import { ioLib } from './io-lib';
+import { builtin } from '../utils';
 
 const {
   i32: { add },
@@ -10,14 +9,12 @@ const {
 
 const add1 = builtin(add, i32);
 
-export const indirectLib = ({ lib, func, indirect, getModule }: ModDef) => {
-  const { log } = lib(ioLib);
-
+export const indirectLib = ({ lib, func, indirect }: ModDef) => {
   const indirectAddition = indirect(
-    {params: { a: i32, b: i32 }},
+    { params: { a: i32, b: i32 } },
 
     ({ $, result }) => {
-      result(add1(literal(100), literal(23)));
+      result(add1($.a, $.b));
     },
   );
 
@@ -25,10 +22,7 @@ export const indirectLib = ({ lib, func, indirect, getModule }: ModDef) => {
     { params: { a: i32, b: i32 }, result: i32 },
 
     ({ $, result }) => {
-      const module = getModule();
-      const expr = module.call_indirect(literal(0), [$.a, $.b], asType([i32, i32]), i32);
-      setTypeDef(expr, i32);
-      result(expr);
+      result(indirectAddition($.a, $.b));
     },
   );
 
