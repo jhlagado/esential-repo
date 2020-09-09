@@ -17,11 +17,11 @@ export const memoryLib: LibFunc = (
 
   memory({ namespace: 'env', name: 'memory', initial: pages, maximum: pages });
 
-  const mem256 = func({ params: { a: i32 }, result: [i32] }, ({ $, result }) => {
+  const storeAndLoad = func({ params: { a: i32 }, result: [i32] }, ({ $, result }) => {
     result(store(0, 0, literal(0), $.a), load(0, 0, literal(0)));
   });
 
   return {
-    mem256,
+    storeAndLoad,
   };
 };

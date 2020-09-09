@@ -3,11 +3,7 @@ import { ops } from '../core';
 import { ModDef } from '../types';
 import { builtin } from '../utils';
 
-const {
-  i32: { add },
-} = ops;
-
-const add1 = builtin(add, i32);
+const add = builtin(ops.i32.add, i32);
 
 export const addLib = ({ func }: ModDef) => {
 
@@ -15,7 +11,7 @@ export const addLib = ({ func }: ModDef) => {
     { params: { a: i32, b: i32 } },
 
     ({ $, result }) => {
-      $.u = add1($.a, $.b);
+      $.u = add($.a, $.b);
       result($.u);
     },
   );

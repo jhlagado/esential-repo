@@ -6,5 +6,5 @@ lib(memoryLib);
 const exported = compile();
 
 it('should store a number and return it', () => {
-  expect(exported.mem256(346)).toBe(346);
+  expect(exported.storeAndLoad(346)).toBe(346);
 });
