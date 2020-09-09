@@ -17,8 +17,8 @@ export const memoryLib: LibFunc = (
 
   memory({ namespace: 'env', name: 'memory', initial: pages, maximum: pages });
 
-  const mem256 = func({ result: [i32] }, ({ result }) => {
-    result(store(0, 0, literal(0), literal(346)), load(0, 0, literal(0)));
+  const mem256 = func({ params: { a: i32 }, result: [i32] }, ({ $, result }) => {
+    result(store(0, 0, literal(0), $.a), load(0, 0, literal(0)));
   });
 
   return {

@@ -5,6 +5,6 @@ const { lib, compile } = Mod();
 lib(memoryLib);
 const exported = compile();
 
-it('should add 2 numbers indirectly', () => {
-  expect(exported.mem256()).toBe(346);
+it('should store a number and return it', () => {
+  expect(exported.mem256(346)).toBe(346);
 });
