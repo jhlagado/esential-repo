@@ -1,4 +1,4 @@
-# ESen - ECMAScripten - Web Assembly in Javascript
+# Esential - ECMAScripten - Support for writing WebAssembly with Javascript
 
 ## Running with experimental switches
 
