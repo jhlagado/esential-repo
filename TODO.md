@@ -1,5 +1,7 @@
 # todo
 
+refactor modules to share code with callables
+
 ## stuff to build
 
 ### get & set a tuple/record in memory
