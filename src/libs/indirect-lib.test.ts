@@ -1,11 +1,10 @@
 import { Mod } from '../modules';
-import { addLib } from './add-lib';
+import { indirectLib } from './indirect-lib';
 
 const { lib, compile } = Mod();
-lib(addLib);
+lib(indirectLib);
 const exported = compile();
 
 it('should add 2 number', () => {
-  expect(exported.addition(41, 1)).toBe(42);
+  expect(exported.indirect123(300, 200)).toBe(123);
 });
-

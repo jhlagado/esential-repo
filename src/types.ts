@@ -56,6 +56,7 @@ export type ModDef = {
   memory: (def: MemDef) => void;
   external: (def: ExternalDef, fn: Function) => Callable;
   func: (def: FuncDef, funcImpl: FuncImpl) => Callable;
+  indirect: (def: FuncDef, funcImpl: FuncImpl) => any;
   compile: (options?: CompileOptions) => any;
   getModule(): Module;
   emitText: () => string;
