@@ -1,23 +1,16 @@
-import { Module, createType, ExpressionRef, none, auto } from 'binaryen';
+import { Module } from 'binaryen';
 import {
-  FuncImpl,
-  FuncDef,
   Callable,
   LibFunc,
-  Expression,
   Lib,
   ModDef,
-  VarDefs,
   Dict,
-  ExternalDef,
   MemDef,
-  TypeDef,
   IndirectInfo,
+  updateFunc,
 } from './types';
-import { call } from './core';
-import { getter, setter, getAssignable, inferTypeDef } from './vars';
-import { asType, setTypeDef, getTypeDef, literal } from './utils';
 import { CompileOptions } from './types';
+import { externalFunc, funcFunc, indirectFunc } from './callables';
 
 const FEATURE_MULTIVALUE = 512; // hardwired because of error in enum in binaryen.js .d.ts
 
@@ -32,6 +25,10 @@ export const Mod = (): ModDef => {
   const libMap = new Map<LibFunc, Lib>();
   const exportedSet = new Set<Callable>();
   const indirectTable: IndirectInfo[] = [];
+
+  const updateImports = (fn: updateFunc<any>) => {
+    imports = fn(imports);
+  };
 
   const { emitText } = module;
   const self: ModDef = {
@@ -70,208 +67,15 @@ export const Mod = (): ModDef => {
       module.setMemory(initial, maximum, name);
     },
 
-    external(def: ExternalDef, fn: Function): Callable {
-      const count = callableIdMap.size;
-      const {
-        namespace = 'namespace',
-        name = 'name',
-        id = `external${count}`,
-        params: paramDefs = {},
-        result: resultDef = none,
-      } = def;
-      const paramsType = createType(Object.values(paramDefs).map(asType));
-      const resultType = asType(resultDef);
-      const callable = (...params: ExpressionRef[]) => {
-        const expr = call(id, params, resultType);
-        setTypeDef(expr, resultDef);
-        return expr;
-      };
-      callableIdMap.set(callable, id);
-      imports = {
-        ...imports,
-        [namespace]: {
-          ...imports[namespace],
-          [name]: fn,
-        },
-      };
-      module.addFunctionImport(id, namespace, name, paramsType, resultType);
-      return callable;
-    },
+    external: externalFunc(module, callableIdMap, updateImports),
 
-    func(def: FuncDef, funcImpl: FuncImpl): Callable {
-      const count = callableIdMap.size;
-      const {
-        id = `func${count}`,
-        params: paramDefs = {},
-        result = auto,
-        locals: localDefs = {},
-        export: exported = true,
-      } = def;
-      const bodyItems: ExpressionRef[] = [];
-      const varDefs = { ...paramDefs, ...localDefs };
-      const varsProxy = new Proxy(varDefs, {
-        get: getter,
-        set(varDefs: VarDefs, prop: string, expression: Expression) {
-          const expr = setter(varDefs, prop, expression);
-          bodyItems.push(expr);
-          return true;
-        },
-      });
-      let resultDef = result;
-      const resultFunc = (...expressions: Expression[]) => {
-        const exprs = expressions.map(getAssignable);
-        const { length } = exprs;
-        if (length === 0) {
-          throw new Error(`Result function must have at least one arg`);
-        }
-        bodyItems.push(...exprs.slice(0, -1));
-        const [expr] = exprs.slice(-1);
-        if (resultDef === auto) {
-          const typeDef = inferTypeDef(expr);
-          if (typeDef == null) {
-            throw new Error(`Couldn't infer ${expr}`);
-          }
-          resultDef = typeDef;
-          setTypeDef(expr, resultDef);
-        } else {
-          const exprTypeDef = getTypeDef(expr);
-          if (asType(exprTypeDef) != asType(resultDef)) {
-            throw new Error(`Wrong return type, expected ${resultDef} and got ${exprTypeDef}`);
-          }
-        }
-        bodyItems.push(module.return(expr));
-      };
-      const blockFunc = (...expressions: Expression[]) => {
-        const { length } = expressions;
-        if (length === 0) {
-          throw new Error(`Block must have at least one item`);
-        }
-        const exprs = expressions.map(getAssignable);
-        const [lastExpr] = exprs.slice(-1);
-        const lastTypeDef = getTypeDef(lastExpr);
-        const blk = module.block(null as any, exprs, asType(lastTypeDef));
-        setTypeDef(blk, lastTypeDef);
-        return blk;
-      };
-      funcImpl({ $: varsProxy, result: resultFunc, block: blockFunc });
-      if (resultDef === auto) {
-        resultDef = none;
-      }
-      const paramsType = createType(Object.values(paramDefs).map(asType));
-      const localType = Object.values(varDefs)
-        .slice(Object.values(paramDefs).length)
-        .map(asType);
+    func: funcFunc(module, callableIdMap, exportedSet),
 
-      const resultType = asType(resultDef);
-      const callable = (...params: ExpressionRef[]) => {
-        const expr = call(id, params, resultType);
-        setTypeDef(expr, resultDef);
-        return expr;
-      };
-      callableIdMap.set(callable, id);
-      if (exported) {
-        exportedSet.add(callable);
-      }
-      module.addFunction(
-        id,
-        paramsType,
-        resultType,
-        localType,
-        module.block(null as any, bodyItems),
-      );
-      return callable;
-    },
-
-    indirect(def: FuncDef, funcImpl: FuncImpl): Callable {
-      const count = callableIdMap.size;
-      const {
-        id = `indirect${count}`,
-        params: paramDefs = {},
-        result = auto,
-        locals: localDefs = {},
-        export: exported = true,
-      } = def;
-      const bodyItems: ExpressionRef[] = [];
-      const varDefs = { ...paramDefs, ...localDefs };
-      const varsProxy = new Proxy(varDefs, {
-        get: getter,
-        set(varDefs: VarDefs, prop: string, expression: Expression) {
-          const expr = setter(varDefs, prop, expression);
-          bodyItems.push(expr);
-          return true;
-        },
-      });
-      let resultDef = result;
-      const resultFunc = (...expressions: Expression[]) => {
-        const exprs = expressions.map(getAssignable);
-        const { length } = exprs;
-        if (length === 0) {
-          throw new Error(`Result function must have at least one arg`);
-        }
-        bodyItems.push(...exprs.slice(0, -1));
-        const [expr] = exprs.slice(-1);
-        if (resultDef === auto) {
-          const typeDef = inferTypeDef(expr);
-          if (typeDef == null) {
-            throw new Error(`Couldn't infer ${expr}`);
-          }
-          resultDef = typeDef;
-          setTypeDef(expr, resultDef);
-        } else {
-          const exprTypeDef = getTypeDef(expr);
-          if (asType(exprTypeDef) != asType(resultDef)) {
-            throw new Error(`Wrong return type, expected ${resultDef} and got ${exprTypeDef}`);
-          }
-        }
-        bodyItems.push(module.return(expr));
-      };
-      const blockFunc = (...expressions: Expression[]) => {
-        const { length } = expressions;
-        if (length === 0) {
-          throw new Error(`Block must have at least one item`);
-        }
-        const exprs = expressions.map(getAssignable);
-        const [lastExpr] = exprs.slice(-1);
-        const lastTypeDef = getTypeDef(lastExpr);
-        const blk = module.block(null as any, exprs, asType(lastTypeDef));
-        setTypeDef(blk, lastTypeDef);
-        return blk;
-      };
-      funcImpl({ $: varsProxy, result: resultFunc, block: blockFunc });
-      if (resultDef === auto) {
-        resultDef = none;
-      }
-      const paramsType = createType(Object.values(paramDefs).map(asType));
-      const localType = Object.values(varDefs)
-        .slice(Object.values(paramDefs).length)
-        .map(asType);
-
-      const resultType = asType(resultDef);
-      module.addFunction(
-        id,
-        paramsType,
-        resultType,
-        localType,
-        module.block(null as any, bodyItems),
-      );
-      const { length: index } = indirectTable;
-      const callable = (...params: ExpressionRef[]) => {
-        const expr = module.call_indirect(literal(index), params, paramsType, resultType);
-        setTypeDef(expr, resultDef);
-        return expr;
-      };
-      indirectTable.push({ index, id, paramDefs, resultDef });
-      callableIdMap.set(callable, id);
-      if (exported) {
-        exportedSet.add(callable);
-      }
-      return callable;
-    },
+    indirect: indirectFunc(module, callableIdMap, indirectTable, exportedSet),
 
     compile(options: CompileOptions = { optimize: true, validate: true }): any {
       const ids = indirectTable.map(item => item.id);
       const { length } = ids;
-      console.log({ names: ids });
       (module.setFunctionTable as any)(length, length, ids); // because .d.ts is wrong
       if (options.optimize) module.optimize();
       if (options.validate && !module.validate()) throw new Error('validation error');

@@ -9,7 +9,7 @@ const {
 
 const add1 = builtin(add, i32);
 
-export const indirectLib = ({ lib, func, indirect }: ModDef) => {
+export const indirectLib = ({ func, indirect }: ModDef) => {
   const indirectAddition = indirect(
     { params: { a: i32, b: i32 } },
 

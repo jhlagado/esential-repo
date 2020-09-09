@@ -1,5 +1,6 @@
 import { ExpressionRef, Type, Module } from 'binaryen';
 
+export type updateFunc<T> = (item: T) => T;
 export type MapFunc<T, R> = (item: T) => R;
 export type Entry<T> = [string, T];
 export type Dict<T> = { [key: string]: T };
