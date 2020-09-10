@@ -6,7 +6,7 @@ import { recordLib } from './libs/record-lib';
 import { memoryLib } from './libs/memory-lib';
 import { indirectLib } from './libs/indirect-lib';
 
-const { lib, emitText, start } = esential();
+const { lib, module, load, compile } = esential();
 
 lib(indirectLib);
 lib(memoryLib, { width: 500, height: 500 });
@@ -16,9 +16,9 @@ lib(tupleLib);
 lib(recordLib);
 
 console.log('---------------------------------------');
-const exported = start();
-console.log('Raw:', emitText());
-console.log('Optimized:', emitText());
+console.log('Raw:', module.emitText());
+const exported = load(compile());
+console.log('Optimized:', module.emitText());
 
 console.log(exported.addition(41, 1));
 

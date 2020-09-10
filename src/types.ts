@@ -76,9 +76,9 @@ export type Esential = {
   external: (def: ExternalDef, fn: Function) => Callable;
   func: (def: FuncDef, funcImpl: Initializer) => Callable;
   indirect: (def: FuncDef, funcImpl: Initializer) => any;
-  compile: (options?: CompileOptions) => any;
   getIndirectInfo(callable: Callable): IndirectInfo | undefined;
   literal(value: number, type?: Type): ExpressionRef;
-  emitText: () => string;
+  compile: (options?: CompileOptions) => Uint8Array;
+  load: (binary: Uint8Array) => any;
   start: (options?: CompileOptions) => any;
 };

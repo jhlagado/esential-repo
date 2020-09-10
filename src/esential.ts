@@ -106,8 +106,6 @@ export const esential = (): Esential => {
     imports = fn(imports);
   };
 
-  const { emitText } = module;
-
   const compile = (options: CompileOptions = { optimize: true, validate: true }): any => {
     const ids = indirectTable.map(item => item.id);
     const { length } = ids;
@@ -117,12 +115,19 @@ export const esential = (): Esential => {
     return new WebAssembly.Module(module.emitBinary());
   };
 
-  const modDef: Esential = {
+  const load = (binary: Uint8Array): any => {
+    const instance = new WebAssembly.Instance(binary, imports);
+    return instance.exports;
+  };
+
+  const esen: Esential = {
+    module,
+
     lib(libFunc: LibFunc, args: Dict<any> = {}) {
       if (libMap.has(libFunc)) {
         return libMap.get(libFunc);
       }
-      const lib = libFunc(modDef, args);
+      const lib = libFunc(esen, args);
       Object.entries(lib).forEach(([externalName, callable]) => {
         if (exportedSet.has(callable)) {
           const internalName = callableIdMap.get(callable);
@@ -157,13 +162,9 @@ export const esential = (): Esential => {
     indirect: getFunc(module, callableIdMap, exportedSet, indirectTable),
     external: getExternalFunc(module, callableIdMap, updateImports),
 
-    compile,
-
     getIndirectInfo(callable: Callable) {
       return callableIndirectMap.get(callable);
     },
-
-    module,
 
     literal(value: number, type: Type = i32): ExpressionRef {
       const opDict = {
@@ -181,13 +182,11 @@ export const esential = (): Esential => {
       throw new Error(`Can only use primtive types in val, not ${type}`);
     },
 
-    start(options?: CompileOptions): any {
-      const binary = compile(options);
-      const instance = new WebAssembly.Instance(binary, imports);
-      return instance.exports;
+    compile,
+    load,
+    start(options?: CompileOptions) {
+      return load(compile(options));
     },
-
-    ...{ emitText },
   };
-  return modDef;
+  return esen;
 };
