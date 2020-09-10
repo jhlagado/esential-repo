@@ -34,11 +34,11 @@ export const getFunc = (
   } = def;
   const bodyItems: ExpressionRef[] = [];
   const vars = { ...params, ...locals };
-  const varsProxy = getVarsProxy(vars, bodyItems);
+  const varsProxy = getVarsProxy(module, vars, bodyItems);
   const resultRef = { current: result };
   const resultFunc = getResultFunc(module, resultRef, bodyItems);
   const blockFunc = getBlockFunc(module);
-  const execFunc = getExecFunc(bodyItems);
+  const execFunc = getExecFunc(module, bodyItems);
   initializer({ $: varsProxy, result: resultFunc, block: blockFunc, exec: execFunc });
   if (resultRef.current === auto) {
     resultRef.current = none;

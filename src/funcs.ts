@@ -12,10 +12,10 @@ import { getAssignable } from './vars';
 import { inferTypeDef, setTypeDef, getTypeDef, asType } from './typedefs';
 import { stripTupleProxy } from './tuples';
 
-export const getExecFunc = (bodyItems: ExpressionRef[]): VoidBlockFunc => (
+export const getExecFunc = (module: Module, bodyItems: ExpressionRef[]): VoidBlockFunc => (
   ...expressions: Expression[]
 ) => {
-  const exprs = expressions.map(getAssignable);
+  const exprs = expressions.map(getAssignable(module));
   const { length } = exprs;
   if (length === 0) {
     throw new Error(`Function must have at least one arg`);
@@ -28,7 +28,7 @@ export const getResultFunc = (
   resultDefRef: Ref<TypeDef>,
   bodyItems: ExpressionRef[],
 ): VoidBlockFunc => (...expressions: Expression[]) => {
-  const exprs = expressions.map(getAssignable);
+  const exprs = expressions.map(getAssignable(module));
   const { length } = exprs;
   if (length === 0) {
     throw new Error(`Result function must have at least one arg`);
@@ -56,7 +56,7 @@ export const getBlockFunc = (module: Module): BlockFunc => (...expressions: Expr
   if (length === 0) {
     throw new Error(`Block must have at least one item`);
   }
-  const exprs = expressions.map(getAssignable);
+  const exprs = expressions.map(getAssignable(module));
   const [lastExpr] = exprs.slice(-1);
   const lastTypeDef = getTypeDef(lastExpr);
   const blk = module.block(null as any, exprs, asType(lastTypeDef));
