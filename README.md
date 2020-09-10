@@ -70,7 +70,7 @@ lib(({ func }) => {
   };
 });
 
-const exported = run();
+const exported = start();
 console.log(emitText());
 console.log(exported.addition(41, 1));
 ```

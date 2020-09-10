@@ -6,7 +6,7 @@ import { recordLib } from './libs/record-lib';
 import { memoryLib } from './libs/memory-lib';
 import { indirectLib } from './libs/indirect-lib';
 
-const { lib, emitText, run } = Mod();
+const { lib, emitText, start } = Mod();
 lib(indirectLib);
 lib(memoryLib, { width: 500, height: 500 });
 lib(ioLib);
@@ -15,7 +15,7 @@ lib(tupleLib);
 lib(recordLib);
 
 console.log('---------------------------------------');
-const exported = run();
+const exported = start();
 console.log('Raw:', emitText());
 console.log('Optimized:', emitText());
 

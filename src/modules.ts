@@ -159,18 +159,18 @@ export const Mod = (): ModDef => {
 
     compile,
 
-    run(options?: CompileOptions): any {
-      const binary = compile(options);
-      const instance = new WebAssembly.Instance(binary, imports);
-      return instance.exports;
-    },
-
     getIndirectInfo(callable: Callable) {
       return callableIndirectMap.get(callable);
     },
 
     getModule() {
       return module;
+    },
+
+    start(options?: CompileOptions): any {
+      const binary = compile(options);
+      const instance = new WebAssembly.Instance(binary, imports);
+      return instance.exports;
     },
 
     ...{ emitText },

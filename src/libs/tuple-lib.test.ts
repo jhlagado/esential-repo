@@ -1,9 +1,9 @@
 import { Mod } from '../modules';
 import { tupleLib } from './tuple-lib';
 
-const { lib, run } = Mod();
+const { lib, start } = Mod();
 lib(tupleLib);
-const exported = run();
+const exported = start();
 
 it('should select the second tuple item', () => {
   expect(exported.selectRight()).toBe(2);
