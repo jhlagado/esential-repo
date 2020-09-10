@@ -5,4 +5,4 @@ const module = new Module();
 const { i32, i64, f32, f64 } = module;
 export const ops = { i32, i64, f32, f64 };
 
-export const { tuple, local, call } = module;
+export const { tuple, local } = module;
