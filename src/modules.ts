@@ -1,8 +1,20 @@
 import { Module, auto, ExpressionRef, none, createType } from 'binaryen';
-import { Callable, LibFunc, Lib, ModDef, Dict, MemDef, IndirectInfo, updateFunc, FuncDef, Initializer, ExternalDef } from './types';
+import {
+  Callable,
+  LibFunc,
+  Lib,
+  ModDef,
+  Dict,
+  MemDef,
+  IndirectInfo,
+  updateFunc,
+  FuncDef,
+  Initializer,
+  ExternalDef,
+} from './types';
 import { CompileOptions } from './types';
 import { getResultFunc, getExecFunc, getBlockFunc, getCallable } from './funcs';
-import { getVarsProxy,  } from './vars';
+import { getVarsProxy } from './vars';
 import { FEATURE_MULTIVALUE } from './constants';
 import { asType, literal } from './typedefs';
 
@@ -95,6 +107,16 @@ export const Mod = (): ModDef => {
   };
 
   const { emitText } = module;
+
+  const compile = (options: CompileOptions = { optimize: true, validate: true }): any => {
+    const ids = indirectTable.map(item => item.id);
+    const { length } = ids;
+    (module.setFunctionTable as any)(length, length, ids); // because .d.ts is wrong
+    if (options.optimize) module.optimize();
+    if (options.validate && !module.validate()) throw new Error('validation error');
+    return new WebAssembly.Module(module.emitBinary());
+  };
+
   const self: ModDef = {
     lib(libFunc: LibFunc, args: Dict<any> = {}) {
       if (libMap.has(libFunc)) {
@@ -135,14 +157,11 @@ export const Mod = (): ModDef => {
     indirect: getFunc(module, callableIdMap, exportedSet, indirectTable),
     external: getExternalFunc(module, callableIdMap, updateImports),
 
-    compile(options: CompileOptions = { optimize: true, validate: true }): any {
-      const ids = indirectTable.map(item => item.id);
-      const { length } = ids;
-      (module.setFunctionTable as any)(length, length, ids); // because .d.ts is wrong
-      if (options.optimize) module.optimize();
-      if (options.validate && !module.validate()) throw new Error('validation error');
-      const compiled = new WebAssembly.Module(module.emitBinary());
-      const instance = new WebAssembly.Instance(compiled, imports);
+    compile,
+
+    run(options?: CompileOptions): any {
+      const binary = compile(options);
+      const instance = new WebAssembly.Instance(binary, imports);
       return instance.exports;
     },
 

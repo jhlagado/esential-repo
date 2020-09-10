@@ -1,9 +1,9 @@
 import { Mod } from '../modules';
 import { recordLib } from './record-lib';
 
-const { lib, compile } = Mod();
+const { lib, run } = Mod();
 lib(recordLib);
-const exported = compile();
+const exported = run();
 
 it('should select the second record item', () => {
   expect(exported.selectRightRecord()).toBe(2);

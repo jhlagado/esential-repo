@@ -53,7 +53,7 @@ import { Mod } from './modules';
 import { ops } from './core';
 import { builtin } from './typedefs';
 
-const { lib, emitText, compile } = Mod();
+const { lib, emitText, run } = Mod();
 const add = builtin(ops.i32.add, i32);
 
 lib(({ func }) => {
@@ -70,7 +70,7 @@ lib(({ func }) => {
   };
 });
 
-const exported = compile();
+const exported = run();
 console.log(emitText());
 console.log(exported.addition(41, 1));
 ```
