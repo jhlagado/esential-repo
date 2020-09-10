@@ -1,6 +1,6 @@
 import { i32 } from 'binaryen';
-import { esential } from './esential';
-import { builtin } from './typedefs';
+import { esential } from '../src/esential';
+import { builtin } from '../src/typedefs';
 
 const { lib, module, start } = esential();
 

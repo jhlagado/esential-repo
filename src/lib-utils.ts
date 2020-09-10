@@ -1,8 +1,17 @@
-import { auto, ExpressionRef, none, createType, Module, Type, i32, i64, f32, f64 } from "binaryen";
-import { Callable, IndirectInfo, FuncDef, Initializer, Ref, TypeDef, Imports, ExternalDef, Dict } from "./types";
-import { getVarsProxy } from "./vars";
-import { getResultFunc, getBlockFunc, getExecFunc, getCallable } from "./funcs-utils";
-import { asType, setTypeDef } from "./typedefs";
+import { auto, ExpressionRef, none, createType, Module, Type, i32, i64, f32, f64 } from 'binaryen';
+import {
+  Callable,
+  IndirectInfo,
+  FuncDef,
+  Initializer,
+  Ref,
+  TypeDef,
+  Imports,
+  ExternalDef,
+} from './types';
+import { getVarsProxy } from './vars';
+import { getResultFunc, getBlockFunc, getExecFunc, getCallable } from './funcs-utils';
+import { asType, setTypeDef } from './typedefs';
 
 export const getFunc = (
   module: Module,
@@ -26,27 +35,24 @@ export const getFunc = (
   const blockFunc = getBlockFunc(module);
   const execFunc = getExecFunc(module, bodyItems);
   initializer({ $: varsProxy, result: resultFunc, block: blockFunc, exec: execFunc });
-  if (resultRef.current === auto) {
-    resultRef.current = none;
-  }
+  const resultDef = resultRef.current === auto ? none : resultRef.current;
   const { length: paramsLength } = Object.values(params);
   const paramsType = createType(Object.values(params).map(asType));
-  const resultType = asType(resultRef.current);
+  const resultType = asType(resultDef);
   const localTypes = Object.values(vars)
     .slice(paramsLength)
     .map(asType);
   module.addFunction(id, paramsType, resultType, localTypes, module.block(null as any, bodyItems));
-
   let exprFunc;
   if (indirectTable == null) {
     exprFunc = (...params: ExpressionRef[]) => module.call(id, params, resultType);
   } else {
     const { length: index } = indirectTable;
-    indirectTable.push({ index, id, paramDefs: params, resultDef: resultRef.current });
+    indirectTable.push({ index, id, paramDefs: params, resultDef: resultDef });
     exprFunc = (...params: ExpressionRef[]) =>
       module.call_indirect(module.i32.const(index), params, paramsType, resultType);
   }
-  return getCallable(id, exported, exprFunc, resultRef.current, callableIdMap, exportedSet);
+  return getCallable(id, exported, exprFunc, resultDef, callableIdMap, exportedSet);
 };
 
 export const getExternalFunc = (
@@ -91,4 +97,3 @@ export const getLiteral = (module: Module) => (value: number, type: Type = i32):
   }
   throw new Error(`Can only use primtive types in val, not ${type}`);
 };
-

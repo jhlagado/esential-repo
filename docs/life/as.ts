@@ -28,16 +28,14 @@ function rot(x: u32, y: u32, v: u32): void {
 
 /** Initializes width and height. Called once from JS. */
 export function init(w: i32, h: i32): void {
-  width  = w;
+  width = w;
   height = h;
   offset = w * h;
 
   // Start by filling output with random live cells.
   for (let y = 0; y < h; ++y) {
     for (let x = 0; x < w; ++x) {
-      let c = Math.random() > 0.1
-        ? BGR_DEAD  & 0x00ffffff
-        : BGR_ALIVE | 0xff000000;
+      let c = Math.random() > 0.1 ? BGR_DEAD & 0x00ffffff : BGR_ALIVE | 0xff000000;
       set(x, y, c);
     }
   }
@@ -46,27 +44,31 @@ export function init(w: i32, h: i32): void {
 /** Performs one step. Called about 30 times a second from JS. */
 export function step(): void {
   var w = width,
-      h = height;
+    h = height;
 
   var hm1 = h - 1, // h - 1
-      wm1 = w - 1; // w - 1
+    wm1 = w - 1; // w - 1
 
   // The universe of the Game of Life is an infinite two-dimensional orthogonal grid of square
   // "cells", each of which is in one of two possible states, alive or dead.
   for (let y = 0; y < h; ++y) {
     let ym1 = y == 0 ? hm1 : y - 1,
-        yp1 = y == hm1 ? 0 : y + 1;
+      yp1 = y == hm1 ? 0 : y + 1;
     for (let x = 0; x < w; ++x) {
       let xm1 = x == 0 ? wm1 : x - 1,
-          xp1 = x == wm1 ? 0 : x + 1;
+        xp1 = x == wm1 ? 0 : x + 1;
 
       // Every cell interacts with its eight neighbours, which are the cells that are horizontally,
       // vertically, or diagonally adjacent. Least significant bit indicates alive or dead.
-      let aliveNeighbors = (
-        (get(xm1, ym1) & 1) + (get(x, ym1) & 1) + (get(xp1, ym1) & 1) +
-        (get(xm1, y  ) & 1)                     + (get(xp1, y  ) & 1) +
-        (get(xm1, yp1) & 1) + (get(x, yp1) & 1) + (get(xp1, yp1) & 1)
-      );
+      let aliveNeighbors =
+        (get(xm1, ym1) & 1) +
+        (get(x, ym1) & 1) +
+        (get(xp1, ym1) & 1) +
+        (get(xm1, y) & 1) +
+        (get(xp1, y) & 1) +
+        (get(xm1, yp1) & 1) +
+        (get(x, yp1) & 1) +
+        (get(xp1, yp1) & 1);
 
       let self = get(x, y);
       if (self & 1) {
