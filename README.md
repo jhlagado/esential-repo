@@ -53,7 +53,6 @@ import { builtin } from './typedefs';
 import { ModDef } from './types';
 
 const add = builtin(ops.i32.add, i32);
-
 export const addLib = ({ func }: ModDef) => {
 
   const addition = func(
@@ -70,11 +69,8 @@ export const addLib = ({ func }: ModDef) => {
   };
 };
 
-
 const { lib, emitText, compile } = Mod();
-
 lib(addLib);
-
 const exported = compile();
 console.log(emitText());
 console.log(exported.addition(41, 1));
