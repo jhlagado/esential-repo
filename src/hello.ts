@@ -2,10 +2,11 @@ import { i32 } from 'binaryen';
 import { Mod } from './modules';
 import { ops } from './core';
 import { builtin } from './typedefs';
-import { LibFunc } from './types';
+
+const { lib, emitText, compile } = Mod();
 const add = builtin(ops.i32.add, i32);
 
-export const addLib: LibFunc = ({ func }) => {
+lib(({ func }) => {
   const addition = func(
     { params: { a: i32, b: i32 } },
 
@@ -17,10 +18,8 @@ export const addLib: LibFunc = ({ func }) => {
   return {
     addition,
   };
-};
+});
 
-const { lib, emitText, compile } = Mod();
-lib(addLib);
 const exported = compile();
 console.log(emitText());
 console.log(exported.addition(41, 1));
