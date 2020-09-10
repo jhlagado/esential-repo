@@ -1,8 +1,8 @@
 import { i32 } from 'binaryen';
-import { ModDef } from '../types';
+import { LibFunc } from '../types';
 import { literal } from '../typedefs';
 
-export const ioLib = ({ external, func }: ModDef) => {
+export const ioLib: LibFunc = ({ external, func }) => {
   const log = external(
     { namespace: 'env', name: 'log', params: { a: i32 } },
 

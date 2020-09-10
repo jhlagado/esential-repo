@@ -1,9 +1,9 @@
 import { i32 } from 'binaryen';
-import { ModDef } from '../types';
+import { LibFunc } from '../types';
 import { addLib } from './add-lib';
 import { literal } from '../typedefs';
 
-export const tupleLib = ({ lib, func }: ModDef) => {
+export const tupleLib: LibFunc = ({ lib, func }) => {
   const { addition } = lib(addLib);
 
   const returnTwo = func({ export: false }, ({ $, result }) => {

@@ -1,4 +1,4 @@
-import { ModDef, Dict, LibFunc } from '../types';
+import { Dict, LibFunc } from '../types';
 import { i32 } from 'binaryen';
 import { ops } from '../core';
 import { builtin, literal } from '../typedefs';
@@ -8,7 +8,7 @@ const load = builtin(ops.i32.load, i32);
 const store = builtin(ops.i32.store, i32);
 
 export const memoryLib: LibFunc = (
-  { memory, func }: ModDef,
+  { memory, func },
   { width = 500, height = 500 }: Dict<any> = {},
 ) => {
   const numBuffers = 2;

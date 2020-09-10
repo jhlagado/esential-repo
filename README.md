@@ -7,33 +7,33 @@ Here is your ECMAScripten! Esential is a framework from writing WebAssembly code
 Let's take a look at a simple example program in `Binaryen` and contrast it to `Esential`
 
 First `Binaryen`:
+
 ```js
-var binaryen = require("binaryen");
+var binaryen = require('binaryen');
 
 // Create a module with a single function
 var myModule = new binaryen.Module();
 
-myModule.addFunction("add", binaryen.createType([ binaryen.i32, binaryen.i32 ]), binaryen.i32, [ binaryen.i32 ],
+myModule.addFunction(
+  'add',
+  binaryen.createType([binaryen.i32, binaryen.i32]),
+  binaryen.i32,
+  [binaryen.i32],
   myModule.block(null, [
-    myModule.local.set(2,
-      myModule.i32.add(
-        myModule.local.get(0, binaryen.i32),
-        myModule.local.get(1, binaryen.i32)
-      )
+    myModule.local.set(
+      2,
+      myModule.i32.add(myModule.local.get(0, binaryen.i32), myModule.local.get(1, binaryen.i32)),
     ),
-    myModule.return(
-      myModule.local.get(2, binaryen.i32)
-    )
-  ])
+    myModule.return(myModule.local.get(2, binaryen.i32)),
+  ]),
 );
-myModule.addFunctionExport("add", "add");
+myModule.addFunctionExport('add', 'add');
 
 // Optimize the module using default passes and levels
 myModule.optimize();
 
 // Validate the module
-if (!myModule.validate())
-  throw new Error("validation error");
+if (!myModule.validate()) throw new Error('validation error');
 
 // Generate text format and binary
 console.log(emitText());
@@ -44,17 +44,18 @@ var compiled = new WebAssembly.Module(wasmData);
 var instance = new WebAssembly.Instance(compiled, {});
 console.log(instance.exports.add(41, 1));
 ```
+
 And now the same thing in `Esential`
+
 ```js
 import { i32 } from 'binaryen';
 import { Mod } from './modules';
 import { ops } from './core';
 import { builtin } from './typedefs';
-import { ModDef } from './types';
-
+import { LibFunc } from './types';
 const add = builtin(ops.i32.add, i32);
-export const addLib = ({ func }: ModDef) => {
 
+export const addLib: LibFunc = ({ func }) => {
   const addition = func(
     { params: { a: i32, b: i32 } },
 
@@ -63,7 +64,6 @@ export const addLib = ({ func }: ModDef) => {
       result($.u);
     },
   );
-
   return {
     addition,
   };
