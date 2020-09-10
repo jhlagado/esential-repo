@@ -1,28 +1,9 @@
-import {
-  Expression,
-  TypeDef,
-  VoidBlockFunc,
-  BlockFunc,
-  Ref,
-  Callable,
-  Dict,
-} from './types';
+import { Expression, TypeDef, VoidBlockFunc, BlockFunc, Ref, Callable, Dict } from './types';
 
 import { ExpressionRef, auto, Module } from 'binaryen';
 import { getAssignable } from './vars';
 import { inferTypeDef, setTypeDef, getTypeDef, asType } from './typedefs';
 import { stripTupleProxy } from './tuples';
-
-export const getExecFunc = (module: Module, bodyItems: ExpressionRef[]): VoidBlockFunc => (
-  ...expressions: Expression[]
-) => {
-  const exprs = expressions.map(getAssignable(module));
-  const { length } = exprs;
-  if (length === 0) {
-    throw new Error(`Function must have at least one arg`);
-  }
-  bodyItems.push(...exprs);
-};
 
 export const getResultFunc = (
   module: Module,
@@ -63,6 +44,17 @@ export const getBlockFunc = (module: Module): BlockFunc => (...expressions: Expr
   const blk = module.block(null as any, exprs, asType(lastTypeDef));
   setTypeDef(blk, lastTypeDef);
   return blk;
+};
+
+export const getExecFunc = (module: Module, bodyItems: ExpressionRef[]): VoidBlockFunc => (
+  ...expressions: Expression[]
+) => {
+  const exprs = expressions.map(getAssignable(module));
+  const { length } = exprs;
+  if (length === 0) {
+    throw new Error(`Function must have at least one arg`);
+  }
+  bodyItems.push(...exprs);
 };
 
 export const getCallable = (
