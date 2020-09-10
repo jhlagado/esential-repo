@@ -7,7 +7,6 @@ export type Entry<T> = [string, T];
 export type Dict<T> = { [key: string]: T };
 export type Expression = ExpressionRef | ExpressionRef[] | Dict<ExpressionRef>;
 export type TypeDef = Type | Type[] | Dict<Type>;
-
 export type Callable = (...params: ExpressionRef[]) => ExpressionRef;
 export type Lib = Dict<Callable>;
 
@@ -22,16 +21,6 @@ export type Vars = Dict<any>;
 export type StatementsBlockFunc<T> = (...exprs: ExpressionRef[]) => T;
 export type BlockFunc = StatementsBlockFunc<ExpressionRef>;
 export type VoidBlockFunc = StatementsBlockFunc<void>;
-
-export type FuncImplDef = {
-  $: Vars;
-  result: VoidBlockFunc;
-  block: BlockFunc;
-  exec: VoidBlockFunc;
-};
-export type Initializer = (funcImplDef: FuncImplDef) => void;
-
-export type LibFunc = (mod: Esential, args?: Dict<any>) => Dict<any>;
 
 export type CompileOptions = {
   optimize?: boolean;
@@ -69,16 +58,26 @@ export type IndirectInfo = {
   resultDef: TypeDef;
 };
 
+export type FuncImplDef = {
+  $: Vars;
+  result: VoidBlockFunc;
+  block: BlockFunc;
+  exec: VoidBlockFunc;
+};
+export type Initializer = (funcImplDef: FuncImplDef) => void;
+
+export type LibFunc = (mod: Esential, args?: Dict<any>) => Dict<any>;
+
 export type Esential = {
   module: Module;
-  lib: (func: LibFunc, args?: Dict<any>) => any;
-  memory: (def: MemDef) => void;
+  compile: (options?: CompileOptions) => Uint8Array;
   external: (def: ExternalDef, fn: Function) => Callable;
   func: (def: FuncDef, funcImpl: Initializer) => Callable;
-  indirect: (def: FuncDef, funcImpl: Initializer) => any;
   getIndirectInfo(callable: Callable): IndirectInfo | undefined;
+  indirect: (def: FuncDef, funcImpl: Initializer) => any;
+  lib: (func: LibFunc, args?: Dict<any>) => any;
   literal(value: number, type?: Type): ExpressionRef;
-  compile: (options?: CompileOptions) => Uint8Array;
   load: (binary: Uint8Array) => any;
+  memory: (def: MemDef) => void;
   start: (options?: CompileOptions) => any;
 };
