@@ -1,6 +1,6 @@
 # Esential - Support for WebAssembly in Javascript
 
-Here is your ECMAScripten
+Here is your ECMAScripten! Esential is a framework from writing WebAssembly code without leaving JavaScript.
 
 ## Running with experimental switches
 
