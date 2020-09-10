@@ -7,7 +7,7 @@ import {
   Callable,
 } from './types';
 
-import { ExpressionRef, auto, Module, Type, i32, i64, f32, f64 } from 'binaryen';
+import { ExpressionRef, auto, Module } from 'binaryen';
 import { getAssignable } from './vars';
 import { inferTypeDef, setTypeDef, getTypeDef, asType } from './typedefs';
 import { stripTupleProxy } from './tuples';

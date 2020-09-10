@@ -49,10 +49,10 @@ And now the same thing in `Esential`
 
 ```js
 import { i32 } from 'binaryen';
-import { Mod } from './modules';
+import { Esential } from './modules';
 import { builtin } from './typedefs';
 
-const { lib, emitText, start } = Mod();
+const { lib, emitText, start } = Esential();
 
 lib(({ func, module }) => {
   const add = builtin(module.i32.add, i32);

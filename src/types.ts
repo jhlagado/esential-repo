@@ -31,7 +31,7 @@ export type FuncImplDef = {
 };
 export type Initializer = (funcImplDef: FuncImplDef) => void;
 
-export type LibFunc = (mod: ModDef, args?: Dict<any>) => Dict<any>;
+export type LibFunc = (mod: EsentialDef, args?: Dict<any>) => Dict<any>;
 
 export type CompileOptions = {
   optimize?: boolean;
@@ -69,7 +69,8 @@ export type IndirectInfo = {
   resultDef: TypeDef;
 };
 
-export type ModDef = {
+export type EsentialDef = {
+  module: Module;
   lib: (func: LibFunc, args?: Dict<any>) => any;
   memory: (def: MemDef) => void;
   external: (def: ExternalDef, fn: Function) => Callable;
@@ -77,7 +78,6 @@ export type ModDef = {
   indirect: (def: FuncDef, funcImpl: Initializer) => any;
   compile: (options?: CompileOptions) => any;
   getIndirectInfo(callable: Callable): IndirectInfo | undefined;
-  module: Module;
   literal(value: number, type?: Type): ExpressionRef;
   emitText: () => string;
   start: (options?: CompileOptions) => any;

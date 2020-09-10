@@ -1,5 +1,5 @@
 import { Expression, TypeDef } from './types';
-import { ExpressionRef, Type, createType, i32, i64, f32, f64, Module } from 'binaryen';
+import { ExpressionRef, Type, createType } from 'binaryen';
 import { asDict } from './utils';
 
 const expressionTypeDefs = new Map<ExpressionRef, TypeDef>();
