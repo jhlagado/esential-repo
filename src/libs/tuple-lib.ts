@@ -1,9 +1,8 @@
 import { i32 } from 'binaryen';
 import { LibFunc } from '../types';
 import { addLib } from './add-lib';
-import { literal } from '../typedefs';
 
-export const tupleLib: LibFunc = ({ lib, func }) => {
+export const tupleLib: LibFunc = ({ lib, func, literal }) => {
   const { addition } = lib(addLib);
 
   const returnTwo = func({ export: false }, ({ $, result }) => {
@@ -21,7 +20,7 @@ export const tupleLib: LibFunc = ({ lib, func }) => {
     result(addition($.u[0], $.u[1]));
   });
 
-  const addThree = func({ params: { a: i32 } }, ({$, result}) => {
+  const addThree = func({ params: { a: i32 } }, ({ $, result }) => {
     $.u = returnTwo();
     result(addition($.a, addition($.u[0], $.u[1])));
   });
@@ -32,4 +31,3 @@ export const tupleLib: LibFunc = ({ lib, func }) => {
     addThree,
   };
 };
-

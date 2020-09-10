@@ -1,16 +1,17 @@
 import { Dict, LibFunc } from '../types';
 import { i32 } from 'binaryen';
-import { ops } from '../core';
-import { builtin, literal } from '../typedefs';
+import { builtin } from '../typedefs';
 import { asPages } from '../utils';
 
-const load = builtin(ops.i32.load, i32);
-const store = builtin(ops.i32.store, i32);
 
 export const memoryLib: LibFunc = (
-  { memory, func },
+  { memory, func, module, literal },
   { width = 500, height = 500 }: Dict<any> = {},
 ) => {
+
+  const load = builtin(module.i32.load, i32);
+  const store = builtin(module.i32.store, i32);
+
   const numBuffers = 2;
   const bytesPerPixel = 4;
   const bytes = width * height * bytesPerPixel * numBuffers;

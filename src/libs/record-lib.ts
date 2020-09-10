@@ -1,9 +1,8 @@
 import { i32 } from 'binaryen';
 import { LibFunc } from '../types';
 import { addLib } from './add-lib';
-import { literal } from '../typedefs';
 
-export const recordLib: LibFunc = ({ lib, func }) => {
+export const recordLib: LibFunc = ({ lib, func, literal }) => {
   const { addition } = lib(addLib);
 
   const returnTwoRecord = func({ export: false }, ({$, result}) => {

@@ -77,7 +77,8 @@ export type ModDef = {
   indirect: (def: FuncDef, funcImpl: Initializer) => any;
   compile: (options?: CompileOptions) => any;
   getIndirectInfo(callable: Callable): IndirectInfo | undefined;
-  getModule(): Module;
+  module: Module;
+  literal(value: number, type?: Type): ExpressionRef;
   emitText: () => string;
   start: (options?: CompileOptions) => any;
 };

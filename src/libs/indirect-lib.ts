@@ -1,11 +1,11 @@
 import { i32 } from 'binaryen';
-import { ops } from '../core';
 import { LibFunc } from '../types';
 import { builtin } from '../typedefs';
 
-const add = builtin(ops.i32.add, i32);
+export const indirectLib: LibFunc = ({ func, indirect, module }) => {
 
-export const indirectLib: LibFunc = ({ func, indirect }) => {
+  const add = builtin(module.i32.add, i32);
+
   const indirectAddition = indirect(
     { params: { a: i32, b: i32 } },
 

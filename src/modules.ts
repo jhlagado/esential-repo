@@ -1,4 +1,4 @@
-import { Module, auto, ExpressionRef, none, createType } from 'binaryen';
+import { Module, auto, ExpressionRef, none, createType, Type, i32, i64, f32, f64 } from 'binaryen';
 import {
   Callable,
   LibFunc,
@@ -16,7 +16,7 @@ import { CompileOptions } from './types';
 import { getResultFunc, getExecFunc, getBlockFunc, getCallable } from './funcs';
 import { getVarsProxy } from './vars';
 import { FEATURE_MULTIVALUE } from './constants';
-import { asType, literal } from './typedefs';
+import { asType, setTypeDef } from './typedefs';
 
 export const getFunc = (
   module: Module,
@@ -58,7 +58,7 @@ export const getFunc = (
     const { length: index } = indirectTable;
     indirectTable.push({ index, id, paramDefs: params, resultDef: resultRef.current });
     exprFunc = (...params: ExpressionRef[]) =>
-      module.call_indirect(literal(index), params, paramsType, resultType);
+      module.call_indirect(module.i32.const(index), params, paramsType, resultType);
   }
   return getCallable(id, exported, exprFunc, resultRef.current, callableIdMap, exportedSet);
 };
@@ -117,12 +117,12 @@ export const Mod = (): ModDef => {
     return new WebAssembly.Module(module.emitBinary());
   };
 
-  const self: ModDef = {
+  const modDef: ModDef = {
     lib(libFunc: LibFunc, args: Dict<any> = {}) {
       if (libMap.has(libFunc)) {
         return libMap.get(libFunc);
       }
-      const lib = libFunc(self, args);
+      const lib = libFunc(modDef, args);
       Object.entries(lib).forEach(([externalName, callable]) => {
         if (exportedSet.has(callable)) {
           const internalName = callableIdMap.get(callable);
@@ -163,8 +163,22 @@ export const Mod = (): ModDef => {
       return callableIndirectMap.get(callable);
     },
 
-    getModule() {
-      return module;
+    module,
+
+    literal(value: number, type: Type = i32): ExpressionRef {
+      const opDict = {
+        [i32]: module.i32,
+        [i64]: module.i64,
+        [f32]: module.f32,
+        [f64]: module.f64,
+      };
+      if (type in opDict) {
+        // override type checking because of error in type definition for i64.const
+        const expr = (opDict[type] as any).const(value);
+        setTypeDef(expr, type); // for primitives type = typeDef
+        return expr;
+      }
+      throw new Error(`Can only use primtive types in val, not ${type}`);
     },
 
     start(options?: CompileOptions): any {
@@ -175,5 +189,5 @@ export const Mod = (): ModDef => {
 
     ...{ emitText },
   };
-  return self;
+  return modDef;
 };

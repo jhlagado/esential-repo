@@ -1,12 +1,12 @@
 import { i32 } from 'binaryen';
 import { Mod } from './modules';
-import { ops } from './core';
 import { builtin } from './typedefs';
 
 const { lib, emitText, start } = Mod();
-const add = builtin(ops.i32.add, i32);
 
-lib(({ func }) => {
+lib(({ func, module }) => {
+  const add = builtin(module.i32.add, i32);
+
   const addition = func(
     { params: { a: i32, b: i32 } },
 
