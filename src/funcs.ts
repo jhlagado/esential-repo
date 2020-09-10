@@ -1,17 +1,16 @@
 import {
-  Callable,
-  FuncDef,
-  Initializer,
   Expression,
-  IndirectInfo,
   TypeDef,
   VoidBlockFunc,
   BlockFunc,
   Ref,
+  Callable,
 } from './types';
-import { none, createType, ExpressionRef, auto, Module } from 'binaryen';
-import { asType, setTypeDef, getTypeDef, literal } from './utils';
-import { getAssignable, inferTypeDef, getVarsProxy, getCallable } from './vars';
+
+import { ExpressionRef, auto, Module } from 'binaryen';
+import { getAssignable } from './vars';
+import { inferTypeDef, setTypeDef, getTypeDef, asType } from './typedefs';
+import { stripTupleProxy } from './tuples';
 
 export const getExecFunc = (bodyItems: ExpressionRef[]): VoidBlockFunc => (
   ...expressions: Expression[]
@@ -37,7 +36,7 @@ export const getResultFunc = (
   bodyItems.push(...exprs.slice(0, -1));
   const [expr] = exprs.slice(-1);
   if (resultDefRef.current === auto) {
-    const typeDef = inferTypeDef(expr);
+    const typeDef = inferTypeDef(stripTupleProxy(expr));
     if (typeDef == null) {
       throw new Error(`Couldn't infer ${expr}`);
     }
@@ -52,7 +51,7 @@ export const getResultFunc = (
   bodyItems.push(module.return(expr));
 };
 
-const getBlockFunc = (module: Module): BlockFunc => (...expressions: Expression[]) => {
+export const getBlockFunc = (module: Module): BlockFunc => (...expressions: Expression[]) => {
   const { length } = expressions;
   if (length === 0) {
     throw new Error(`Block must have at least one item`);
@@ -65,47 +64,22 @@ const getBlockFunc = (module: Module): BlockFunc => (...expressions: Expression[
   return blk;
 };
 
-export const getFunc = (
-  module: Module,
+export const getCallable = (
+  id: string,
+  exported: boolean,
+  exprFunc: (...params: ExpressionRef[]) => ExpressionRef,
+  resultDef: TypeDef,
   callableIdMap: Map<Callable, string>,
-  exportedSet: Set<Callable>,
-  indirectTable?: IndirectInfo[],
-) => (def: FuncDef, initializer: Initializer): Callable => {
-  const count = callableIdMap.size;
-  const {
-    id = `indirect${count}`,
-    params: paramDefs = {},
-    result = auto,
-    locals: localDefs = {},
-    export: exported = true,
-  } = def;
-  const bodyItems: ExpressionRef[] = [];
-  const varDefs = { ...paramDefs, ...localDefs };
-  const varsProxy = getVarsProxy(varDefs, bodyItems);
-  const resultDefRef = { current: result };
-  const resultFunc = getResultFunc(module, resultDefRef, bodyItems);
-  const blockFunc = getBlockFunc(module);
-  const execFunc = getExecFunc(bodyItems);
-  initializer({ $: varsProxy, result: resultFunc, block: blockFunc, exec: execFunc });
-  if (resultDefRef.current === auto) {
-    resultDefRef.current = none;
+  exportedSet?: Set<Callable>,
+) => {
+  const callable = (...params: ExpressionRef[]) => {
+    const expr = exprFunc(...params);
+    setTypeDef(expr, resultDef);
+    return expr;
+  };
+  callableIdMap.set(callable, id);
+  if (exported && exportedSet) {
+    exportedSet.add(callable);
   }
-  const { length: paramsLength } = Object.values(paramDefs);
-  const paramsType = createType(Object.values(paramDefs).map(asType));
-  const resultType = asType(resultDefRef.current);
-  const localTypes = Object.values(varDefs)
-    .slice(paramsLength)
-    .map(asType);
-  module.addFunction(id, paramsType, resultType, localTypes, module.block(null as any, bodyItems));
-
-  let exprFunc;
-  if (indirectTable == null) {
-    exprFunc = (...params: ExpressionRef[]) => module.call(id, params, resultType);
-  } else {
-    const { length: index } = indirectTable;
-    indirectTable.push({ index, id, paramDefs, resultDef: resultDefRef.current });
-    exprFunc = (...params: ExpressionRef[]) =>
-      module.call_indirect(literal(index), params, paramsType, resultType);
-  }
-  return getCallable(id, exported, exprFunc, resultDefRef.current, callableIdMap, exportedSet);
+  return callable;
 };

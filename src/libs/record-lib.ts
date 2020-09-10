@@ -1,7 +1,7 @@
 import { i32 } from 'binaryen';
 import { ModDef } from '../types';
-import { literal } from '../utils';
 import { addLib } from './add-lib';
+import { literal } from '../typedefs';
 
 export const recordLib = ({ lib, func }: ModDef) => {
   const { addition } = lib(addLib);

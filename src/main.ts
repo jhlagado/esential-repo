@@ -29,5 +29,4 @@ console.log(exported.addTwoRecord());
 console.log(exported.addThreeRecord(10));
 
 exported.print123();
-console.log(exported.mem256());
 console.log(exported.indirectAddition(40, 2));

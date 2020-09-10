@@ -1,10 +1,82 @@
-import { Module } from 'binaryen';
-import { Callable, LibFunc, Lib, ModDef, Dict, MemDef, IndirectInfo, updateFunc } from './types';
+import { Module, auto, ExpressionRef, none, createType } from 'binaryen';
+import { Callable, LibFunc, Lib, ModDef, Dict, MemDef, IndirectInfo, updateFunc, FuncDef, Initializer, ExternalDef } from './types';
 import { CompileOptions } from './types';
-import { getFunc } from './funcs';
-import { getExternalFunc } from './externals';
+import { getResultFunc, getExecFunc, getBlockFunc, getCallable } from './funcs';
+import { getVarsProxy,  } from './vars';
+import { FEATURE_MULTIVALUE } from './constants';
+import { asType, literal } from './typedefs';
 
-const FEATURE_MULTIVALUE = 512; // hardwired because of error in enum in binaryen.js .d.ts
+export const getFunc = (
+  module: Module,
+  callableIdMap: Map<Callable, string>,
+  exportedSet: Set<Callable>,
+  indirectTable?: IndirectInfo[],
+) => (def: FuncDef, initializer: Initializer): Callable => {
+  const count = callableIdMap.size;
+  const {
+    id = `indirect${count}`,
+    params = {},
+    result = auto,
+    locals = {},
+    export: exported = true,
+  } = def;
+  const bodyItems: ExpressionRef[] = [];
+  const vars = { ...params, ...locals };
+  const varsProxy = getVarsProxy(vars, bodyItems);
+  const resultRef = { current: result };
+  const resultFunc = getResultFunc(module, resultRef, bodyItems);
+  const blockFunc = getBlockFunc(module);
+  const execFunc = getExecFunc(bodyItems);
+  initializer({ $: varsProxy, result: resultFunc, block: blockFunc, exec: execFunc });
+  if (resultRef.current === auto) {
+    resultRef.current = none;
+  }
+  const { length: paramsLength } = Object.values(params);
+  const paramsType = createType(Object.values(params).map(asType));
+  const resultType = asType(resultRef.current);
+  const localTypes = Object.values(vars)
+    .slice(paramsLength)
+    .map(asType);
+  module.addFunction(id, paramsType, resultType, localTypes, module.block(null as any, bodyItems));
+
+  let exprFunc;
+  if (indirectTable == null) {
+    exprFunc = (...params: ExpressionRef[]) => module.call(id, params, resultType);
+  } else {
+    const { length: index } = indirectTable;
+    indirectTable.push({ index, id, paramDefs: params, resultDef: resultRef.current });
+    exprFunc = (...params: ExpressionRef[]) =>
+      module.call_indirect(literal(index), params, paramsType, resultType);
+  }
+  return getCallable(id, exported, exprFunc, resultRef.current, callableIdMap, exportedSet);
+};
+
+export const getExternalFunc = (
+  module: Module,
+  callableIdMap: Map<Callable, string>,
+  updateImports: (fn: updateFunc<any>) => void,
+) => (def: ExternalDef, fn: Function): Callable => {
+  const count = callableIdMap.size;
+  const {
+    namespace = 'namespace',
+    name = 'name',
+    id = `external${count}`,
+    params: paramDefs = {},
+    result: resultDef = none,
+  } = def;
+  const paramsType = createType(Object.values(paramDefs).map(asType));
+  const resultType = asType(resultDef);
+  module.addFunctionImport(id, namespace, name, paramsType, resultType);
+  updateImports((imports: any) => ({
+    ...imports,
+    [namespace]: {
+      ...imports[namespace],
+      [name]: fn,
+    },
+  }));
+  const exprFunc = (...params: ExpressionRef[]) => module.call(id, params, resultType);
+  return getCallable(id, false, exprFunc, resultDef, callableIdMap);
+};
 
 export const Mod = (): ModDef => {
   const module = new Module();

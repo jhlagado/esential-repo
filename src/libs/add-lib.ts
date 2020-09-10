@@ -1,7 +1,7 @@
 import { i32 } from 'binaryen';
 import { ops } from '../core';
 import { ModDef } from '../types';
-import { builtin } from '../utils';
+import { builtin } from '../typedefs';
 
 const add = builtin(ops.i32.add, i32);
 

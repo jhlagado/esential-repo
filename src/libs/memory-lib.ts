@@ -1,7 +1,8 @@
 import { ModDef, Dict, LibFunc } from '../types';
-import { builtin, literal, asPages } from '../utils';
 import { i32 } from 'binaryen';
 import { ops } from '../core';
+import { builtin, literal } from '../typedefs';
+import { asPages } from '../utils';
 
 const load = builtin(ops.i32.load, i32);
 const store = builtin(ops.i32.store, i32);

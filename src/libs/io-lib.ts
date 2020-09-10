@@ -1,6 +1,6 @@
 import { i32 } from 'binaryen';
 import { ModDef } from '../types';
-import { literal } from '../utils';
+import { literal } from '../typedefs';
 
 export const ioLib = ({ external, func }: ModDef) => {
   const log = external(

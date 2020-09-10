@@ -1,27 +1,8 @@
 import { ExpressionRef } from 'binaryen';
-import { VarDefs, Expression, TypeDef, Dict, Callable } from './types';
+import { VarDefs, Expression, TypeDef, Dict } from './types';
 import { makeTupleProxy, stripTupleProxy } from './tuples';
 import { local, tuple } from './core';
-import { asType, setTypeDef, getTypeDef, asDict } from './utils';
-
-export const inferTypeDef = (expression: Expression): TypeDef => {
-  const stripped = stripTupleProxy(expression);
-  if (Number.isInteger(stripped)) {
-    const expr = stripped as ExpressionRef;
-    return getTypeDef(expr);
-  } else {
-    if (Array.isArray(stripped)) {
-      return stripped.map(item => asType(getTypeDef(item)));
-    } else {
-      const typeDef = asDict(
-        Object.entries(stripped)
-          .sort(([key1], [key2]) => (key1 === key2 ? 0 : key1 < key2 ? -1 : 1))
-          .map(([key, value]) => [key, asType(getTypeDef(value))]),
-      );
-      return typeDef;
-    }
-  }
-};
+import { inferTypeDef, asType, setTypeDef, getTypeDef } from './typedefs';
 
 export const getAssignable = (expression: Expression): ExpressionRef => {
   const stripped = stripTupleProxy(expression);
@@ -54,7 +35,7 @@ export const setter = (varDefs: VarDefs, prop: string, expression: Expression): 
   const expr = getAssignable(expression) as ExpressionRef;
   let typeDef = varDefs[prop];
   if (typeDef == null) {
-    typeDef = inferTypeDef(expression);
+    typeDef = inferTypeDef(stripTupleProxy(expression));
     varDefs[prop] = typeDef;
     setTypeDef(expr, typeDef);
   } else {
@@ -76,23 +57,3 @@ export const getVarsProxy = (varDefs: Dict<TypeDef>, bodyItems: ExpressionRef[])
       return true;
     },
   });
-
-export const getCallable = (
-  id: string,
-  exported: boolean,
-  exprFunc: (...params: ExpressionRef[]) => ExpressionRef,
-  resultDef: TypeDef,
-  callableIdMap: Map<Callable, string>,
-  exportedSet?: Set<Callable>,
-) => {
-  const callable = (...params: ExpressionRef[]) => {
-    const expr = exprFunc(...params);
-    setTypeDef(expr, resultDef);
-    return expr;
-  };
-  callableIdMap.set(callable, id);
-  if (exported && exportedSet) {
-    exportedSet.add(callable);
-  }
-  return callable;
-};
