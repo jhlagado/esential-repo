@@ -7,16 +7,19 @@ import {
   Dict,
   MemDef,
   IndirectInfo,
-  updateFunc,
   FuncDef,
   Initializer,
   ExternalDef,
+  Ref,
+  TypeDef,
 } from './types';
 import { CompileOptions } from './types';
 import { getResultFunc, getExecFunc, getBlockFunc, getCallable } from './funcs';
 import { getVarsProxy } from './vars';
 import { FEATURE_MULTIVALUE } from './constants';
 import { asType, setTypeDef } from './typedefs';
+
+export type Imports = Dict<Dict<any>>;
 
 export const getFunc = (
   module: Module,
@@ -35,7 +38,7 @@ export const getFunc = (
   const bodyItems: ExpressionRef[] = [];
   const vars = { ...params, ...locals };
   const varsProxy = getVarsProxy(module, vars, bodyItems);
-  const resultRef = { current: result };
+  const resultRef: Ref<TypeDef> = { current: result };
   const resultFunc = getResultFunc(module, resultRef, bodyItems);
   const blockFunc = getBlockFunc(module);
   const execFunc = getExecFunc(module, bodyItems);
@@ -66,7 +69,7 @@ export const getFunc = (
 export const getExternalFunc = (
   module: Module,
   callableIdMap: Map<Callable, string>,
-  updateImports: (fn: updateFunc<any>) => void,
+  importsRef: Ref<Imports>,
 ) => (def: ExternalDef, fn: Function): Callable => {
   const count = callableIdMap.size;
   const {
@@ -79,15 +82,48 @@ export const getExternalFunc = (
   const paramsType = createType(Object.values(paramDefs).map(asType));
   const resultType = asType(resultDef);
   module.addFunctionImport(id, namespace, name, paramsType, resultType);
-  updateImports((imports: any) => ({
-    ...imports,
+  importsRef.current = {
+    ...importsRef.current,
     [namespace]: {
-      ...imports[namespace],
+      ...importsRef.current[namespace],
       [name]: fn,
     },
-  }));
+  };
   const exprFunc = (...params: ExpressionRef[]) => module.call(id, params, resultType);
   return getCallable(id, false, exprFunc, resultDef, callableIdMap);
+};
+
+const exportFuncs = (
+  module: Module,
+  lib: Dict<any>,
+  exportedSet: Set<Callable>,
+  callableIdMap: Map<Callable, string>,
+) => {
+  Object.entries(lib).forEach(([externalName, callable]) => {
+    if (exportedSet.has(callable)) {
+      const internalName = callableIdMap.get(callable);
+      if (internalName) {
+        module.addFunctionExport(internalName, externalName);
+        exportedSet.delete(callable);
+      }
+    }
+  });
+};
+
+const getLiteral = (module: Module) => (value: number, type: Type = i32): ExpressionRef => {
+  const opDict = {
+    [i32]: module.i32,
+    [i64]: module.i64,
+    [f32]: module.f32,
+    [f64]: module.f64,
+  };
+  if (type in opDict) {
+    // override type checking because of error in type definition for i64.const
+    const expr = (opDict[type] as any).const(value);
+    setTypeDef(expr, type); // for primitives type = typeDef
+    return expr;
+  }
+  throw new Error(`Can only use primtive types in val, not ${type}`);
 };
 
 export const esential = (): Esential => {
@@ -95,16 +131,12 @@ export const esential = (): Esential => {
   module.setFeatures(FEATURE_MULTIVALUE);
   module.autoDrop();
 
-  let imports: Dict<Dict<any>> = {};
+  const importsRef: Ref<Imports> = { current: {} };
   const callableIdMap = new Map<Callable, string>();
   const callableIndirectMap = new Map<Callable, IndirectInfo>();
   const libMap = new Map<LibFunc, Lib>();
   const exportedSet = new Set<Callable>();
   const indirectTable: IndirectInfo[] = [];
-
-  const updateImports = (fn: updateFunc<any>) => {
-    imports = fn(imports);
-  };
 
   const compile = (options: CompileOptions = { optimize: true, validate: true }): any => {
     const ids = indirectTable.map(item => item.id);
@@ -116,7 +148,7 @@ export const esential = (): Esential => {
   };
 
   const load = (binary: Uint8Array): any => {
-    const instance = new WebAssembly.Instance(binary, imports);
+    const instance = new WebAssembly.Instance(binary, importsRef.current);
     return instance.exports;
   };
 
@@ -128,15 +160,7 @@ export const esential = (): Esential => {
         return libMap.get(libFunc);
       }
       const lib = libFunc(esen, args);
-      Object.entries(lib).forEach(([externalName, callable]) => {
-        if (exportedSet.has(callable)) {
-          const internalName = callableIdMap.get(callable);
-          if (internalName) {
-            module.addFunctionExport(internalName, externalName);
-            exportedSet.delete(callable);
-          }
-        }
-      });
+      exportFuncs(module, lib, exportedSet, callableIdMap);
       libMap.set(libFunc, lib);
       return lib;
     },
@@ -147,10 +171,10 @@ export const esential = (): Esential => {
         initial,
         maximum,
       });
-      imports = {
-        ...imports,
+      importsRef.current = {
+        ...importsRef.current,
         [namespace]: {
-          ...imports[namespace],
+          ...importsRef.current[namespace],
           [name]: memObj,
         },
       };
@@ -160,28 +184,13 @@ export const esential = (): Esential => {
 
     func: getFunc(module, callableIdMap, exportedSet),
     indirect: getFunc(module, callableIdMap, exportedSet, indirectTable),
-    external: getExternalFunc(module, callableIdMap, updateImports),
+    external: getExternalFunc(module, callableIdMap, importsRef),
 
     getIndirectInfo(callable: Callable) {
       return callableIndirectMap.get(callable);
     },
 
-    literal(value: number, type: Type = i32): ExpressionRef {
-      const opDict = {
-        [i32]: module.i32,
-        [i64]: module.i64,
-        [f32]: module.f32,
-        [f64]: module.f64,
-      };
-      if (type in opDict) {
-        // override type checking because of error in type definition for i64.const
-        const expr = (opDict[type] as any).const(value);
-        setTypeDef(expr, type); // for primitives type = typeDef
-        return expr;
-      }
-      throw new Error(`Can only use primtive types in val, not ${type}`);
-    },
-
+    literal: getLiteral(module),
     compile,
     load,
     start(options?: CompileOptions) {

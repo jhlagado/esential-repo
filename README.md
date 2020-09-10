@@ -1,6 +1,6 @@
 # Esential - Support for WebAssembly in Javascript
 
-Here is your ECMAScripten! Esential is a framework from writing WebAssembly code without leaving JavaScript.
+Here is your ECMAScripten! `Esential` is a framework from writing WebAssembly code without leaving JavaScript.
 
 `Esential` is built using [JavaScript bindings](https://github.com/AssemblyScript/binaryen.js) to Binaryen which is a high performance compiler and infrastructure libabry for WebAssembly. [Binaryen](https://github.com/WebAssembly/binaryen) produces very optimised and clean code but its C++ inspired bindings are tedious and error prone to use from JavaScript. `Esential` aims to make use `Binaryen` as simple as possible without needing to leave JavaScript for any other language. It attempts to intelligently infer types and to make the process of coding as familiar as possible without imposing more load on the JS programmer than is absolutely necessary.
 
