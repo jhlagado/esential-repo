@@ -17,6 +17,7 @@ export type TupleObj = {
 
 export type VarDefs = Dict<TypeDef>;
 export type Vars = Dict<any>;
+export type Imports = Dict<Dict<any>>;
 
 export type StatementsBlockFunc<T> = (...exprs: ExpressionRef[]) => T;
 export type BlockFunc = StatementsBlockFunc<ExpressionRef>;
@@ -81,3 +82,4 @@ export type Esential = {
   memory: (def: MemDef) => void;
   start: (options?: CompileOptions) => any;
 };
+
