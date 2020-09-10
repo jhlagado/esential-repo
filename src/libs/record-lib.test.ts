@@ -1,7 +1,7 @@
-import { Esential } from '../modules';
+import { esential } from '../esential';
 import { recordLib } from './record-lib';
 
-const { lib, start } = Esential();
+const { lib, start } = esential();
 lib(recordLib);
 const exported = start();
 

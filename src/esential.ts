@@ -3,7 +3,7 @@ import {
   Callable,
   LibFunc,
   Lib,
-  EsentialDef,
+  Esential,
   Dict,
   MemDef,
   IndirectInfo,
@@ -90,7 +90,7 @@ export const getExternalFunc = (
   return getCallable(id, false, exprFunc, resultDef, callableIdMap);
 };
 
-export const Esential = (): EsentialDef => {
+export const esential = (): Esential => {
   const module = new Module();
   module.setFeatures(FEATURE_MULTIVALUE);
   module.autoDrop();
@@ -117,7 +117,7 @@ export const Esential = (): EsentialDef => {
     return new WebAssembly.Module(module.emitBinary());
   };
 
-  const modDef: EsentialDef = {
+  const modDef: Esential = {
     lib(libFunc: LibFunc, args: Dict<any> = {}) {
       if (libMap.has(libFunc)) {
         return libMap.get(libFunc);

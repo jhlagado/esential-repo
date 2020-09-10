@@ -31,7 +31,7 @@ export type FuncImplDef = {
 };
 export type Initializer = (funcImplDef: FuncImplDef) => void;
 
-export type LibFunc = (mod: EsentialDef, args?: Dict<any>) => Dict<any>;
+export type LibFunc = (mod: Esential, args?: Dict<any>) => Dict<any>;
 
 export type CompileOptions = {
   optimize?: boolean;
@@ -69,7 +69,7 @@ export type IndirectInfo = {
   resultDef: TypeDef;
 };
 
-export type EsentialDef = {
+export type Esential = {
   module: Module;
   lib: (func: LibFunc, args?: Dict<any>) => any;
   memory: (def: MemDef) => void;

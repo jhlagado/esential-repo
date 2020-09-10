@@ -1,4 +1,4 @@
-import { Esential } from './modules';
+import { esential } from './esential';
 import { ioLib } from './libs/io-lib';
 import { addLib } from './libs/add-lib';
 import { tupleLib } from './libs/tuple-lib';
@@ -6,7 +6,7 @@ import { recordLib } from './libs/record-lib';
 import { memoryLib } from './libs/memory-lib';
 import { indirectLib } from './libs/indirect-lib';
 
-const { lib, emitText, start } = Esential();
+const { lib, emitText, start } = esential();
 
 lib(indirectLib);
 lib(memoryLib, { width: 500, height: 500 });

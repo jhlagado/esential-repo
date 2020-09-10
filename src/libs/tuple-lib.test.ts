@@ -1,7 +1,7 @@
-import { Esential } from '../modules';
+import { esential } from '../esential';
 import { tupleLib } from './tuple-lib';
 
-const { lib, start } = Esential();
+const { lib, start } = esential();
 lib(tupleLib);
 const exported = start();
 

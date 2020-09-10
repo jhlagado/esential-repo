@@ -1,7 +1,7 @@
-import { Esential } from '../modules';
+import { esential } from '../esential';
 import { memoryLib } from './memory-lib';
 
-const { lib, start } = Esential();
+const { lib, start } = esential();
 lib(memoryLib);
 const exported = start();
 

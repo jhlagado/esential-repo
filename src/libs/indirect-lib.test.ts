@@ -1,7 +1,7 @@
-import { Esential } from '../modules';
+import { esential } from '../esential';
 import { indirectLib } from './indirect-lib';
 
-const { lib, start } = Esential();
+const { lib, start } = esential();
 lib(indirectLib);
 const exported = start();
 
