@@ -15,9 +15,9 @@ m.addFunction(
       m.loop(
         'loop',
         m.block(null as any, [
+          m.br('afterLoop', m.i32.eqz(m.local.get(0, binaryen.i32))),
           m.local.set(0, m.i32.sub(m.local.get(0, binaryen.i32), m.i32.const(1))),
           m.local.set(1, m.i32.add(m.local.get(1, binaryen.i32), m.i32.const(1))),
-          m.br('afterLoop', m.i32.eqz(m.local.get(0, binaryen.i32))),
           m.br('loop'),
         ]),
       ),
