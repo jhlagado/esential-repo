@@ -2,21 +2,7 @@ import { Expression, TypeDef, VoidBlockFunc, BlockFunc, Ref, Callable, Dict } fr
 
 import { ExpressionRef, auto, Module } from 'binaryen';
 import { inferTypeDef, setTypeDef, getTypeDef, asType } from './typedefs';
-import { stripTupleProxy } from './tuples';
-
-export const getAssignable = (module: Module) => (expression: Expression): ExpressionRef => {
-  const stripped = stripTupleProxy(expression);
-  if (Number.isInteger(stripped)) {
-    return stripped as ExpressionRef;
-  } else {
-    const exprArray = Array.isArray(stripped)
-      ? stripped
-      : Object.keys(stripped)
-          .sort()
-          .map(key => (stripped as Dict<ExpressionRef>)[key]);
-    return module.tuple.make(exprArray);
-  }
-};
+import { getAssignable, stripTupleProxy } from './vars';
 
 export const getResultFunc = (
   module: Module,

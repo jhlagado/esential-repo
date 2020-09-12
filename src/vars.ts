@@ -1,8 +1,62 @@
 import { auto, ExpressionRef, Module } from 'binaryen';
-import { VarDefs, Expression, TypeDef, Dict, VarsAccessor } from './types';
-import { makeTupleProxy, stripTupleProxy } from './tuples';
+import { VarDefs, Expression, TypeDef, Dict, VarsAccessor, TupleObj } from './types';
 import { inferTypeDef, asType, setTypeDef, getTypeDef } from './typedefs';
-import { getAssignable } from './funcs-utils';
+
+const tupleProxies = new Map();
+
+export const stripTupleProxy = (expr: Expression): Expression => {
+  return tupleProxies.has(expr as any) ? tupleProxies.get(expr) : expr;
+};
+
+export const makeTupleProxy = (
+  module: Module,
+  expr: ExpressionRef,
+  typeDef: TypeDef,
+): TupleObj => {
+  const boxed = new Number(expr);
+  const proxy = new Proxy(boxed, {
+    get(_target: any, prop: number | string) {
+      if (Number.isInteger(typeDef)) {
+        throw new Error(`Cannot index a primitive value`);
+      } else if (Array.isArray(typeDef)) {
+        const index = prop as number;
+        if (index >= typeDef.length) {
+          throw new Error(
+            `Max tuple index should be ${typeDef.length} but received ${prop}`,
+          );
+        }
+        const valueExpr = module.tuple.extract(expr, index);
+        setTypeDef(valueExpr, typeDef[index]);
+        return valueExpr;
+      } else {
+        const typeDefDict = typeDef as Dict<TypeDef>
+        const index = Object.keys(typeDef).indexOf(prop as string);
+        if (index < 0) {
+          throw new Error(`Could not find ${prop} in record`);
+        }
+        const valueExpr = module.tuple.extract(expr, index);
+        setTypeDef(valueExpr, typeDefDict[prop])
+        return valueExpr;
+      }
+    },
+  });
+  tupleProxies.set(proxy, expr);
+  return proxy;
+};
+
+export const getAssignable = (module: Module) => (expression: Expression): ExpressionRef => {
+  const stripped = stripTupleProxy(expression);
+  if (Number.isInteger(stripped)) {
+    return stripped as ExpressionRef;
+  } else {
+    const exprArray = Array.isArray(stripped)
+      ? stripped
+      : Object.keys(stripped)
+          .sort()
+          .map(key => (stripped as Dict<ExpressionRef>)[key]);
+    return module.tuple.make(exprArray);
+  }
+};
 
 export const getter = (module: Module, varDefs: VarDefs, prop: string) => {
   if (!(prop in varDefs)) {
