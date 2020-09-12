@@ -88,15 +88,17 @@ export const setter = (
 };
 
 export const getVarsAccessor = (module: Module, varDefs: Dict<TypeDef>): VarsAccessor => {
-  const f = (value: any) => {
+  const f = (value: Expression) => {
     // const stripped = stripTupleProxy(expression);
-    const expr = Number.isInteger(value)
-      ? module.i32.const(stripTupleProxy(value) as number)
+    const expr: ExpressionRef = Number.isInteger(value)
+      ? value as number
       : module.block(
           null as any,
-          Object.entries(value).map(([prop, expression]) =>
-            setter(module, varDefs, prop, expression as Dict<ExpressionRef>),
-          ),
+          Array.isArray(value)
+            ? value.map(expr => expr)
+            : Object.entries(value).map(([prop, expr]) =>
+                setter(module, varDefs, prop, expr as Dict<ExpressionRef>),
+              ),
           auto,
         );
     setTypeDef(expr, auto);
