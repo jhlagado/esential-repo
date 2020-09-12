@@ -5,7 +5,7 @@ import { asPages } from '../utils';
 
 
 export const memoryLib: LibFunc = (
-  { memory, func, module, literal },
+  { memory, func, module },
   { width = 500, height = 500 }: Dict<any> = {},
 ) => {
 
@@ -20,7 +20,7 @@ export const memoryLib: LibFunc = (
   memory({ namespace: 'env', name: 'memory', initial: pages, maximum: pages });
 
   const storeAndLoad = func({ params: { a: i32 }, result: [i32] }, ({ $, result }) => {
-    result(store(0, 0, literal(0), $.a), load(0, 0, literal(0)));
+    result(store(0, 0, $(0), $.a), load(0, 0, $(0)));
   });
 
   return {

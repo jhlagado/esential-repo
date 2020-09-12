@@ -49,8 +49,8 @@ And now the same thing in `Esential`
 
 ```js
 import { i32 } from 'binaryen';
-import { esential } from './esential';
-import { builtin } from './typedefs';
+import { esential } from '../src/esential';
+import { builtin } from '../src/typedefs';
 
 const { lib, module, start } = esential();
 
@@ -61,8 +61,12 @@ lib(({ func }) => {
     { params: { a: i32, b: i32 } },
 
     ({ $, result }) => {
-      $.u = add($.a, $.b);
-      result($.u);
+      result(
+        $({
+          u: add($.a, $.b),
+        }),
+        $.u,
+      );
     },
   );
   return {

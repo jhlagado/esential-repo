@@ -3,13 +3,13 @@ import { ioLib } from './io-lib';
 
 global.console = { ...global.console, log: jest.fn() };
 
-const { lib, literal, start } = esential();
+const { lib, start } = esential();
 
 lib(({ func }) => {
   const { log } = lib(ioLib);
 
-  const print3Times = func({}, ({ result }) => {
-    result(log(literal(1)), log(literal(2)), log(literal(3)));
+  const print3Times = func({}, ({ $, result }) => {
+    result(log($(1)), log($(2)), log($(3)));
   });
 
   return {

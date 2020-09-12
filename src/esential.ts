@@ -79,7 +79,6 @@ export const esential = (): Esential => {
       return callableIndirectMap.get(callable);
     },
 
-    literal: getLiteral(module),
     compile,
     load,
     start(options?: CompileOptions) {

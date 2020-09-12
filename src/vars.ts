@@ -1,5 +1,5 @@
 import { auto, ExpressionRef, Module } from 'binaryen';
-import { VarDefs, Expression, TypeDef, Dict, VarsAccessor, TupleObj } from './types';
+import { VarDefs, Expression, TypeDef, Dict, VarsAccessor, TupleObj, XOR } from './types';
 import { inferTypeDef, asType, setTypeDef, getTypeDef } from './typedefs';
 
 const tupleProxies = new Map();
@@ -8,11 +8,7 @@ export const stripTupleProxy = (expr: Expression): Expression => {
   return tupleProxies.has(expr as any) ? tupleProxies.get(expr) : expr;
 };
 
-export const makeTupleProxy = (
-  module: Module,
-  expr: ExpressionRef,
-  typeDef: TypeDef,
-): TupleObj => {
+export const makeTupleProxy = (module: Module, expr: ExpressionRef, typeDef: TypeDef): TupleObj => {
   const boxed = new Number(expr);
   const proxy = new Proxy(boxed, {
     get(_target: any, prop: number | string) {
@@ -21,21 +17,19 @@ export const makeTupleProxy = (
       } else if (Array.isArray(typeDef)) {
         const index = prop as number;
         if (index >= typeDef.length) {
-          throw new Error(
-            `Max tuple index should be ${typeDef.length} but received ${prop}`,
-          );
+          throw new Error(`Max tuple index should be ${typeDef.length} but received ${prop}`);
         }
         const valueExpr = module.tuple.extract(expr, index);
         setTypeDef(valueExpr, typeDef[index]);
         return valueExpr;
       } else {
-        const typeDefDict = typeDef as Dict<TypeDef>
+        const typeDefDict = typeDef as Dict<TypeDef>;
         const index = Object.keys(typeDef).indexOf(prop as string);
         if (index < 0) {
           throw new Error(`Could not find ${prop} in record`);
         }
         const valueExpr = module.tuple.extract(expr, index);
-        setTypeDef(valueExpr, typeDefDict[prop])
+        setTypeDef(valueExpr, typeDefDict[prop]);
         return valueExpr;
       }
     },
@@ -94,14 +88,17 @@ export const setter = (
 };
 
 export const getVarsAccessor = (module: Module, varDefs: Dict<TypeDef>): VarsAccessor => {
-  const f = (assignDict: Dict<ExpressionRef>) => {
-    const expr = module.block(
-      null as any,
-      Object.entries(assignDict).map(([prop, expression]) =>
-        setter(module, varDefs, prop, expression),
-      ),
-      auto,
-    );
+  const f = (value: any) => {
+    // const stripped = stripTupleProxy(expression);
+    const expr = Number.isInteger(value)
+      ? module.i32.const(value as number)
+      : module.block(
+          null as any,
+          Object.entries(value).map(([prop, expression]) =>
+            setter(module, varDefs, prop, expression as Dict<ExpressionRef>),
+          ),
+          auto,
+        );
     setTypeDef(expr, auto);
     return expr;
   };
