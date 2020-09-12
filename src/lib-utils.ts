@@ -10,7 +10,7 @@ import {
   ExternalDef,
 } from './types';
 import { getVarsAccessor } from './vars';
-import { getResultFunc, getBlockFunc, getExecFunc, getCallable } from './funcs-utils';
+import { getResultFunc, getCallable } from './funcs-utils';
 import { asType, setTypeDef } from './typedefs';
 
 export const getFunc = (
@@ -32,9 +32,7 @@ export const getFunc = (
   const varsProxy = getVarsAccessor(module, vars);
   const resultRef: Ref<TypeDef> = { current: result };
   const resultFunc = getResultFunc(module, resultRef, bodyItems);
-  const blockFunc = getBlockFunc(module);
-  const execFunc = getExecFunc(module, bodyItems);
-  initializer({ $: varsProxy, result: resultFunc, block: blockFunc, exec: execFunc });
+  initializer({ $: varsProxy, result: resultFunc });
   const resultDef = resultRef.current === auto ? none : resultRef.current;
   const { length: paramsLength } = Object.values(params);
   const paramsType = createType(Object.values(params).map(asType));

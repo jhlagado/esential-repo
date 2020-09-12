@@ -67,8 +67,6 @@ export type VarsAccessor = {
 export type FuncImplDef = {
   $: VarsAccessor;
   result: VoidBlockFunc;
-  block: BlockFunc;
-  exec: VoidBlockFunc;
 };
 export type Initializer = (funcImplDef: FuncImplDef) => void;
 
@@ -83,6 +81,14 @@ export type Esential = {
   indirect: (def: FuncDef, funcImpl: Initializer) => any;
   lib: (func: LibFunc, args?: Dict<any>) => any;
   literal(value: number, type?: Type): ExpressionRef;
+  FOR: (
+    initializer: ExpressionRef,
+    condition: ExpressionRef,
+    final: ExpressionRef,
+  ) => (...body: ExpressionRef[]) => ExpressionRef;
+  IF: (
+    condition: ExpressionRef,
+  ) => (...thenBody: ExpressionRef[]) => (...elseBody: ExpressionRef[]) => ExpressionRef;
   load: (binary: Uint8Array) => any;
   memory: (def: MemDef) => void;
   start: (options?: CompileOptions) => any;

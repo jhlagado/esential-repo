@@ -1,4 +1,4 @@
-import { auto, ExpressionRef, Module } from 'binaryen';
+import { auto, ExpressionRef, Module, none } from 'binaryen';
 import { VarDefs, Expression, TypeDef, Dict, VarsAccessor, TupleObj } from './types';
 import { inferTypeDef, asType, setTypeDef, getTypeDef } from './typedefs';
 
@@ -78,8 +78,8 @@ export const setter = (
     varDefs[prop] = typeDef;
     setTypeDef(expr, typeDef);
   } else {
-    const exprTypeDef = getTypeDef(expr);
-    if (asType(exprTypeDef) !== asType(typeDef)) {
+    const exprTypeDef = getTypeDef(expr, false);
+    if (exprTypeDef !== none && asType(exprTypeDef) !== asType(typeDef)) {
       throw new Error(`Wrong assignment type, expected ${typeDef} and got ${exprTypeDef}`);
     }
   }

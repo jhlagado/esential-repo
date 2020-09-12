@@ -8,8 +8,13 @@ const { lib, start } = esential();
 lib(({ func, literal }) => {
   const { log } = lib(ioLib);
 
-  const print3Times = func({}, ({ $, result }) => {
-    result(log(literal(1)), log(literal(2)), log(literal(3)));
+  const print3Times = func({}, ({ result }) => {
+    result(
+      //
+      log(literal(1)),
+      log(literal(2)),
+      log(literal(3)),
+    );
   });
 
   return {

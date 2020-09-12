@@ -14,6 +14,7 @@ import { CompileOptions } from './types';
 import { FEATURE_MULTIVALUE } from './constants';
 import { getFunc, getExternalFunc, getLiteral } from './lib-utils';
 import { exportFuncs } from './funcs-utils';
+import { getFOR, getIF } from './control';
 
 export const esential = (): Esential => {
   const module = new Module();
@@ -80,6 +81,8 @@ export const esential = (): Esential => {
     },
 
     literal: getLiteral(module),
+    FOR: getFOR(module),
+    IF: getIF(module),
     compile,
     load,
     start(options?: CompileOptions) {
