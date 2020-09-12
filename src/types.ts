@@ -59,8 +59,13 @@ export type IndirectInfo = {
   resultDef: TypeDef;
 };
 
+export type VarsAccessor = {
+  (dict: Dict<Expression>): ExpressionRef;
+  [prop: string]: any;
+};
+
 export type FuncImplDef = {
-  $: Vars;
+  $: VarsAccessor;
   result: VoidBlockFunc;
   block: BlockFunc;
   exec: VoidBlockFunc;
@@ -82,4 +87,3 @@ export type Esential = {
   memory: (def: MemDef) => void;
   start: (options?: CompileOptions) => any;
 };
-

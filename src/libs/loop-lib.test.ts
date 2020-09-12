@@ -3,11 +3,12 @@ import { loopLib } from './loop-lib';
 
 global.console = { ...console, log: jest.fn(console.log) };
 
-const { lib, start } = esential();
+const { lib, start, module: m } = esential();
 lib(loopLib);
+console.log('raw:', m.emitText());
 const exported = start();
 
 it('should loop', () => {
-  exported.looper()
-  expect(console.log).toBeCalledTimes(1);
+  const j = exported.looper();
+  expect(j).toBe(10);
 });

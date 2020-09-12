@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node --experimental-wasm-mv -r ts-node/register src/main",
     "lint": "eslint src/**/*.ts* --fix",
-    "test": "node --experimental-wasm-mv node_modules/.bin/jest --coverage",
+    "test": "node --experimental-wasm-mv node_modules/.bin/jest",
+    "coverage": "node --experimental-wasm-mv node_modules/.bin/jest --coverage",
     "life": "parcel src/life/index.html"
   },
   "staticFiles": {

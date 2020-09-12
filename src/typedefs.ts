@@ -1,6 +1,7 @@
 import { Expression, TypeDef } from './types';
 import { ExpressionRef, Type, createType } from 'binaryen';
 import { asDict } from './utils';
+import { stripTupleProxy } from './tuples';
 
 const expressionTypeDefs = new Map<ExpressionRef, TypeDef>();
 
@@ -48,3 +49,4 @@ export const inferTypeDef = (expression: Expression): TypeDef => {
     }
   }
 };
+

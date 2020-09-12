@@ -9,7 +9,7 @@ import {
   Imports,
   ExternalDef,
 } from './types';
-import { getVarsProxy } from './vars';
+import { getVarsAccessor } from './vars';
 import { getResultFunc, getBlockFunc, getExecFunc, getCallable } from './funcs-utils';
 import { asType, setTypeDef } from './typedefs';
 
@@ -29,7 +29,7 @@ export const getFunc = (
   } = def;
   const bodyItems: ExpressionRef[] = [];
   const vars = { ...params, ...locals };
-  const varsProxy = getVarsProxy(module, vars, bodyItems);
+  const varsProxy = getVarsAccessor(module, vars);
   const resultRef: Ref<TypeDef> = { current: result };
   const resultFunc = getResultFunc(module, resultRef, bodyItems);
   const blockFunc = getBlockFunc(module);

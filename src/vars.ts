@@ -1,23 +1,10 @@
-import { ExpressionRef, Module } from 'binaryen';
-import { VarDefs, Expression, TypeDef, Dict } from './types';
+import { auto, ExpressionRef, Module } from 'binaryen';
+import { VarDefs, Expression, TypeDef, Dict, VarsAccessor } from './types';
 import { makeTupleProxy, stripTupleProxy } from './tuples';
 import { inferTypeDef, asType, setTypeDef, getTypeDef } from './typedefs';
+import { getAssignable } from './funcs-utils';
 
-export const getAssignable = (module: Module) => (expression: Expression): ExpressionRef => {
-  const stripped = stripTupleProxy(expression);
-  if (Number.isInteger(stripped)) {
-    return stripped as ExpressionRef;
-  } else {
-    const exprArray = Array.isArray(stripped)
-      ? stripped
-      : Object.keys(stripped)
-          .sort()
-          .map(key => (stripped as Dict<ExpressionRef>)[key]);
-    return module.tuple.make(exprArray);
-  }
-};
-
-export const getter = (module: Module) => (varDefs: VarDefs, prop: string) => {
+export const getter = (module: Module, varDefs: VarDefs, prop: string) => {
   if (!(prop in varDefs)) {
     throw new Error(`Getter: unknown variable '${prop}'`);
   }
@@ -52,12 +39,21 @@ export const setter = (
   return module.local.set(index, expr);
 };
 
-export const getVarsProxy = (module: Module, varDefs: Dict<TypeDef>, bodyItems: ExpressionRef[]) =>
-  new Proxy(varDefs, {
-    get: getter(module),
-    set(varDefs: VarDefs, prop: string, expression: Expression) {
-      const expr = setter(module, varDefs, prop, expression);
-      bodyItems.push(expr);
-      return true;
+export const getVarsAccessor = (module: Module, varDefs: Dict<TypeDef>): VarsAccessor => {
+  const f = (assignDict: Dict<ExpressionRef>) => {
+    const expr = module.block(
+      null as any,
+      Object.entries(assignDict).map(([prop, expression]) =>
+        setter(module, varDefs, prop, expression),
+      ),
+      auto,
+    );
+    setTypeDef(expr, auto);
+    return expr;
+  };
+  return new Proxy(f as any, {
+    get(_target: any, prop: string) {
+      return getter(module, varDefs, prop);
     },
   });
+};
