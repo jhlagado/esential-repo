@@ -1,10 +1,5 @@
 import { ExpressionRef, Type, Module } from 'binaryen';
 
-export type Without<T, U> = {
-  [P in Exclude<keyof T, keyof U>]?: never;
-};
-export type XOR<T, U> = T | U extends object ? (Without<T, U> & U) | (Without<U, T> & T) : T | U;
-
 export type Ref<T> = { current: T };
 export type updateFunc<T> = (item: T) => T;
 export type MapFunc<T, R> = (item: T) => R;
@@ -87,6 +82,7 @@ export type Esential = {
   getIndirectInfo(callable: Callable): IndirectInfo | undefined;
   indirect: (def: FuncDef, funcImpl: Initializer) => any;
   lib: (func: LibFunc, args?: Dict<any>) => any;
+  literal(value: number, type?: Type): ExpressionRef;
   load: (binary: Uint8Array) => any;
   memory: (def: MemDef) => void;
   start: (options?: CompileOptions) => any;

@@ -1,5 +1,5 @@
 import { auto, ExpressionRef, Module } from 'binaryen';
-import { VarDefs, Expression, TypeDef, Dict, VarsAccessor, TupleObj, XOR } from './types';
+import { VarDefs, Expression, TypeDef, Dict, VarsAccessor, TupleObj } from './types';
 import { inferTypeDef, asType, setTypeDef, getTypeDef } from './typedefs';
 
 const tupleProxies = new Map();
@@ -91,7 +91,7 @@ export const getVarsAccessor = (module: Module, varDefs: Dict<TypeDef>): VarsAcc
   const f = (value: any) => {
     // const stripped = stripTupleProxy(expression);
     const expr = Number.isInteger(value)
-      ? module.i32.const(value as number)
+      ? module.i32.const(stripTupleProxy(value) as number)
       : module.block(
           null as any,
           Object.entries(value).map(([prop, expression]) =>

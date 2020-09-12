@@ -2,13 +2,13 @@ import { i32 } from 'binaryen';
 import { LibFunc } from '../types';
 import { addLib } from './add-lib';
 
-export const tupleLib: LibFunc = ({ lib, func }) => {
+export const tupleLib: LibFunc = ({ lib, func, literal }) => {
   const { addition } = lib(addLib);
 
   const returnTwo = func({ export: false }, ({ $, result }) => {
     result(
       //
-      $({ u: [$(1), $(2)] }),
+      $({ u: [literal(1), literal(2)] }),
       $.u,
     );
   });
