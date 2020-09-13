@@ -5,10 +5,11 @@
   "main": "index.js",
   "scripts": {
     "start": "node --experimental-wasm-mv -r ts-node/register src/main",
+    "build": "node --experimental-wasm-mv -r ts-node/register src/scripts/build-esen",
     "lint": "eslint src/**/*.ts* --fix",
     "test": "node --experimental-wasm-mv node_modules/.bin/jest",
     "coverage": "node --experimental-wasm-mv node_modules/.bin/jest --coverage",
-    "life": "parcel src/life/index.html"
+    "life": "node --experimental-wasm-mv node_modules/parcel-bundler/bin/cli src/life/index.html"
   },
   "staticFiles": {
     "staticPath": "public",

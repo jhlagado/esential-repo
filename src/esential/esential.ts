@@ -33,11 +33,12 @@ export const esential = (): Esential => {
     (module.setFunctionTable as any)(length, length, ids); // because .d.ts is wrong
     if (options.optimize) module.optimize();
     if (options.validate && !module.validate()) throw new Error('validation error');
-    return new WebAssembly.Module(module.emitBinary());
+    return module.emitBinary();
   };
 
   const load = (binary: Uint8Array): any => {
-    const instance = new WebAssembly.Instance(binary, importsRef.current);
+    const wasmModule = new WebAssembly.Module(binary);
+    const instance = new WebAssembly.Instance(wasmModule, importsRef.current);
     return instance.exports;
   };
 
