@@ -1,8 +1,8 @@
-import { Expression, TypeDef, VoidBlockFunc, Ref, Callable, Dict } from './types';
+import { Expression, TypeDef, VoidBlockFunc, Ref, Callable } from './types';
 
 import { ExpressionRef, auto, Module } from 'binaryen';
 import { inferTypeDef, setTypeDef, getTypeDef, asType } from './typedefs';
-import { getAssignable, stripTupleProxy } from './vars';
+import { getAssignable, stripTupleProxy } from './tuples';
 
 export const getResultFunc = (
   module: Module,
@@ -50,22 +50,5 @@ export const getCallable = (
     exportedSet.add(callable);
   }
   return callable;
-};
-
-export const exportFuncs = (
-  module: Module,
-  lib: Dict<any>,
-  exportedSet: Set<Callable>,
-  callableIdMap: Map<Callable, string>,
-) => {
-  Object.entries(lib).forEach(([externalName, callable]) => {
-    if (exportedSet.has(callable)) {
-      const internalName = callableIdMap.get(callable);
-      if (internalName) {
-        module.addFunctionExport(internalName, externalName);
-        exportedSet.delete(callable);
-      }
-    }
-  });
 };
 

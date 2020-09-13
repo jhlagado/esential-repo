@@ -1,14 +1,5 @@
 import { auto, ExpressionRef, none, createType, Module, Type, i32, i64, f32, f64 } from 'binaryen';
-import {
-  Callable,
-  IndirectInfo,
-  FuncDef,
-  Initializer,
-  Ref,
-  TypeDef,
-  Imports,
-  ExternalDef,
-} from './types';
+import { Callable, IndirectInfo, FuncDef, Initializer, Ref, TypeDef, Imports, Dict, ExternalDef } from './types';
 import { getVarsAccessor } from './vars';
 import { getResultFunc, getCallable } from './funcs-utils';
 import { asType, setTypeDef } from './typedefs';
@@ -94,4 +85,21 @@ export const getLiteral = (module: Module) => (value: number, type: Type = i32):
     return expr;
   }
   throw new Error(`Can only use primtive types in val, not ${type}`);
+};
+
+export const exportFuncs = (
+  module: Module,
+  lib: Dict<any>,
+  exportedSet: Set<Callable>,
+  callableIdMap: Map<Callable, string>,
+) => {
+  Object.entries(lib).forEach(([externalName, callable]) => {
+    if (exportedSet.has(callable)) {
+      const internalName = callableIdMap.get(callable);
+      if (internalName) {
+        module.addFunctionExport(internalName, externalName);
+        exportedSet.delete(callable);
+      }
+    }
+  });
 };

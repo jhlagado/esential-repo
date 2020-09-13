@@ -12,8 +12,7 @@ import {
 } from './types';
 import { CompileOptions } from './types';
 import { FEATURE_MULTIVALUE } from './constants';
-import { getFunc, getExternalFunc, getLiteral } from './lib-utils';
-import { exportFuncs } from './funcs-utils';
+import { getFunc, getExternalFunc, getLiteral, exportFuncs } from './lib-utils';
 import { getFOR, getIF } from './control';
 
 export const esential = (): Esential => {
