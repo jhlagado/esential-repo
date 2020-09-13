@@ -1,6 +1,7 @@
 import { auto, ExpressionRef, Module, none } from 'binaryen';
 import { VarDefs, Expression, TypeDef, Dict, VarsAccessor, TupleObj } from './types';
 import { inferTypeDef, asType, setTypeDef, getTypeDef } from './typedefs';
+import { isArray, isPrimitive } from './utils';
 
 const tupleProxies = new Map();
 
@@ -8,13 +9,27 @@ export const stripTupleProxy = (expr: Expression): Expression => {
   return tupleProxies.has(expr as any) ? tupleProxies.get(expr) : expr;
 };
 
+export const getAssignable = (module: Module) => (expression: Expression): ExpressionRef => {
+  const stripped = stripTupleProxy(expression);
+  if (isPrimitive<ExpressionRef>(stripped)) {
+    return stripped;
+  } else {
+    const exprArray = isArray<ExpressionRef>(stripped)
+      ? stripped
+      : Object.keys(stripped)
+          .sort()
+          .map(key => (stripped)[key]);
+    return module.tuple.make(exprArray);
+  }
+};
+
 export const makeTupleProxy = (module: Module, expr: ExpressionRef, typeDef: TypeDef): TupleObj => {
   const boxed = new Number(expr);
   const proxy = new Proxy(boxed, {
     get(_target: any, prop: number | string) {
-      if (Number.isInteger(typeDef)) {
+      if (isPrimitive<ExpressionRef>(typeDef)) {
         throw new Error(`Cannot index a primitive value`);
-      } else if (Array.isArray(typeDef)) {
+      } else if (isArray<ExpressionRef>(typeDef)) {
         const index = prop as number;
         if (index >= typeDef.length) {
           throw new Error(`Max tuple index should be ${typeDef.length} but received ${prop}`);
@@ -23,7 +38,7 @@ export const makeTupleProxy = (module: Module, expr: ExpressionRef, typeDef: Typ
         setTypeDef(valueExpr, typeDef[index]);
         return valueExpr;
       } else {
-        const typeDefDict = typeDef as Dict<TypeDef>;
+        const typeDefDict = typeDef;
         const index = Object.keys(typeDef).indexOf(prop as string);
         if (index < 0) {
           throw new Error(`Could not find ${prop} in record`);
@@ -38,21 +53,7 @@ export const makeTupleProxy = (module: Module, expr: ExpressionRef, typeDef: Typ
   return proxy;
 };
 
-export const getAssignable = (module: Module) => (expression: Expression): ExpressionRef => {
-  const stripped = stripTupleProxy(expression);
-  if (Number.isInteger(stripped)) {
-    return stripped as ExpressionRef;
-  } else {
-    const exprArray = Array.isArray(stripped)
-      ? stripped
-      : Object.keys(stripped)
-          .sort()
-          .map(key => (stripped as Dict<ExpressionRef>)[key]);
-    return module.tuple.make(exprArray);
-  }
-};
-
-export const getter = (module: Module, varDefs: VarDefs, prop: string) => {
+export const varGet = (module: Module, varDefs: VarDefs, prop: string) => {
   if (!(prop in varDefs)) {
     throw new Error(`Getter: unknown variable '${prop}'`);
   }
@@ -62,10 +63,10 @@ export const getter = (module: Module, varDefs: VarDefs, prop: string) => {
   const type = asType(typeDef);
   const expr = module.local.get(index, type);
   setTypeDef(expr, typeDef);
-  return Number.isInteger(typeDef) ? expr : makeTupleProxy(module, expr, typeDef);
+  return isPrimitive<ExpressionRef>(typeDef) ? expr : makeTupleProxy(module, expr, typeDef);
 };
 
-export const setter = (
+export const varSet = (
   module: Module,
   varDefs: VarDefs,
   prop: string,
@@ -87,26 +88,24 @@ export const setter = (
   return module.local.set(index, expr);
 };
 
+export const varSetExpression = (module: Module, varDefs: Dict<TypeDef>) => (value: Expression) => {
+  const expr: ExpressionRef = isPrimitive<ExpressionRef>(value)
+    ? (value as number)
+    : module.block(
+        null as any,
+        isArray<ExpressionRef>(value)
+          ? value.map(expr => expr)
+          : Object.entries(value).map(([prop, expr]) => varSet(module, varDefs, prop, expr)),
+        auto,
+      );
+  setTypeDef(expr, auto);
+  return expr;
+};
+
 export const getVarsAccessor = (module: Module, varDefs: Dict<TypeDef>): VarsAccessor => {
-  const f = (value: Expression) => {
-    // const stripped = stripTupleProxy(expression);
-    const expr: ExpressionRef = Number.isInteger(value)
-      ? value as number
-      : module.block(
-          null as any,
-          Array.isArray(value)
-            ? value.map(expr => expr)
-            : Object.entries(value).map(([prop, expr]) =>
-                setter(module, varDefs, prop, expr as Dict<ExpressionRef>),
-              ),
-          auto,
-        );
-    setTypeDef(expr, auto);
-    return expr;
-  };
-  return new Proxy(f as any, {
+  return new Proxy(varSetExpression(module, varDefs) as any, {
     get(_target: any, prop: string) {
-      return getter(module, varDefs, prop);
+      return varGet(module, varDefs, prop);
     },
   });
 };
