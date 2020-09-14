@@ -5,7 +5,7 @@ const { lib, load, compile, module } = esential();
 lib(indirectLib);
 console.log('raw:', module.emitText());
 
-const exported = load(compile({ tableDef: { initial: 10, maximum: 100 } }), {
+const exported = load(compile({ table: { initial: 10, maximum: 100 } }), {
   env: {
     table: new WebAssembly.Table({ initial: 10, maximum: 100, element: 'anyfunc' }),
   },

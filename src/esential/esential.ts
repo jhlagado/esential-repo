@@ -1,30 +1,15 @@
 import { Module } from 'binaryen';
-import {
-  Callable,
-  LibFunc,
-  Lib,
-  Esential,
-  Dict,
-  MemDef,
-  IndirectInfo,
-  Ref,
-  Imports,
-} from './types';
+import { Callable, LibFunc, Lib, Esential, Dict, IndirectInfo, Imports } from './types';
 import { CompileOptions } from './types';
 import { FEATURE_MULTIVALUE } from './constants';
 import { getFunc, getExternalFunc, getLiteral, exportFuncs } from './lib-utils';
 import { getFOR, getIF } from './control';
 
 export const esential = (): Esential => {
-  // let memoryDef: MemDef = null;
-  // let tableDef: TableDef = null;
-  // let externalDefs: ExternalDef[] = [];
-
   const module = new Module();
   module.setFeatures(FEATURE_MULTIVALUE);
   module.autoDrop();
 
-  const importsRef: Ref<Imports> = { current: {} };
   const callableIdMap = new Map<Callable, string>();
   const callableIndirectMap = new Map<Callable, IndirectInfo>();
   const libMap = new Map<LibFunc, Lib>();
@@ -34,16 +19,16 @@ export const esential = (): Esential => {
   const compile = ({
     optimize = true,
     validate = true,
-    memDef,
-    tableDef = {},
+    memory,
+    table = {},
   }: CompileOptions = {}): any => {
-    if (memDef) {
+    if (memory) {
       const {
         namespace: memoryNamespace = 'env',
         name: memoryName = 'memory',
         initial: memoryInitial = 10,
         maximum: memoryMaximum = 100,
-      } = memDef;
+      } = memory;
       module.addMemoryImport('0', memoryNamespace, memoryName);
       module.setMemory(memoryInitial, memoryMaximum, memoryName);
     }
@@ -55,7 +40,7 @@ export const esential = (): Esential => {
         name: tableName = 'table',
         initial: tableInitial = 10,
         maximum: tableMaximum = 100,
-      } = tableDef;
+      } = table;
       module.addTableImport('0', tableNamespace, tableName);
       (module.setFunctionTable as any)(
         Math.max(length, tableInitial),
@@ -68,7 +53,7 @@ export const esential = (): Esential => {
     return module.emitBinary();
   };
 
-  const load = (binary: Uint8Array, imports: Dict<Dict<any>> = { env: {} }): any => {
+  const load = (binary: Uint8Array, imports: Imports = { env: {} }): any => {
     const wasmModule = new WebAssembly.Module(binary);
     const instance = new WebAssembly.Instance(wasmModule, imports);
     return instance.exports;
@@ -87,26 +72,9 @@ export const esential = (): Esential => {
       return lib;
     },
 
-    memory(def: MemDef): any {
-      const { namespace = 'namespace', name = 'name', initial = 10, maximum = 100 } = def;
-      const memObj = new WebAssembly.Memory({
-        initial,
-        maximum,
-      });
-      importsRef.current = {
-        ...importsRef.current,
-        [namespace]: {
-          ...importsRef.current[namespace],
-          [name]: memObj,
-        },
-      };
-      module.addMemoryImport('0', namespace, name);
-      module.setMemory(initial, maximum, name);
-    },
-
     func: getFunc(module, callableIdMap, exportedSet),
     indirect: getFunc(module, callableIdMap, exportedSet, indirectTable),
-    external: getExternalFunc(module, callableIdMap, importsRef),
+    external: getExternalFunc(module, callableIdMap),
 
     getIndirectInfo(callable: Callable) {
       return callableIndirectMap.get(callable);

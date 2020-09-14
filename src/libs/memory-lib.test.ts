@@ -3,10 +3,10 @@ import { memoryLib } from './memory-lib';
 
 const { lib, load, compile, module: m } = esential();
 
-const pages = asPages(500000);
-lib(memoryLib, { pages });
+lib(memoryLib);
 console.log('raw:', m.emitText());
-const exported = load(compile(), {
+const pages = asPages(500000);
+const exported = load(compile({ memory: { initial: pages, maximum: pages } }), {
   env: {
     memory: new WebAssembly.Memory({ initial: pages, maximum: pages }),
   },

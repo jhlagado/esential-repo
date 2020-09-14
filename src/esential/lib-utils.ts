@@ -1,5 +1,5 @@
 import { auto, ExpressionRef, none, createType, Module, Type, i32, i64, f32, f64 } from 'binaryen';
-import { Callable, IndirectInfo, FuncDef, Initializer, Ref, TypeDef, Imports, Dict, ExternalDef } from './types';
+import { Callable, IndirectInfo, FuncDef, Initializer, Ref, TypeDef, Dict, ExternalDef } from './types';
 import { getVarsAccessor } from './vars';
 import { getResultFunc, getCallable } from './funcs-utils';
 import { asType, setTypeDef } from './typedefs';
@@ -47,8 +47,7 @@ export const getFunc = (
 export const getExternalFunc = (
   module: Module,
   callableIdMap: Map<Callable, string>,
-  importsRef: Ref<Imports>,
-) => (def: ExternalDef, fn: Function): Callable => {
+) => (def: ExternalDef): Callable => {
   const count = callableIdMap.size;
   const {
     namespace = 'namespace',
@@ -60,13 +59,6 @@ export const getExternalFunc = (
   const paramsType = createType(Object.values(paramDefs).map(asType));
   const resultType = asType(resultDef);
   module.addFunctionImport(id, namespace, name, paramsType, resultType);
-  importsRef.current = {
-    ...importsRef.current,
-    [namespace]: {
-      ...importsRef.current[namespace],
-      [name]: fn,
-    },
-  };
   const exprFunc = (...params: ExpressionRef[]) => module.call(id, params, resultType);
   return getCallable(id, false, exprFunc, resultDef, callableIdMap);
 };

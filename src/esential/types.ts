@@ -64,8 +64,8 @@ export type TableDef = {
 export type CompileOptions = {
   optimize?: boolean;
   validate?: boolean;
-  memDef?: MemDef;
-  tableDef?: TableDef;
+  memory?: MemDef;
+  table?: TableDef;
 };
 
 export type VarsAccessor = {
@@ -84,7 +84,7 @@ export type LibFunc = (mod: Esential, args?: Dict<any>) => Dict<any>;
 export type Esential = {
   module: Module;
   compile: (options?: CompileOptions) => Uint8Array;
-  external: (def: ExternalDef, fn: Function) => Callable;
+  external: (def: ExternalDef) => Callable;
   func: (def: FuncDef, funcImpl: Initializer) => Callable;
   getIndirectInfo(callable: Callable): IndirectInfo | undefined;
   indirect: (def: FuncDef, funcImpl: Initializer) => any;
@@ -98,6 +98,5 @@ export type Esential = {
   IF: (
     condition: ExpressionRef,
   ) => (...thenBody: ExpressionRef[]) => (...elseBody: ExpressionRef[]) => ExpressionRef;
-  load: (binary: Uint8Array, imports?: Dict<Dict<any>>) => any;
-  memory: (def: MemDef) => void;
+  load: (binary: Uint8Array, imports?: Imports) => any;
 };
