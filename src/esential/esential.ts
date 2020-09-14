@@ -2,7 +2,7 @@ import { Module } from 'binaryen';
 import { Callable, LibFunc, Lib, Esential, Dict, IndirectInfo, Imports } from './types';
 import { CompileOptions } from './types';
 import { FEATURE_MULTIVALUE } from './constants';
-import { getFunc, getExternalFunc, getLiteral, exportFuncs } from './lib-utils';
+import { getFunc, getLiteral, exportFuncs } from './lib-utils';
 import { getFOR, getIF } from './control';
 
 export const esential = (): Esential => {
@@ -72,9 +72,7 @@ export const esential = (): Esential => {
       return lib;
     },
 
-    func: getFunc(module, callableIdMap, exportedSet),
-    indirect: getFunc(module, callableIdMap, exportedSet, indirectTable),
-    external: getExternalFunc(module, callableIdMap),
+    func: getFunc(module, callableIdMap, exportedSet, indirectTable),
 
     getIndirectInfo(callable: Callable) {
       return callableIndirectMap.get(callable);

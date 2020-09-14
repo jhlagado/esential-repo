@@ -1,5 +1,5 @@
 import { auto, ExpressionRef, none, createType, Module, Type, i32, i64, f32, f64 } from 'binaryen';
-import { Callable, IndirectInfo, FuncDef, Initializer, Ref, TypeDef, Dict, ExternalDef } from './types';
+import { Callable, IndirectInfo, FuncDef, Initializer, Ref, TypeDef, Dict } from './types';
 import { getVarsAccessor } from './vars';
 import { getResultFunc, getCallable } from './funcs-utils';
 import { asType, setTypeDef } from './typedefs';
@@ -8,59 +8,59 @@ export const getFunc = (
   module: Module,
   callableIdMap: Map<Callable, string>,
   exportedSet: Set<Callable>,
-  indirectTable?: IndirectInfo[],
-) => (def: FuncDef, initializer: Initializer): Callable => {
+  indirectTable: IndirectInfo[],
+) => (def: FuncDef, initializer?: Initializer): Callable => {
   const count = callableIdMap.size;
   const {
-    id = `indirect${count}`,
+    id = `func${count}`,
     params = {},
-    result = auto,
+    result,
     locals = {},
-    export: exported = true,
-  } = def;
-  const bodyItems: ExpressionRef[] = [];
-  const vars = { ...params, ...locals };
-  const varsProxy = getVarsAccessor(module, vars);
-  const resultRef: Ref<TypeDef> = { current: result };
-  const resultFunc = getResultFunc(module, resultRef, bodyItems);
-  initializer({ $: varsProxy, result: resultFunc });
-  const resultDef = resultRef.current === auto ? none : resultRef.current;
-  const { length: paramsLength } = Object.values(params);
-  const paramsType = createType(Object.values(params).map(asType));
-  const resultType = asType(resultDef);
-  const localTypes = Object.values(vars)
-    .slice(paramsLength)
-    .map(asType);
-  module.addFunction(id, paramsType, resultType, localTypes, module.block(null as any, bodyItems));
-  let exprFunc;
-  if (indirectTable == null) {
-    exprFunc = (...params: ExpressionRef[]) => module.call(id, params, resultType);
-  } else {
-    const { length: index } = indirectTable;
-    indirectTable.push({ index, id, paramDefs: params, resultDef: resultDef });
-    exprFunc = (...params: ExpressionRef[]) =>
-      module.call_indirect(module.i32.const(index), params, paramsType, resultType);
-  }
-  return getCallable(id, exported, exprFunc, resultDef, callableIdMap, exportedSet);
-};
-
-export const getExternalFunc = (
-  module: Module,
-  callableIdMap: Map<Callable, string>,
-) => (def: ExternalDef): Callable => {
-  const count = callableIdMap.size;
-  const {
     namespace = 'namespace',
     name = 'name',
-    id = `external${count}`,
-    params: paramDefs = {},
-    result: resultDef = none,
+    export: exported = true,
+    indirect = false,
+    external = false,
   } = def;
-  const paramsType = createType(Object.values(paramDefs).map(asType));
-  const resultType = asType(resultDef);
-  module.addFunctionImport(id, namespace, name, paramsType, resultType);
-  const exprFunc = (...params: ExpressionRef[]) => module.call(id, params, resultType);
-  return getCallable(id, false, exprFunc, resultDef, callableIdMap);
+  if (external) {
+    const resultDef = result == null ? none : result;
+    const paramsType = createType(Object.values(params).map(asType));
+    const resultType = asType(resultDef);
+    module.addFunctionImport(id, namespace, name, paramsType, resultType);
+    const exprFunc = (...params: ExpressionRef[]) => module.call(id, params, resultType);
+    return getCallable(id, false, exprFunc, resultDef, callableIdMap);
+  } else {
+    const bodyItems: ExpressionRef[] = [];
+    const vars = { ...params, ...locals };
+    const varsProxy = getVarsAccessor(module, vars);
+    const resultRef: Ref<TypeDef> = { current: result == null ? auto : result };
+    const resultFunc = getResultFunc(module, resultRef, bodyItems);
+    if (initializer) initializer({ $: varsProxy, result: resultFunc });
+    const resultDef = resultRef.current === auto ? none : resultRef.current;
+    const { length: paramsLength } = Object.values(params);
+    const paramsType = createType(Object.values(params).map(asType));
+    const resultType = asType(resultDef);
+    const localTypes = Object.values(vars)
+      .slice(paramsLength)
+      .map(asType);
+    module.addFunction(
+      id,
+      paramsType,
+      resultType,
+      localTypes,
+      module.block(null as any, bodyItems),
+    );
+    let exprFunc;
+    if (!indirect) {
+      exprFunc = (...params: ExpressionRef[]) => module.call(id, params, resultType);
+    } else {
+      const { length: index } = indirectTable;
+      indirectTable.push({ index, id, paramDefs: params, resultDef: resultDef });
+      exprFunc = (...params: ExpressionRef[]) =>
+        module.call_indirect(module.i32.const(index), params, paramsType, resultType);
+    }
+    return getCallable(id, exported, exprFunc, resultDef, callableIdMap, exportedSet);
+  }
 };
 
 export const getLiteral = (module: Module) => (value: number, type: Type = i32): ExpressionRef => {

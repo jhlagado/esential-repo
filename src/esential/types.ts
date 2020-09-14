@@ -23,21 +23,16 @@ export type StatementsBlockFunc<T> = (...exprs: ExpressionRef[]) => T;
 export type BlockFunc = StatementsBlockFunc<ExpressionRef>;
 export type VoidBlockFunc = StatementsBlockFunc<void>;
 
-export type ExternalDef = {
-  namespace: string;
-  name: string;
-  id?: string;
-  params?: VarDefs;
-  result?: TypeDef;
-  export?: boolean;
-};
-
 export type FuncDef = {
   id?: string;
   params?: VarDefs;
   result?: TypeDef;
   locals?: VarDefs;
   export?: boolean;
+  indirect?: boolean;
+  external?: boolean;
+  namespace?: string;
+  name?: string;
 };
 
 export type IndirectInfo = {
@@ -84,10 +79,8 @@ export type LibFunc = (mod: Esential, args?: Dict<any>) => Dict<any>;
 export type Esential = {
   module: Module;
   compile: (options?: CompileOptions) => Uint8Array;
-  external: (def: ExternalDef) => Callable;
-  func: (def: FuncDef, funcImpl: Initializer) => Callable;
+  func: (def: FuncDef, funcImpl?: Initializer) => Callable;
   getIndirectInfo(callable: Callable): IndirectInfo | undefined;
-  indirect: (def: FuncDef, funcImpl: Initializer) => any;
   lib: (func: LibFunc, args?: Dict<any>) => any;
   literal(value: number, type?: Type): ExpressionRef;
   FOR: (

@@ -1,8 +1,7 @@
 import { i32 } from 'binaryen';
-import { esential } from '../src/esential';
-import { builtin } from '../src/typedefs';
+import { esential, builtin } from '../src/esential';
 
-const { lib, module, start } = esential();
+const { lib, module, load, compile } = esential();
 
 lib(({ func }) => {
   const add = builtin(module.i32.add, i32);
@@ -24,6 +23,6 @@ lib(({ func }) => {
   };
 });
 
-const exported = start();
+const exported = load(compile());
 console.log(module.emitText());
 console.log(exported.addition(41, 1));
