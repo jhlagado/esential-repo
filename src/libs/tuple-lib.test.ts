@@ -1,9 +1,9 @@
 import { esential } from '../esential';
 import { tupleLib } from './tuple-lib';
 
-const { lib, start } = esential();
+const { lib, load, compile } = esential();
 lib(tupleLib);
-const exported = start();
+const exported = load(compile());
 
 it('should select the second tuple item', () => {
   expect(exported.selectRight()).toBe(2);

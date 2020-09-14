@@ -1,10 +1,16 @@
-import { esential } from '../esential';
+import { asPages, esential } from '../esential';
 import { memoryLib } from './memory-lib';
 
-const { lib, start, module: m } = esential();
-lib(memoryLib, { width: 600, height: 600 });
+const { lib, load, compile, module: m } = esential();
+
+const pages = asPages(500000);
+lib(memoryLib, { pages });
 console.log('raw:', m.emitText());
-const exported = start();
+const exported = load(compile(), {
+  env: {
+    memory: new WebAssembly.Memory({ initial: pages, maximum: pages }),
+  },
+});
 
 it('should store a number and return it', () => {
   expect(exported.storeAndLoad(346)).toBe(346);

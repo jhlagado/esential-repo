@@ -1,19 +1,12 @@
-import { i32 } from "binaryen";
-import { LibFunc, Dict, builtin, asPages } from "../esential";
-
+import { i32 } from 'binaryen';
+import { LibFunc, Dict, builtin, asPages } from '../esential';
 
 export const memoryLib: LibFunc = (
   { memory, func, module, literal },
-  { width = 500, height = 500 }: Dict<any> = {},
+  { pages = 1 }: Dict<any> = {},
 ) => {
-
   const load = builtin(module.i32.load, i32);
   const store = builtin(module.i32.store, i32);
-
-  const numBuffers = 2;
-  const bytesPerPixel = 4;
-  const bytes = width * height * bytesPerPixel * numBuffers;
-  const pages = asPages(bytes);
 
   memory({ namespace: 'env', name: 'memory', initial: pages, maximum: pages });
 

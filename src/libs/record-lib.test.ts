@@ -1,9 +1,9 @@
 import { esential } from '../esential';
 import { recordLib } from './record-lib';
 
-const { lib, start } = esential();
+const { lib, load, compile } = esential();
 lib(recordLib);
-const exported = start();
+const exported = load(compile());
 
 it('should select the second record item', () => {
   expect(exported.selectRightRecord()).toBe(2);

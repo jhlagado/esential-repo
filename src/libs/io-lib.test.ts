@@ -3,7 +3,7 @@ import { ioLib } from './io-lib';
 
 global.console = { ...global.console, log: jest.fn() };
 
-const { lib, start } = esential();
+const { lib, load, compile } = esential();
 
 lib(({ func, literal }) => {
   const { log } = lib(ioLib);
@@ -22,7 +22,14 @@ lib(({ func, literal }) => {
   };
 });
 
-const exported = start();
+const exported = load(compile(), {
+  env: {
+    log: (a: number) => {
+      console.log(a);
+      return;
+    },
+  },
+});
 
 it('should log 3 times', () => {
   exported.print3Times();

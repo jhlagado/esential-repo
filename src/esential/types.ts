@@ -23,18 +23,6 @@ export type StatementsBlockFunc<T> = (...exprs: ExpressionRef[]) => T;
 export type BlockFunc = StatementsBlockFunc<ExpressionRef>;
 export type VoidBlockFunc = StatementsBlockFunc<void>;
 
-export type CompileOptions = {
-  optimize?: boolean;
-  validate?: boolean;
-};
-
-export type MemDef = {
-  namespace: string;
-  name: string;
-  initial: number;
-  maximum?: number;
-};
-
 export type ExternalDef = {
   namespace: string;
   name: string;
@@ -57,6 +45,27 @@ export type IndirectInfo = {
   id: string;
   paramDefs: Dict<TypeDef>;
   resultDef: TypeDef;
+};
+
+export type MemDef = {
+  namespace?: string;
+  name?: string;
+  initial?: number;
+  maximum?: number;
+};
+
+export type TableDef = {
+  namespace?: string;
+  name?: string;
+  initial?: number;
+  maximum?: number;
+};
+
+export type CompileOptions = {
+  optimize?: boolean;
+  validate?: boolean;
+  memDef?: MemDef;
+  tableDef?: TableDef;
 };
 
 export type VarsAccessor = {
@@ -89,7 +98,6 @@ export type Esential = {
   IF: (
     condition: ExpressionRef,
   ) => (...thenBody: ExpressionRef[]) => (...elseBody: ExpressionRef[]) => ExpressionRef;
-  load: (binary: Uint8Array) => any;
+  load: (binary: Uint8Array, imports?: Dict<Dict<any>>) => any;
   memory: (def: MemDef) => void;
-  start: (options?: CompileOptions) => any;
 };

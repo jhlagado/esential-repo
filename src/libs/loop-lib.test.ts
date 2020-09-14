@@ -3,10 +3,10 @@ import { loopLib } from './loop-lib';
 
 global.console = { ...console, log: jest.fn(console.log) };
 
-const { lib, start, module: m } = esential();
+const { lib, load, compile, module: m } = esential();
 lib(loopLib);
 console.log('raw:', m.emitText());
-const exported = start();
+const exported = load(compile());
 
 it('should count up to 10', () => {
   const j = exported.looper();
