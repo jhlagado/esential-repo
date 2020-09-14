@@ -12,7 +12,7 @@
     "serve": "yarn build && yarn parcelx src/life/index.html",
     "test": "yarn jestx",
     "coverage": "yarn jestx --coverage",
-    "lint": "eslint src/**/*.ts* --fix",
+    "lint": "eslint  src/**/*.ts* --fix",
     "watch": "npm-watch",
     "start": "concurrently --kill-others \"yarn watch\" \"yarn serve\""
   },
