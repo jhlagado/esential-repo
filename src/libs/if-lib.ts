@@ -1,4 +1,4 @@
-import { LibFunc } from '../types';
+import { LibFunc } from '../esential';
 import { ioLib } from './io-lib';
 
 export const ifLib: LibFunc = ({ module: m, lib, func, literal, FOR, IF }) => {

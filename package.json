@@ -4,12 +4,20 @@
   "description": "A recoil based form example",
   "main": "index.js",
   "scripts": {
-    "start": "node --experimental-wasm-mv -r ts-node/register src/main",
-    "build": "node --experimental-wasm-mv -r ts-node/register src/scripts/build-esen",
+    "nodex": "node --experimental-wasm-mv",
+    "tsnodex": "yarn nodex -r ts-node/register",
+    "jestx": "yarn nodex node_modules/.bin/jest",
+    "parcelx": "yarn nodex node_modules/parcel-bundler/bin/cli",
+    "build": "yarn tsnodex src/scripts/build-life",
+    "serve": "yarn build && yarn parcelx src/life/index.html",
+    "test": "yarn jestx",
+    "coverage": "yarn jestx --coverage",
     "lint": "eslint src/**/*.ts* --fix",
-    "test": "node --experimental-wasm-mv node_modules/.bin/jest",
-    "coverage": "node --experimental-wasm-mv node_modules/.bin/jest --coverage",
-    "life": "node --experimental-wasm-mv node_modules/parcel-bundler/bin/cli src/life/index.html"
+    "watch": "npm-watch",
+    "start": "concurrently --kill-others \"yarn watch\" \"yarn serve\""
+  },
+  "watch": {
+    "build": "src/life/asm/*.*"
   },
   "staticFiles": {
     "staticPath": "public",
@@ -23,13 +31,13 @@
   "author": "John Hardy <“jh@lagado.com”> (https://www.lagado.com)",
   "license": "MIT",
   "dependencies": {
-    "binaryen": "^96.0.0",
     "@types/fetch-mock": "^7.3.2",
     "@types/jest": "^24.9.1",
     "@types/node": "^12.12.43",
     "@types/webpack-env": "^1.15.2",
     "@typescript-eslint/eslint-plugin": "^2.34.0",
     "@typescript-eslint/parser": "^2.34.0",
+    "binaryen": "^96.0.0",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.3",
@@ -50,5 +58,10 @@
   "bugs": {
     "url": "https://github.com/jhlagado/esen/issues"
   },
-  "homepage": "https://github.com/jhlagado/esen#readme"
+  "homepage": "https://github.com/jhlagado/esen#readme",
+  "devDependencies": {
+    "concurrently": "^5.3.0",
+    "npm-watch": "^0.7.0",
+    "parcel-plugin-static-files-copy": "^2.5.0"
+  }
 }

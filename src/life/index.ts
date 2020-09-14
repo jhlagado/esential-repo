@@ -1,6 +1,6 @@
 import { addListeners, rgb2bgr } from './utils';
 import { Exported } from './types';
-import { RGB_ALIVE, RGB_DEAD, BIT_ROT } from './constants';
+import { RGB_ALIVE, RGB_DEAD, BIT_ROT, WASM_FILENAME } from './common/constants';
 
 const addAllListeners = (canvas: HTMLCanvasElement, document: Document) => {
   // When clicked or dragged, fill the current row and column with random live cells
@@ -51,8 +51,8 @@ const run = async (canvas: HTMLCanvasElement) => {
   const { width: bcrWidth, height: bcrHeight } = bcr;
 
   // Compute the size of the universe (here: 2px per cell)
-  const width = bcrWidth >>> 1;
-  const height = bcrHeight >>> 1;
+  const width = bcrWidth;
+  const height = bcrHeight;
   const size = width * height;
   const byteSize = (size + size) << 2; // input & output (here: 4b per cell)
 
@@ -74,7 +74,7 @@ const run = async (canvas: HTMLCanvasElement) => {
   });
 
   try {
-    const response = await fetch('dist/loop.wasm');
+    const response = await fetch(WASM_FILENAME);
     const buffer = await response.arrayBuffer();
     const module = await WebAssembly.instantiate(buffer, {
       env: {
@@ -94,7 +94,11 @@ const run = async (canvas: HTMLCanvasElement) => {
     const exports = module.instance.exports as Exported;
 
     // Initialize the module with the universe's width and height
-    exports.init(width, height);
+    const sanity = exports.init(width, height);
+    if (sanity !== 1000) {
+      throw new Error(`Couldn't initialise wasm file`);
+    }
+    console.log('wasm loaded');
 
     const mem = new Uint32Array(memory.buffer);
 

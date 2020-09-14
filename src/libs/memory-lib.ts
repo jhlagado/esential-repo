@@ -1,7 +1,5 @@
-import { Dict, LibFunc } from '../types';
-import { i32 } from 'binaryen';
-import { builtin } from '../typedefs';
-import { asPages } from '../utils';
+import { i32 } from "binaryen";
+import { LibFunc, Dict, builtin, asPages } from "../esential";
 
 
 export const memoryLib: LibFunc = (

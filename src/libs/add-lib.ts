@@ -1,6 +1,5 @@
 import { i32 } from 'binaryen';
-import { LibFunc } from '../types';
-import { builtin } from '../typedefs';
+import { LibFunc, builtin } from '../esential';
 
 export const addLib: LibFunc = ({ func, module }) => {
   const add = builtin(module.i32.add, i32);

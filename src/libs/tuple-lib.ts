@@ -1,5 +1,5 @@
 import { i32 } from 'binaryen';
-import { LibFunc } from '../types';
+import { LibFunc } from '../esential';
 import { addLib } from './add-lib';
 
 export const tupleLib: LibFunc = ({ lib, func, literal }) => {

@@ -1,6 +1,5 @@
 import { i32 } from 'binaryen';
-import { LibFunc } from '../types';
-import { builtin } from '../typedefs';
+import { LibFunc, builtin } from '../esential';
 
 export const indirectLib: LibFunc = ({ func, indirect, module }) => {
 

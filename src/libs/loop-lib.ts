@@ -1,4 +1,4 @@
-import { LibFunc } from '../types';
+import { LibFunc } from "../esential";
 
 export const loopLib: LibFunc = ({ module: m, func, literal, FOR }) => {
   const looper = func({}, ({ $, result }) => {
