@@ -1,8 +1,12 @@
 import { i32 } from 'binaryen';
-import { LibFunc } from '../../esential/types';
+import { builtin, LibFunc } from '../../esential';
 
-export const lifeLib: LibFunc = ({ module: m, func, literal, FOR }) => {
+export const lifeLib: LibFunc = ({ module, func, literal, FOR }) => {
+  const load = builtin(module.i32.load, i32);
+  const store = builtin(module.i32.store, i32);
+
   const init = func({ params: { width: i32, height: i32 } }, ({ $, result }) => {
+    // store(0, 0, 0, 0xffffffff);
     result(literal(1000));
   });
 
@@ -13,12 +17,12 @@ export const lifeLib: LibFunc = ({ module: m, func, literal, FOR }) => {
       }),
       FOR(
         $({ i: literal(10) }),
-        
-        m.i32.gt_s($.i, literal(0)),
-        $({ i: m.i32.sub($.i, literal(1)) }),
+
+        module.i32.gt_s($.i, literal(0)),
+        $({ i: module.i32.sub($.i, literal(1)) }),
       )(
         //
-        $({ j: m.i32.add($.j, literal(1)) }),
+        $({ j: module.i32.add($.j, literal(1)) }),
       ),
       $.j,
     );
@@ -31,11 +35,11 @@ export const lifeLib: LibFunc = ({ module: m, func, literal, FOR }) => {
       }),
       FOR(
         $({ i: literal(10) }),
-        m.i32.gt_s($.i, literal(0)),
-        $({ i: m.i32.sub($.i, literal(1)) }),
+        module.i32.gt_s($.i, literal(0)),
+        $({ i: module.i32.sub($.i, literal(1)) }),
       )(
         //
-        $({ j: m.i32.add($.j, literal(1)) }),
+        $({ j: module.i32.add($.j, literal(1)) }),
       ),
       $.j,
     );

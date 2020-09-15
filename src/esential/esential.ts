@@ -30,20 +30,18 @@ export const esential = (cfg?: EsentialCfg): Esential => {
   let tableDef: TableDef;
 
   if (cfg && cfg.memory) {
-    const initial = cfg.memory.initial || 10;
     memoryDef = {
-      initial: initial,
-      maximum: initial,
+      initial: cfg.memory.initial || 10,
+      maximum: cfg.memory.maximum,
       namespace: cfg.memory.namespace = 'env',
       name: cfg.memory.name = 'memory',
     };
   }
 
   if (cfg && cfg.table) {
-    const initial = cfg.table.initial || 10;
     tableDef = {
-      initial: initial,
-      maximum: initial,
+      initial: cfg.table.initial || 10,
+      maximum: cfg.table.maximum,
       namespace: cfg.table.namespace = 'env',
       name: cfg.table.name = 'table',
     };
@@ -88,7 +86,7 @@ export const esential = (cfg?: EsentialCfg): Esential => {
           ? instance
           : new WebAssembly.Memory({
               initial: initial!,
-              maximum: maximum!,
+              maximum: maximum,
             });
       const ns = imports1[namespace as string] || {};
       ns[name as string] = memoryDef.instance;
@@ -100,7 +98,7 @@ export const esential = (cfg?: EsentialCfg): Esential => {
           ? instance
           : new WebAssembly.Table({
               initial: initial!,
-              maximum: maximum!,
+              maximum: maximum,
               element: 'anyfunc',
             });
       const ns = imports1[namespace as string] || {};
