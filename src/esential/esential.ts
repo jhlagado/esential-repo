@@ -30,29 +30,22 @@ export const esential = (cfg?: EsentialCfg): Esential => {
   let tableDef: TableDef;
 
   if (cfg && cfg.memory) {
+    const initial = cfg.memory.initial || 10;
     memoryDef = {
-      initial: cfg.memory.initial = 10,
-      maximum: cfg.memory.maximum = 100,
+      initial: initial,
+      maximum: initial,
       namespace: cfg.memory.namespace = 'env',
       name: cfg.memory.name = 'memory',
-      instance: new WebAssembly.Memory({
-        initial: cfg.memory.initial = 10,
-        maximum: cfg.memory.maximum = 100,
-      }),
     };
   }
 
   if (cfg && cfg.table) {
+    const initial = cfg.table.initial || 10;
     tableDef = {
-      initial: cfg.table.initial = 10,
-      maximum: cfg.table.maximum = 100,
+      initial: initial,
+      maximum: initial,
       namespace: cfg.table.namespace = 'env',
       name: cfg.table.name = 'table',
-      instance: new WebAssembly.Table({
-        initial: cfg.table.initial = 10,
-        maximum: cfg.table.maximum = 100,
-        element: 'anyfunc',
-      }),
     };
   }
 
@@ -89,12 +82,29 @@ export const esential = (cfg?: EsentialCfg): Esential => {
       ...imports,
     };
     if (memoryDef) {
-      const namespace = imports1[memoryDef.namespace as string] || {};
-      namespace[memoryDef.name as string] = memoryDef.instance;
+      const { instance, namespace, name, initial, maximum } = memoryDef;
+      memoryDef.instance =
+        instance != null
+          ? instance
+          : new WebAssembly.Memory({
+              initial: initial!,
+              maximum: maximum!,
+            });
+      const ns = imports1[namespace as string] || {};
+      ns[name as string] = memoryDef.instance;
     }
     if (tableDef) {
-      const namespace = imports1[tableDef.namespace as string] || {};
-      namespace[tableDef.name as string] = tableDef.instance;
+      const { instance, namespace, name, initial, maximum } = tableDef;
+      tableDef.instance =
+        instance != null
+          ? instance
+          : new WebAssembly.Table({
+              initial: initial!,
+              maximum: maximum!,
+              element: 'anyfunc',
+            });
+      const ns = imports1[namespace as string] || {};
+      ns[name as string] = tableDef.instance;
     }
     const wasmModule = new WebAssembly.Module(binary);
     const instance = new WebAssembly.Instance(wasmModule, imports1);
