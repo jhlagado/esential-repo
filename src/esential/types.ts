@@ -42,24 +42,20 @@ export type IndirectInfo = {
   resultDef: TypeDef;
 };
 
-export type MemDef = {
+export type AllocatedDef<T> = {
   namespace?: string;
   name?: string;
   initial?: number;
   maximum?: number;
+  instance?: T;
 };
-
-export type TableDef = {
-  namespace?: string;
-  name?: string;
-  initial?: number;
-  maximum?: number;
-};
+export type MemoryDef = AllocatedDef<WebAssembly.Memory>;
+export type TableDef = AllocatedDef<WebAssembly.Table>;
 
 export type CompileOptions = {
   optimize?: boolean;
   validate?: boolean;
-  memory?: MemDef;
+  memory?: MemoryDef;
   table?: TableDef;
 };
 
@@ -92,4 +88,6 @@ export type Esential = {
     condition: ExpressionRef,
   ) => (...thenBody: ExpressionRef[]) => (...elseBody: ExpressionRef[]) => ExpressionRef;
   load: (binary: Uint8Array, imports?: Imports) => any;
+  getMemory: () => MemoryDef;
+  getTable: () => TableDef;
 };
