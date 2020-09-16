@@ -1,10 +1,8 @@
 import { writeFileSync } from 'fs';
-import { esential } from './esential';
-import { Dict, LibFunc } from './types';
+import { EsentialCfg, LibFunc, esential } from '.';
 
-
-export const build = (library: LibFunc, filename: string, args?: Dict<string>) => {
-  const { lib, compile, module: m } = esential(args);
+export const build = (library: LibFunc, filename: string, cfg?: EsentialCfg) => {
+  const { lib, compile, module: m } = esential(cfg);
   lib(library);
   console.log(m.emitText());
   writeFileSync(filename, Buffer.from(compile()));

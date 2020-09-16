@@ -10,16 +10,12 @@ import {
   Imports,
   MemoryDef,
   TableDef,
+  EsentialCfg,
 } from './types';
 import { CompileOptions } from './types';
 import { FEATURE_MULTIVALUE } from './constants';
 import { getFunc, getLiteral, exportFuncs } from './lib-utils';
 import { getFOR, getIF } from './control';
-
-export type EsentialCfg = {
-  memory?: MemoryDef;
-  table?: TableDef;
-};
 
 export const esential = (cfg?: EsentialCfg): Esential => {
   const module = new Module();

@@ -72,6 +72,11 @@ export type Initializer = (funcImplDef: FuncImplDef) => void;
 
 export type LibFunc = (mod: Esential, args?: Dict<any>) => Dict<any>;
 
+export type EsentialCfg = {
+  memory?: MemoryDef;
+  table?: TableDef;
+};
+
 export type Esential = {
   module: Module;
   compile: (options?: CompileOptions) => Uint8Array;

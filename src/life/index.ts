@@ -1,6 +1,7 @@
 import { HEIGHT, RGB_ALIVE, RGB_DEAD, BIT_ROT, WASM_FILENAME, WIDTH } from './common/constants';
+import { calcNumPages } from './common/tools';
 import { Exported } from './types';
-import { calcNumPages, rgb2bgr } from './utils';
+import { rgb2bgr } from './utils';
 
 // const addAllListeners = (canvas: HTMLCanvasElement, document: Document) => {
 //   // When clicked or dragged, fill the current row and column with random live cells
@@ -60,9 +61,11 @@ const run = async (canvas: HTMLCanvasElement) => {
   -ms-interpolation-mode: nearest-neighbor;
 `;
 
+  const pages = calcNumPages(WIDTH, HEIGHT);
   const boardSize = WIDTH * HEIGHT;
   const memory = new WebAssembly.Memory({
-    initial: calcNumPages(500, 500),
+    initial: pages,
+    maximum: pages,
   });
   try {
     const response = await fetch(WASM_FILENAME);
@@ -85,10 +88,10 @@ const run = async (canvas: HTMLCanvasElement) => {
     const exports = module.instance.exports as Exported;
 
     const sanity = exports.init(WIDTH, HEIGHT);
-    if (sanity !== 1000) {
+    if (sanity === 0) {
       throw new Error(`Couldn't initialise wasm file`);
     }
-    console.log('wasm loaded');
+    console.log('wasm loaded', sanity.toString(10));
 
     const mem = new Uint32Array(memory.buffer);
 

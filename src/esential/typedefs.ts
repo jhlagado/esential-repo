@@ -1,6 +1,6 @@
 import { Expression, TypeDef } from './types';
 import { ExpressionRef, Type, createType, none } from 'binaryen';
-import { isArray, isPrimitive } from './utils';
+import { asDict, isArray, isPrimitive } from './utils';
 
 const expressionTypeDefs = new Map<ExpressionRef, TypeDef>();
 
@@ -23,9 +23,7 @@ export const asType = (typeDef: TypeDef): Type => {
   if (isPrimitive<Type>(typeDef)) {
     return typeDef;
   } else {
-    const typeArray: Type[] = isArray<Type>(typeDef)
-      ? typeDef
-      : Object.values(typeDef);
+    const typeArray: Type[] = isArray<Type>(typeDef) ? typeDef : Object.values(typeDef);
     return createType(typeArray);
   }
 };
@@ -45,7 +43,7 @@ export const inferTypeDef = (expression: Expression): TypeDef => {
     if (isArray<ExpressionRef>(expression)) {
       return expression.map(item => asType(getTypeDef(item)));
     } else {
-      const typeDef = Object.fromEntries(
+      const typeDef = asDict(
         Object.entries(expression)
           .sort(([key1], [key2]) => (key1 === key2 ? 0 : key1 < key2 ? -1 : 1))
           .map(([key, value]) => [key, asType(getTypeDef(value))]),
