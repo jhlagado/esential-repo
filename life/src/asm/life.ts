@@ -1,5 +1,5 @@
 import { i32 } from 'binaryen';
-import { builtin, LibFunc } from 'esential/src/esential';
+import { builtin, LibFunc } from 'esential/src';
 
 export const lifeLib: LibFunc = ({ module, func, literal, FOR }) => {
   const store = builtin(module.i32.store, i32);

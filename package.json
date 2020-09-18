@@ -6,7 +6,9 @@
   "private": true,
   "workspaces": [
     "esential",
-    "life",
-    "libs"
-  ]
+    "life"
+  ],
+  "scripts": {
+    "start": "cd life && yarn serve"
+  }
 }
