@@ -70,17 +70,18 @@ export type FuncImplDef = {
 };
 export type Initializer = (funcImplDef: FuncImplDef) => void;
 
-export type LibFunc = (mod: Esential, args?: Dict<any>) => Dict<any>;
+export type LibFunc = (mod: EsentialContext, args?: Dict<any>) => Dict<any>;
 
 export type EsentialCfg = {
   memory?: MemoryDef;
   table?: TableDef;
 };
 
-export type Esential = {
+export type EsentialContext = {
   module: Module;
   compile: (options?: CompileOptions) => Uint8Array;
   func: (def: FuncDef, funcImpl?: Initializer) => Callable;
+  globals: (varDefs: VarDefs, assignments: Dict<Expression>) => void;
   getIndirectInfo(callable: Callable): IndirectInfo | undefined;
   lib: (func: LibFunc, args?: Dict<any>) => any;
   literal(value: number, type?: Type): ExpressionRef;
@@ -93,6 +94,6 @@ export type Esential = {
     condition: ExpressionRef,
   ) => (...thenBody: ExpressionRef[]) => (...elseBody: ExpressionRef[]) => ExpressionRef;
   load: (binary: Uint8Array, imports?: Imports) => any;
-  getMemory: () => MemoryDef;
-  getTable: () => TableDef;
+  getMemory: () => MemoryDef | null;
+  getTable: () => TableDef | null;
 };

@@ -9,6 +9,7 @@
     "life"
   ],
   "scripts": {
-    "start": "cd life && yarn serve"
+    "start": "cd life && yarn serve",
+    "test": "cd esential && yarn test"
   }
 }

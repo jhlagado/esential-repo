@@ -4,26 +4,25 @@ import {
   Callable,
   LibFunc,
   Lib,
-  Esential,
+  EsentialContext,
   Dict,
   IndirectInfo,
-  Imports,
   MemoryDef,
   TableDef,
   EsentialCfg,
+  TypeDef,
 } from './types';
-import { CompileOptions } from './types';
 import { FEATURE_MULTIVALUE } from './constants';
-import { getFunc, getLiteral, exportFuncs } from './lib-utils';
+import { getFunc, getLiteral, exportFuncs, getCompile, getGlobals, getLoad } from './lib-utils';
 import { getFOR, getIF } from './control';
 
-export const esential = (cfg?: EsentialCfg): Esential => {
+export const esential = (cfg?: EsentialCfg): EsentialContext => {
   const module = new Module();
   module.setFeatures(FEATURE_MULTIVALUE);
   module.autoDrop();
 
-  let memoryDef: MemoryDef;
-  let tableDef: TableDef;
+  let memoryDef: MemoryDef | null =  null;
+  let tableDef: TableDef | null = null;
 
   if (cfg && cfg.memory) {
     memoryDef = {
@@ -48,77 +47,24 @@ export const esential = (cfg?: EsentialCfg): Esential => {
   const libMap = new Map<LibFunc, Lib>();
   const exportedSet = new Set<Callable>();
   const indirectTable: IndirectInfo[] = [];
+  const globalVars: Dict<TypeDef> = {};
 
-  const compile = ({ optimize = true, validate = true }: CompileOptions = {}): any => {
-    if (memoryDef) {
-      module.addMemoryImport('0', memoryDef.namespace!, memoryDef.name!);
-      module.setMemory(memoryDef.initial!, memoryDef.maximum!, memoryDef.name!);
-    }
-    const ids = indirectTable.map(item => item.id);
-    const { length } = ids;
-    if (length > 0 && tableDef) {
-      module.addTableImport('0', tableDef.namespace!, tableDef.name!);
-      if (length > tableDef.initial!) {
-        throw new Error(`Table initial size too small, needs at least ${length}`);
-      }
-      if (length > tableDef.maximum!) {
-        throw new Error(`Table maximum size too small, needs at least ${length}`);
-      }
-      (module.setFunctionTable as any)(tableDef.initial, tableDef.maximum, ids); // because .d.ts is wrong
-    }
-    if (optimize) module.optimize();
-    if (validate && !module.validate()) throw new Error('validation error');
-    return module.emitBinary();
-  };
-
-  const load = (binary: Uint8Array, imports: Imports = { env: {} }): any => {
-    const imports1 = {
-      ...imports,
-    };
-    if (memoryDef) {
-      const { instance, namespace, name, initial, maximum } = memoryDef;
-      memoryDef.instance =
-        instance != null
-          ? instance
-          : new WebAssembly.Memory({
-              initial: initial!,
-              maximum: maximum,
-            });
-      const ns = imports1[namespace as string] || {};
-      ns[name as string] = memoryDef.instance;
-    }
-    if (tableDef) {
-      const { instance, namespace, name, initial, maximum } = tableDef;
-      tableDef.instance =
-        instance != null
-          ? instance
-          : new WebAssembly.Table({
-              initial: initial!,
-              maximum: maximum,
-              element: 'anyfunc',
-            });
-      const ns = imports1[namespace as string] || {};
-      ns[name as string] = tableDef.instance;
-    }
-    const wasmModule = new WebAssembly.Module(binary);
-    const instance = new WebAssembly.Instance(wasmModule, imports1);
-    return instance.exports;
-  };
-
-  const self: Esential = {
+  const context: EsentialContext = {
     module,
 
     lib(libFunc: LibFunc, args: Dict<any> = {}) {
       if (libMap.has(libFunc)) {
         return libMap.get(libFunc);
       }
-      const lib = libFunc(self, args);
+      const lib = libFunc(context, args);
       exportFuncs(module, lib, exportedSet, callableIdMap);
       libMap.set(libFunc, lib);
       return lib;
     },
 
-    func: getFunc(module, callableIdMap, exportedSet, indirectTable),
+    func: getFunc(module, callableIdMap, exportedSet, indirectTable, globalVars),
+
+    globals: getGlobals(module),
 
     getIndirectInfo(callable: Callable) {
       return callableIndirectMap.get(callable);
@@ -129,8 +75,8 @@ export const esential = (cfg?: EsentialCfg): Esential => {
     literal: getLiteral(module),
     FOR: getFOR(module),
     IF: getIF(module),
-    compile,
-    load,
+    compile: getCompile(module, memoryDef, tableDef, indirectTable),
+    load: getLoad(memoryDef, tableDef),
   };
-  return self;
+  return context;
 };

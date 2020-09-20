@@ -59,8 +59,10 @@ const run = async (canvas: HTMLCanvasElement) => {
 
     // Update about 30 times a second
     (function update() {
-      setTimeout(update, 1000 / 30);
-      mem.copyWithin(0, boardSize, boardSize + boardSize); // copy output to input
+      // setTimeout(update, 1000 / 30);
+      setTimeout(update, 1000);
+      // mem.copyWithin(0, boardSize, boardSize + boardSize); // copy output to input
+      console.log('mem at 0', mem[0]);
       exports.step(); // perform the next step
     })();
 
@@ -119,4 +121,3 @@ run(document.getElementsByTagName('canvas')[0]);
 //     },
 //   );
 // };
-

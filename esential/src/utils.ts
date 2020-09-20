@@ -4,6 +4,8 @@ export const isPrimitive = <T>(value: any): value is T => Number.isInteger(value
 
 export const isArray = <T>(value: T[] | Dict<T>): value is T[] => Array.isArray(value);
 
+export const asBool = (value: boolean) => (value ? -1 : 0);
+
 export const asDict = <T>(entries: Entry<T>[]) =>
   entries.reduce<Dict<T>>((acc, entry) => {
     const [key, value] = entry;
