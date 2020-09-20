@@ -21,7 +21,7 @@ export const esential = (cfg?: EsentialCfg): EsentialContext => {
   module.setFeatures(FEATURE_MULTIVALUE);
   module.autoDrop();
 
-  let memoryDef: MemoryDef | null =  null;
+  let memoryDef: MemoryDef | null = null;
   let tableDef: TableDef | null = null;
 
   if (cfg && cfg.memory) {
@@ -51,7 +51,6 @@ export const esential = (cfg?: EsentialCfg): EsentialContext => {
 
   const context: EsentialContext = {
     module,
-
     lib(libFunc: LibFunc, args: Dict<any> = {}) {
       if (libMap.has(libFunc)) {
         return libMap.get(libFunc);
@@ -61,15 +60,9 @@ export const esential = (cfg?: EsentialCfg): EsentialContext => {
       libMap.set(libFunc, lib);
       return lib;
     },
-
     func: getFunc(module, callableIdMap, exportedSet, indirectTable, globalVars),
-
-    globals: getGlobals(module),
-
-    getIndirectInfo(callable: Callable) {
-      return callableIndirectMap.get(callable);
-    },
-
+    globals: getGlobals(module, globalVars),
+    getIndirectInfo:(callable: Callable) => callableIndirectMap.get(callable),
     getMemory: () => memoryDef,
     getTable: () => tableDef,
     literal: getLiteral(module),

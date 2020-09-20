@@ -112,14 +112,13 @@ export const getLiteral = (module: Module) => (value: number, type: Type = i32):
   throw new Error(`Can only use primtive types in val, not ${type}`);
 };
 
-export const getGlobals = (module: Module) => (varDefs: VarDefs, assignments: Dict<Expression>) => {
+export const getGlobals = (module: Module, globalVarDefs:VarDefs) => (varDefs: VarDefs, assignments: Dict<Expression>) => {
   Object.entries(assignments).forEach(([prop, expression]) => {
     const expr = getAssignable(module)(expression) as ExpressionRef;
     const isGlobal = varDefs === null;
     let typeDef = varDefs[prop];
     if (typeDef == null) {
       typeDef = inferTypeDef(stripTupleProxy(expression));
-      varDefs[prop] = typeDef;
       setTypeDef(expr, typeDef);
     } else {
       const exprTypeDef = getTypeDef(expr, false);
@@ -127,7 +126,8 @@ export const getGlobals = (module: Module) => (varDefs: VarDefs, assignments: Di
         throw new Error(`Wrong assignment type, expected ${typeDef} and got ${exprTypeDef}`);
       }
     }
-    return module.addGlobal(name, asType(typeDef), true, expr);
+    globalVarDefs[prop] = typeDef;
+    return module.addGlobal(prop, asType(typeDef), true, expr);
   });
 };
 
