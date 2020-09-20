@@ -37,13 +37,14 @@ export const varSet = (
   let isGlobal = false;
   let typeDef = varDefs[prop];
   if (typeDef == null) {
-    isGlobal = true;
     typeDef = globalVarDefs[prop];
+    isGlobal = true;
   }
   if (typeDef == null) {
     typeDef = inferTypeDef(stripTupleProxy(expression));
     varDefs[prop] = typeDef;
     setTypeDef(expr, typeDef);
+    isGlobal = false;
   } else {
     const exprTypeDef = getTypeDef(expr, false);
     if (exprTypeDef !== none && asType(exprTypeDef) !== asType(typeDef)) {
@@ -52,7 +53,7 @@ export const varSet = (
   }
   if (isGlobal) {
     return module.global.set(prop, expr);
-  }else {
+  } else {
     const index = Object.keys(varDefs).lastIndexOf(prop);
     return module.local.set(index, expr);
   }
