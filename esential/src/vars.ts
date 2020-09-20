@@ -59,22 +59,35 @@ export const varSet = (
   }
 };
 
-export const varBlockExpression = (
+export const blockExpressionItem = (
   module: Module,
   varDefs: Dict<TypeDef>,
   globalVarDefs: Dict<TypeDef>,
-) => (value: Expression) => {
-  const expr: ExpressionRef = isPrimitive<ExpressionRef>(value)
-    ? (value as number)
+) => (expression: Expression) => {
+  const expr: ExpressionRef = isPrimitive<ExpressionRef>(expression)
+    ? expression
     : module.block(
         null as any,
-        isArray<ExpressionRef>(value)
-          ? value.map(expr => expr)
-          : Object.entries(value).map(([prop, expr]) =>
+        isArray<ExpressionRef>(expression)
+          ? expression
+          : Object.entries(expression).map(([prop, expr]) =>
               varSet(module, varDefs, globalVarDefs, prop, expr),
             ),
         auto,
       );
+  setTypeDef(expr, auto);
+  return expr;
+};
+
+export const blockExpression = (
+  module: Module,
+  varDefs: Dict<TypeDef>,
+  globalVarDefs: Dict<TypeDef>,
+) => (...blockExprs: Expression[]) => {
+  const expr = module.block(
+    null as any,
+    blockExprs.map(blockExpressionItem(module, varDefs, globalVarDefs)),
+  );
   setTypeDef(expr, auto);
   return expr;
 };
@@ -84,7 +97,7 @@ export const getVarsAccessor = (
   varDefs: Dict<TypeDef>,
   globalVarDefs: Dict<TypeDef>,
 ): VarsAccessor => {
-  return new Proxy(varBlockExpression(module, varDefs, globalVarDefs) as any, {
+  return new Proxy(blockExpression(module, varDefs, globalVarDefs) as any, {
     get(_target: any, prop: string) {
       return varGet(module, varDefs, globalVarDefs, prop);
     },

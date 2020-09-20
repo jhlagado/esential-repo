@@ -24,11 +24,10 @@ export const lifeLib: LibFunc = ({ module, func, literal, globals, FOR, IF }) =>
   const set = func({ params: { x: i32, y: i32, v: i32 } }, ({ $, result }) => {
     result(
       $({
-        ofs: module.global.get('offset', i32),
-        // y0: mul($.y, module.global.get('width', i32)),
+        y0: mul($.y, module.global.get('width', i32)),
+        pos: add(add($.offset, $.y0, $.x)),
       }),
       // $({
-      //   pos: add(add($.ofs, $.y0, $.x)),
       // }),
       // store(mul($.pos, 4), $.v),
       literal(0),

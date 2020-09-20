@@ -10,7 +10,8 @@
     "serve": "parcel src/life/index.html",
     "test": "yarn jestx",
     "coverage": "yarn jestx --coverage",
-    "lint": "eslint src/**/*.ts* --fix"
+    "lint": "eslint src/**/*.ts* --fix",
+    "start": "cd life && yarn start"
   },
   "staticFiles": {
     "staticPath": "public",

@@ -60,7 +60,7 @@ export type CompileOptions = {
 };
 
 export type VarsAccessor = {
-  (value: any): ExpressionRef;
+  (...expressions: Expression[]): ExpressionRef;
   [prop: string]: any;
 };
 
