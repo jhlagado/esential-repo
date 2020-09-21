@@ -5,7 +5,7 @@ import { addLib } from './add-lib';
 export const recordLib: LibFunc = ({ lib, func, literal }) => {
   const { addition } = lib(addLib);
 
-  const returnTwoRecord = func({ export: false }, ({ $: { u }, result }) => {
+  const returnTwoRecord = func({ export: false }, ({ vars: { u }, result }) => {
     result(
       //
       u({ x: literal(1), y: literal(2) }),
@@ -13,7 +13,7 @@ export const recordLib: LibFunc = ({ lib, func, literal }) => {
     );
   });
 
-  const selectRightRecord = func({}, ({ $: { u }, result }) => {
+  const selectRightRecord = func({}, ({ vars: { u }, result }) => {
     result(
       //
       u(returnTwoRecord()),
@@ -21,7 +21,7 @@ export const recordLib: LibFunc = ({ lib, func, literal }) => {
     );
   });
 
-  const addTwoRecord = func({}, ({ $: { u }, result }) => {
+  const addTwoRecord = func({}, ({ vars: { u }, result }) => {
     result(
       //
       u(returnTwoRecord()),
@@ -29,7 +29,7 @@ export const recordLib: LibFunc = ({ lib, func, literal }) => {
     );
   });
 
-  const addThreeRecord = func({ params: { a: i32 } }, ({ $: { u, a }, result }) => {
+  const addThreeRecord = func({ params: { a: i32 } }, ({ vars: { u, a }, result }) => {
     result(
       //
       u(returnTwoRecord()),

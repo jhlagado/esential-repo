@@ -66,7 +66,7 @@ export type VarsAccessor = {
 };
 
 export type FuncImplDef = {
-  $: VarsAccessor;
+  vars: VarsAccessor;
   result: VoidBlockFunc;
 };
 export type Initializer = (funcImplDef: FuncImplDef) => void;

@@ -7,7 +7,7 @@ export const addLib: LibFunc = ({ func, module }) => {
   const addition = func(
     { params: { a: i32, b: i32 } },
 
-    ({ $: { a, b, u }, result }) => {
+    ({ vars: { a, b, u }, result }) => {
       result(
         //
         u(add(a(), b())),

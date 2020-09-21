@@ -23,7 +23,7 @@ export const lifeLib: LibFunc = ({ module, func, literal, globals, FOR, IF }) =>
 
   const set = func(
     { params: { x: i32, y: i32, v: i32 }, locals: { y0: i32, pos: i32 } },
-    ({ $: { x, y, v, y0, pos, pos4, width, height, offset }, result }) => {
+    ({ vars: { x, y, v, y0, pos, pos4, width, height, offset }, result }) => {
       result(
         y0(mul(y(), width())),
         pos(add(add(offset(), y0()), x())),
@@ -36,7 +36,7 @@ export const lifeLib: LibFunc = ({ module, func, literal, globals, FOR, IF }) =>
 
   const init = func(
     { params: { width: i32, height: i32 } },
-    ({ $: { width, height, i, j }, result }) => {
+    ({ vars: { width, height, i, j }, result }) => {
       result(
         //
         module.global.set('width', width()),
@@ -58,7 +58,7 @@ export const lifeLib: LibFunc = ({ module, func, literal, globals, FOR, IF }) =>
     },
   );
 
-  const step = func({}, ({ $: { j, k }, result }) => {
+  const step = func({}, ({ vars: { j, k }, result }) => {
     result(
       //
       j(load(0, 0, literal(0))),

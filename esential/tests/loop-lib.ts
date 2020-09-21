@@ -1,7 +1,7 @@
 import { LibFunc } from 'esential/src';
 
 export const loopLib: LibFunc = ({ module: m, func, literal, FOR }) => {
-  const looper = func({}, ({ $: { i, j }, result }) => {
+  const looper = func({}, ({ vars: { i, j }, result }) => {
     result(
       j(literal(0)),
       FOR(
