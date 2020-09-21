@@ -5,35 +5,35 @@ import { addLib } from './add-lib';
 export const recordLib: LibFunc = ({ lib, func, literal }) => {
   const { addition } = lib(addLib);
 
-  const returnTwoRecord = func({ export: false }, ({ $, result }) => {
+  const returnTwoRecord = func({ export: false }, ({ $: { u }, result }) => {
     result(
       //
-      $({ u: { x: literal(1), y: literal(2) } }),
-      $.u,
+      u({ x: literal(1), y: literal(2) }),
+      u(),
     );
   });
 
-  const selectRightRecord = func({}, ({ $, result }) => {
+  const selectRightRecord = func({}, ({ $: { u }, result }) => {
     result(
       //
-      $({ u: returnTwoRecord() }),
-      $.u.y,
+      u(returnTwoRecord()),
+      u().y,
     );
   });
 
-  const addTwoRecord = func({}, ({ $, result }) => {
+  const addTwoRecord = func({}, ({ $: { u }, result }) => {
     result(
       //
-      $({ u: returnTwoRecord()}),
-      addition($.u.x, $.u.y),
+      u(returnTwoRecord()),
+      addition(u().x, u().y),
     );
   });
 
-  const addThreeRecord = func({ params: { a: i32 } }, ({ $, result }) => {
+  const addThreeRecord = func({ params: { a: i32 } }, ({ $: { u, a }, result }) => {
     result(
       //
-      $({ u: returnTwoRecord()}),
-      addition($.a, addition($.u.x, $.u.y)),
+      u(returnTwoRecord()),
+      addition(a(), addition(u().x, u().y)),
     );
   });
 

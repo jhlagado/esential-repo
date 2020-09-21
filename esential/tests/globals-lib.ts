@@ -11,12 +11,8 @@ export const globalsLib: LibFunc = ({ func, literal, globals, module }) => {
     },
   );
 
-  const global1000 = func({}, ({ $, result }) => {
-    result(
-      //
-      $({ u: add($.g1, literal(1)) }),
-      $.u,
-    );
+  const global1000 = func({}, ({ $: { u, g1 }, result }) => {
+    result(u(add(g1(), literal(1))), u());
   });
 
   return {

@@ -92,6 +92,29 @@ export const blockExpression = (
   return expr;
 };
 
+// export const getVarsAccessor = (
+//   module: Module,
+//   varDefs: Dict<TypeDef>,
+//   globalVarDefs: Dict<TypeDef>,
+// ): VarsAccessor => {
+//   return new Proxy(blockExpression(module, varDefs, globalVarDefs) as any, {
+//     get(_target: any, prop: string) {
+//       return varGet(module, varDefs, globalVarDefs, prop);
+//     },
+//   });
+// };
+
+export const accessor = (
+  module: Module,
+  varDefs: Dict<TypeDef>,
+  globalVarDefs: Dict<TypeDef>,
+  prop: string,
+) => (expression?: Expression): any => {
+  return expression == null
+    ? varGet(module, varDefs, globalVarDefs, prop)
+    : varSet(module, varDefs, globalVarDefs, prop, expression);
+};
+
 export const getVarsAccessor = (
   module: Module,
   varDefs: Dict<TypeDef>,
@@ -99,7 +122,7 @@ export const getVarsAccessor = (
 ): VarsAccessor => {
   return new Proxy(blockExpression(module, varDefs, globalVarDefs) as any, {
     get(_target: any, prop: string) {
-      return varGet(module, varDefs, globalVarDefs, prop);
+      return accessor(module, varDefs, globalVarDefs, prop);
     },
   });
 };

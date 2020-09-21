@@ -7,11 +7,11 @@ export const addLib: LibFunc = ({ func, module }) => {
   const addition = func(
     { params: { a: i32, b: i32 } },
 
-    ({ $, result }) => {
+    ({ $: { a, b, u }, result }) => {
       result(
         //
-        $({ u: add($.a, $.b) }),
-        $.u,
+        u(add(a(), b())),
+        u(),
       );
     },
   );

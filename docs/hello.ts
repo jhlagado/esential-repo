@@ -1,5 +1,5 @@
 import { i32 } from 'binaryen';
-import { esential, builtin } from '../src/esential';
+import { builtin, esential } from 'esential/src';
 
 const { lib, module, load, compile } = esential();
 
@@ -9,13 +9,8 @@ lib(({ func }) => {
   const addition = func(
     { params: { a: i32, b: i32 } },
 
-    ({ $, result }) => {
-      result(
-        $({
-          u: add($.a, $.b),
-        }),
-        $.u,
-      );
+    ({ $: { a, b, u }, result }) => {
+      result(u(add(a(), b())), u());
     },
   );
   return {

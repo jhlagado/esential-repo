@@ -4,16 +4,8 @@ import { LibFunc, builtin } from 'esential/src';
 export const blockLib: LibFunc = ({ func, module, literal }) => {
   const add = builtin(module.i32.add, i32);
 
-  const blockadd = func({ locals: { a: i32, b: i32 } }, ({ $, result }) => {
-    result(
-      //
-      $({
-        a: literal(1),
-        b: literal(2),
-        u: add($.a, $.b),
-      }),
-      $.u,
-    );
+  const blockadd = func({ locals: { a: i32, b: i32 } }, ({ $: { a, b, u }, result }) => {
+    result(a(literal(1)), b(literal(2)), u(add(a(), b())), u());
   });
 
   return {

@@ -65,10 +65,10 @@ export const getFunc = (
   } else {
     const bodyItems: ExpressionRef[] = [];
     const vars = { ...params, ...locals };
-    const varsProxy = getVarsAccessor(module, vars, globalVars);
+    const varsAccessor = getVarsAccessor(module, vars, globalVars);
     const resultRef: Ref<TypeDef> = { current: result == null ? auto : result };
     const resultFunc = getResultFunc(module, resultRef, bodyItems);
-    if (initializer) initializer({ $: varsProxy, result: resultFunc });
+    if (initializer) initializer({ $: varsAccessor, result: resultFunc });
     const resultDef = resultRef.current === auto ? none : resultRef.current;
     const { length: paramsLength } = Object.values(params);
     const paramsType = createType(Object.values(params).map(asType));
@@ -112,7 +112,10 @@ export const getLiteral = (module: Module) => (value: number, type: Type = i32):
   throw new Error(`Can only use primtive types in val, not ${type}`);
 };
 
-export const getGlobals = (module: Module, globalVarDefs:VarDefs) => (varDefs: VarDefs, assignments: Dict<Expression>) => {
+export const getGlobals = (module: Module, globalVarDefs: VarDefs) => (
+  varDefs: VarDefs,
+  assignments: Dict<Expression>,
+) => {
   Object.entries(assignments).forEach(([prop, expression]) => {
     const expr = getAssignable(module)(expression) as ExpressionRef;
     const isGlobal = varDefs === null;
@@ -158,7 +161,7 @@ export const getCompile = (
   return module.emitBinary();
 };
 
-export const getLoad = (memoryDef: MemoryDef | null, tableDef: TableDef|null) => (
+export const getLoad = (memoryDef: MemoryDef | null, tableDef: TableDef | null) => (
   binary: Uint8Array,
   imports: Imports = { env: {} },
 ): any => {

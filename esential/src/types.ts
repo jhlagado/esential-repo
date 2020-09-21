@@ -59,9 +59,10 @@ export type CompileOptions = {
   table?: TableDef;
 };
 
+export type Accessor = (expression?: Expression) => any;
+
 export type VarsAccessor = {
-  (...expressions: Expression[]): ExpressionRef;
-  [prop: string]: any;
+  [prop: string]: Accessor;
 };
 
 export type FuncImplDef = {
