@@ -8,9 +8,12 @@ lib(({ func }) => {
 
   const addition = func(
     { params: { a: i32, b: i32 } },
-
     ({ vars: { a, b, u }, result }) => {
-      result(u(add(a(), b())), u());
+      result(
+        //
+        u(add(a(), b())),
+        u(),
+      );
     },
   );
   return {
