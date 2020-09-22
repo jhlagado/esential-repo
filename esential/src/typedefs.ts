@@ -1,6 +1,7 @@
 import { Expression, TypeDef } from './types';
-import { ExpressionRef, Type, createType, none } from 'binaryen';
+import { ExpressionRef, Type, createType, none, Module } from 'binaryen';
 import { asDict, isArray, isPrimitive } from './utils';
+import { getLiteral } from './funcs-utils';
 
 const expressionTypeDefs = new Map<ExpressionRef, TypeDef>();
 
@@ -28,14 +29,6 @@ export const asType = (typeDef: TypeDef): Type => {
   }
 };
 
-export const builtin = (func: Function, resultTypeDef: TypeDef): Function => {
-  return (...args: any[]) => {
-    const expr = func(...args);
-    setTypeDef(expr, resultTypeDef);
-    return expr;
-  };
-};
-
 export const inferTypeDef = (expression: Expression): TypeDef => {
   if (isPrimitive<ExpressionRef>(expression)) {
     return getTypeDef(expression);
@@ -51,4 +44,16 @@ export const inferTypeDef = (expression: Expression): TypeDef => {
       return typeDef;
     }
   }
+};
+
+export const builtin = (module: Module, func: Function, resultTypeDef: TypeDef): Function => {
+  return (...params: any[]) => {
+    const params1 = params.map(param => {
+      const paramTypeDef = getTypeDef(param, false);
+      return paramTypeDef === none ? getLiteral(module, param) : param;
+    });
+    const expr = func(...params1);
+    setTypeDef(expr, resultTypeDef);
+    return expr;
+  };
 };

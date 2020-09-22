@@ -4,10 +4,10 @@ import { ioLib } from './io-lib';
 
 export const ifLib: LibFunc = ({ module, lib, func, literal, FOR, IF }) => {
   const { log } = lib(ioLib);
-  const add = builtin(module.i32.add, i32);
-  const lt = builtin(module.i32.lt_u, i32);
-  const rem = builtin(module.i32.rem_u, i32);
-  const eqz = builtin(module.i32.eqz, i32);
+  const add = builtin(module, module.i32.add, i32);
+  const lt = builtin(module, module.i32.lt_u, i32);
+  const rem = builtin(module, module.i32.rem_u, i32);
+  const eqz = builtin(module, module.i32.eqz, i32);
 
   const oddeven = func({}, ({ vars: { odd, even, i }, result }) => {
     result(
