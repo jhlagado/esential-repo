@@ -12,7 +12,7 @@ export const globalsLib: LibFunc = ({ func, literal, globals, module }) => {
   );
 
   const global1000 = func({}, ({ vars: { u, g1 }, result }) => {
-    result(u(add(g1(), (1))), u());
+    result(u(add(g1(), 1)), u());
   });
 
   return {

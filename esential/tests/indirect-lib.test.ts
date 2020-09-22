@@ -1,7 +1,7 @@
 import { esential } from 'esential/src';
 import { indirectLib } from './indirect-lib';
 
-const size = { initial: 10, maximum: 100};
+const size = { initial: 10, maximum: 100 };
 const instance = new WebAssembly.Table({ ...size, element: 'anyfunc' });
 
 const { lib, load, compile, module } = esential({ table: { ...size, instance } });
