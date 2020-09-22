@@ -1,4 +1,4 @@
-import { auto, ExpressionRef, none, createType, Module, Type, i32, i64, f32, f64 } from 'binaryen';
+import { auto, ExpressionRef, none, createType, Module } from 'binaryen';
 import {
   Callable,
   IndirectInfo,
@@ -16,8 +16,7 @@ import {
 } from './types';
 import { getVarsAccessor } from './vars';
 import { getResultFunc, getCallable } from './funcs-utils';
-import { applyTypeDef, asType, getTypeDef, inferTypeDef, setTypeDef } from './typedefs';
-import { getAssignable, stripTupleProxy } from './tuples';
+import { applyTypeDef, asType } from './typedefs';
 
 export const exportFuncs = (
   module: Module,
@@ -101,7 +100,6 @@ export const getGlobals = (module: Module, globalVarDefs: VarDefs) => (
   assignments: Dict<Expression>,
 ) => {
   Object.entries(assignments).forEach(([prop, expression]) => {
-    const isGlobal = varDefs === null;
     let typeDef = varDefs[prop];
     const expr = applyTypeDef(module, expression, typeDef);
     globalVarDefs[prop] = typeDef;
