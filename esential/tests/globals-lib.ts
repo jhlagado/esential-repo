@@ -2,7 +2,7 @@ import { i32 } from 'binaryen';
 import { builtin, LibFunc } from 'esential/src';
 
 export const globalsLib: LibFunc = ({ func, literal, globals, module }) => {
-  const add = builtin(module, module.i32.add, i32);
+  const add = builtin(module, module.i32.add, [i32, i32], i32);
 
   globals(
     { g1: i32 },

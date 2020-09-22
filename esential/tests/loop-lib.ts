@@ -3,9 +3,9 @@ import { builtin, LibFunc } from 'esential/src';
 
 export const loopLib: LibFunc = ({ module, func, literal, FOR }) => {
 
-  const add = builtin(module, module.i32.add, i32);
-  const sub = builtin(module, module.i32.sub, i32);
-  const gt = builtin(module, module.i32.gt_s, i32);
+  const add = builtin(module, module.i32.add, [i32, i32], i32);
+  const sub = builtin(module, module.i32.sub, [i32, i32], i32);
+  const gt = builtin(module, module.i32.gt_s, [i32, i32], i32);
 
   const looper = func({}, ({ vars: { i, j }, result }) => {
     result(
