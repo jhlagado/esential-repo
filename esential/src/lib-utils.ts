@@ -61,7 +61,7 @@ export const getFunc = (
     const resultType = asType(resultDef);
     module.addFunctionImport(id, namespace, name, paramsType, resultType);
     const exprFunc = (...params: ExpressionRef[]) => module.call(id, params, resultType);
-    return getCallable(id, false, exprFunc, resultDef, callableIdMap);
+    return getCallable(module, id, false, exprFunc, resultDef, callableIdMap);
   } else {
     const bodyItems: ExpressionRef[] = [];
     const vars = { ...params, ...locals };
@@ -92,24 +92,8 @@ export const getFunc = (
       exprFunc = (...params: ExpressionRef[]) =>
         module.call_indirect(module.i32.const(index), params, paramsType, resultType);
     }
-    return getCallable(id, exported, exprFunc, resultDef, callableIdMap, exportedSet);
+    return getCallable(module, id, exported, exprFunc, resultDef, callableIdMap, exportedSet);
   }
-};
-
-export const getLiteral = (module: Module) => (value: number, type: Type = i32): ExpressionRef => {
-  const opDict = {
-    [i32]: module.i32,
-    [i64]: module.i64,
-    [f32]: module.f32,
-    [f64]: module.f64,
-  };
-  if (type in opDict) {
-    // override type checking because of error in type definition for i64.const
-    const expr = (opDict[type] as any).const(value);
-    setTypeDef(expr, type); // for primitives type = typeDef
-    return expr;
-  }
-  throw new Error(`Can only use primtive types in val, not ${type}`);
 };
 
 export const getGlobals = (module: Module, globalVarDefs: VarDefs) => (

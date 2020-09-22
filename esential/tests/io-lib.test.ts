@@ -11,9 +11,9 @@ lib(({ func, literal }) => {
   const print3Times = func({}, ({ result }) => {
     result(
       //
-      log(literal(1)),
-      log(literal(2)),
-      log(literal(3)),
+      log(1),
+      log(2),
+      log(3),
     );
   });
 

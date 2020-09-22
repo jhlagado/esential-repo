@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Module } from 'binaryen';
+import { Module, Type } from 'binaryen';
 import {
   Callable,
   LibFunc,
@@ -13,8 +13,9 @@ import {
   TypeDef,
 } from './types';
 import { FEATURE_MULTIVALUE } from './constants';
-import { getFunc, getLiteral, exportFuncs, getCompile, getGlobals, getLoad } from './lib-utils';
+import { getFunc, exportFuncs, getCompile, getGlobals, getLoad } from './lib-utils';
 import { getFOR, getIF } from './control';
+import { getLiteral } from './funcs-utils';
 
 export const esential = (cfg?: EsentialCfg): EsentialContext => {
   const module = new Module();
@@ -62,10 +63,10 @@ export const esential = (cfg?: EsentialCfg): EsentialContext => {
     },
     func: getFunc(module, callableIdMap, exportedSet, indirectTable, globalVars),
     globals: getGlobals(module, globalVars),
-    getIndirectInfo:(callable: Callable) => callableIndirectMap.get(callable),
+    getIndirectInfo: (callable: Callable) => callableIndirectMap.get(callable),
     getMemory: () => memoryDef,
     getTable: () => tableDef,
-    literal: getLiteral(module),
+    literal: (value: number, type?: Type) => getLiteral(module, value, type),
     FOR: getFOR(module),
     IF: getIF(module),
     compile: getCompile(module, memoryDef, tableDef, indirectTable),

@@ -1,5 +1,5 @@
 import { ExpressionRef, auto, Module } from 'binaryen';
-import { getLiteral } from './lib-utils';
+import { getLiteral } from './funcs-utils';
 
 let scopeCount = 0;
 
@@ -12,7 +12,7 @@ export const getFOR = (module: Module) => (
   const {
     i32: { ne },
   } = module;
-  const literal = getLiteral(module);
+  console.log({ initializer, condition, final });
   return module.block(
     null as any,
     [
@@ -22,7 +22,7 @@ export const getFOR = (module: Module) => (
           `loop${scopeId}`,
           module.block(null as any, [
             //
-            module.br(`loopOuter${scopeId}`, ne(condition, literal(1))),
+            module.br(`loopOuter${scopeId}`, ne(condition, getLiteral(module, 1))),
             ...body,
             final,
             module.br(`loop${scopeId}`),

@@ -3,6 +3,7 @@ import { VarDefs, Expression, TypeDef, Dict, VarsAccessor } from './types';
 import { inferTypeDef, asType, setTypeDef, getTypeDef } from './typedefs';
 import { isArray, isPrimitive } from './utils';
 import { makeTupleProxy, getAssignable, stripTupleProxy } from './tuples';
+import { getLiteral } from './funcs-utils';
 
 export const varGet = (
   module: Module,
@@ -33,7 +34,7 @@ export const varSet = (
   prop: string,
   expression: Expression,
 ): ExpressionRef => {
-  const expr = getAssignable(module)(expression) as ExpressionRef;
+  let expr = getAssignable(module)(expression) as ExpressionRef;
   let isGlobal = false;
   let typeDef = varDefs[prop];
   if (typeDef == null) {
@@ -46,8 +47,11 @@ export const varSet = (
     setTypeDef(expr, typeDef);
     isGlobal = false;
   } else {
+    const type = asType(typeDef);
     const exprTypeDef = getTypeDef(expr, false);
-    if (exprTypeDef !== none && asType(exprTypeDef) !== asType(typeDef)) {
+    if (exprTypeDef === none) {
+      expr = getLiteral(module, expr, type);
+    } else if (exprTypeDef !== none && asType(exprTypeDef) !== type) {
       throw new Error(`Wrong assignment type, expected ${typeDef} and got ${exprTypeDef}`);
     }
   }

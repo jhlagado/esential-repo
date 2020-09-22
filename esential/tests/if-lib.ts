@@ -1,12 +1,14 @@
-import { LibFunc } from 'esential/src';
+import { i32 } from 'binaryen';
+import { builtin, LibFunc } from 'esential/src';
 import { ioLib } from './io-lib';
 
-export const ifLib: LibFunc = ({ module: m, lib, func, literal, FOR, IF }) => {
+export const ifLib: LibFunc = ({ module, lib, func, literal, FOR, IF }) => {
   const { log } = lib(ioLib);
+  const add = builtin(module.i32.add, i32);
+  const lt = builtin(module.i32.lt_u, i32);
+  const rem = builtin(module.i32.rem_u, i32);
+  const eqz = builtin(module.i32.eqz, i32);
 
-  const {
-    i32: { add, lt_u: lt, rem_u: rem, eqz },
-  } = m;
   const oddeven = func({}, ({ vars: { odd, even, i }, result }) => {
     result(
       odd(literal(0)),
