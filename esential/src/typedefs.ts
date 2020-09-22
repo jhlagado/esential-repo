@@ -1,6 +1,6 @@
-import { Expression, TypeDef } from './types';
+import { Dict, Expression, TypeDef } from './types';
 import { ExpressionRef, Type, createType, none, Module, i32, f32, f64, i64 } from 'binaryen';
-import { asDict, isArray, isPrimitive } from './utils';
+import { asArray, asDict, isArray, isPrimitive } from './utils';
 
 const expressionTypeDefs = new Map<ExpressionRef, TypeDef>();
 
@@ -45,22 +45,6 @@ export const inferTypeDef = (expression: Expression): TypeDef => {
   }
 };
 
-export const builtin = (module: Module, func: Function, paramTypeDefs: TypeDef[], resultTypeDef: TypeDef): Function => {
-  return (...params: any[]) => {
-    const params1 = params.map((param, index) => {
-      const paramTypeDef = index < paramTypeDefs.length ? paramTypeDefs[index] : i32;
-      if (paramTypeDef === none) {
-        return param;
-      }
-      const typeDef = getTypeDef(param, false);
-      return typeDef === none ? getLiteral(module, param, asType(paramTypeDef)) : param;
-    });
-    const expr = func(...params1);
-    setTypeDef(expr, resultTypeDef);
-    return expr;
-  };
-};
-
 export const getLiteral = (module: Module, value: number, type: Type = i32): ExpressionRef => {
   const opDict = {
     [i32]: module.i32,
@@ -75,4 +59,56 @@ export const getLiteral = (module: Module, value: number, type: Type = i32): Exp
     return expr;
   }
   throw new Error(`Can only use primitive types in val, not ${type}`);
+};
+
+export const applyTypeDefPrimitive = (
+  module: Module,
+  expr: ExpressionRef,
+  typeDef?: TypeDef,
+): ExpressionRef => {
+  if (typeDef === none) {
+    return expr;
+  }
+  const exprTypeDef = getTypeDef(expr, false);
+  if (exprTypeDef === none) {
+    return getLiteral(module, expr, asType(typeDef || i32));
+  } else {
+    if (typeDef != null && asType(typeDef) !== asType(exprTypeDef)) {
+      throw new Error(`Type mismatch: expected ${typeDef} but got ${exprTypeDef}`);
+    }
+    return expr;
+  }
+};
+
+export const applyTypeDef = (
+  module: Module,
+  expression: Expression,
+  typeDef?: TypeDef,
+): ExpressionRef => {
+  if (isPrimitive<ExpressionRef>(expression)) {
+    return applyTypeDefPrimitive(module, expression, typeDef);
+  } else {
+    const typeArray = asArray<Type>(typeDef as any);
+    const exprArray = asArray<ExpressionRef>(expression).map((expr, index) => {
+      return applyTypeDefPrimitive(module, expr, typeArray[index]);
+    });
+    const tupleExpr = module.tuple.make(exprArray);
+    setTypeDef(tupleExpr, typeArray);
+    return tupleExpr;
+  }
+};
+
+export const builtin = (
+  module: Module,
+  func: Function,
+  paramTypeDefs: Dict<TypeDef> | TypeDef[],
+  resultTypeDef: TypeDef,
+): Function => {
+  return (...params: any[]) => {
+    const typeArray = asArray(paramTypeDefs);
+    const params1 = params.map((param, index) => applyTypeDef(module, param, typeArray[index]));
+    const expr = func(...params1);
+    setTypeDef(expr, resultTypeDef);
+    return expr;
+  };
 };

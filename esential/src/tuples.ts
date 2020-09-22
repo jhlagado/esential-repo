@@ -1,7 +1,7 @@
-import { ExpressionRef, i32, Module, none, Type } from 'binaryen';
-import { Expression, TypeDef, TupleObj, Dict } from './types';
-import { asType, getLiteral, getTypeDef, setTypeDef } from './typedefs';
-import { asArray, isArray, isPrimitive } from './utils';
+import { ExpressionRef, Module } from 'binaryen';
+import { Expression, TypeDef, TupleObj } from './types';
+import { setTypeDef } from './typedefs';
+import { isArray, isPrimitive } from './utils';
 
 const tupleProxies = new Map();
 
@@ -53,37 +53,3 @@ export const makeTupleProxy = (module: Module, expr: ExpressionRef, typeDef: Typ
   return proxy;
 };
 
-export const applyTypeDefPrimitive = (
-  module: Module,
-  expr: ExpressionRef,
-  typeDef?: TypeDef,
-): ExpressionRef => {
-  const exprTypeDef = getTypeDef(expr, false);
-  if (exprTypeDef === none) {
-    return getLiteral(module, expr, asType(typeDef || i32));
-  } else {
-    if (typeDef != null && asType(typeDef) !== asType(exprTypeDef)) {
-      throw new Error(`Type mismatch: expected ${typeDef} but got ${exprTypeDef}`);
-    }
-    return expr;
-  }
-};
-
-export const applyTypeDef = (
-  module: Module,
-  expression: Expression,
-  typeDef?: TypeDef,
-): ExpressionRef => {
-  const stripped = stripTupleProxy(expression);
-  if (isPrimitive<ExpressionRef>(stripped)) {
-    return applyTypeDefPrimitive(module, stripped, typeDef);
-  } else {
-    const typeArray = asArray<Type>(typeDef as any);
-    const exprArray = asArray<ExpressionRef>(stripped).map((expr, index) => {
-      return applyTypeDefPrimitive(module, expr, typeArray[index]);
-    });
-    const tupleExpr = module.tuple.make(exprArray);
-    setTypeDef(tupleExpr, typeArray);
-    return tupleExpr;
-  }
-};
