@@ -138,7 +138,8 @@ export const getCompile = (
     if (length > tableDef.maximum!) {
       throw new Error(`Table maximum size too small, needs at least ${length}`);
     }
-    (module.setFunctionTable as any)(tableDef.initial, tableDef.maximum, ids); // because .d.ts is wrong
+    // because .d.ts is wrong
+    (module.setFunctionTable as any)(tableDef.initial, tableDef.maximum, ids); 
   }
   if (optimize) module.optimize();
   if (validate && !module.validate()) throw new Error('validation error');

@@ -53,9 +53,9 @@ export const getLiteral = (module: Module, value: number, type: Type = i32): Exp
     [f64]: module.f64,
   };
   if (type in opDict) {
-    // override type checking because of error in type definition for i64.const
+    // .d.ts error in type definition for i64.const
     const expr = (opDict[type] as any).const(value);
-    setTypeDef(expr, type); // for primitives type = typeDef
+    setTypeDef(expr, type); // for primitives type === typeDef
     return expr;
   }
   throw new Error(`Can only use primitive types in val, not ${type}`);
