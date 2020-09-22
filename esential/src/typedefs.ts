@@ -88,12 +88,24 @@ export const applyTypeDef = (
   if (isPrimitive<ExpressionRef>(expression)) {
     return applyTypeDefPrimitive(module, expression, typeDef);
   } else {
-    const typeArray = asArray<Type>(typeDef as any);
+    const typeArray = typeDef ? asArray<Type>(typeDef as any) : [];
     const exprArray = asArray<ExpressionRef>(expression).map((expr, index) => {
-      return applyTypeDefPrimitive(module, expr, typeArray[index]);
+      const expr1 = applyTypeDefPrimitive(module, expr, typeArray[index]);
+      if (typeArray[index] == null) {
+        typeArray[index] = getTypeDef(expr1) as number;
+      }
+      return expr1;
     });
     const tupleExpr = module.tuple.make(exprArray);
-    setTypeDef(tupleExpr, typeArray);
+    let typeDef1: TypeDef = isArray(expression)
+      ? typeArray
+      : Object.keys(expression)
+          .sort()
+          .reduce((acc, key, index) => {
+            (acc as Dict<Type>)[key] = typeArray[index];
+            return acc;
+          }, {} as TypeDef);
+    setTypeDef(tupleExpr, typeDef1);
     return tupleExpr;
   }
 };

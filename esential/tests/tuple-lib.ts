@@ -8,7 +8,7 @@ export const tupleLib: LibFunc = ({ lib, func, literal }) => {
   const returnTwo = func({ export: false }, ({ vars: { u }, result }) => {
     result(
       //
-      u([literal(1), literal(2)]),
+      u([1, 2]),
       u(),
     );
   });

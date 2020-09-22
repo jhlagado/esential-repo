@@ -1,8 +1,9 @@
-import { Expression, TypeDef, VoidBlockFunc, Ref, Callable } from './types';
+import { Expression, TypeDef, VoidBlockFunc, Ref, Callable, Dict } from './types';
 
 import { ExpressionRef, auto, Module, none, i32 } from 'binaryen';
-import { inferTypeDef, setTypeDef, getTypeDef, asType, getLiteral } from './typedefs';
+import { inferTypeDef, setTypeDef, getTypeDef, asType, getLiteral, applyTypeDef } from './typedefs';
 import { getAssignable, stripTupleProxy } from './tuples';
+import { asArray } from './utils';
 
 export const getResultFunc = (
   module: Module,
@@ -37,15 +38,18 @@ export const getCallable = (
   id: string,
   exported: boolean,
   exprFunc: (...params: ExpressionRef[]) => ExpressionRef,
+  typeDef: Dict<TypeDef> | TypeDef[],
   resultDef: TypeDef,
   callableIdMap: Map<Callable, string>,
   exportedSet?: Set<Callable>,
 ) => {
   const callable = (...params: ExpressionRef[]) => {
-    const params1 = params.map(param => {
-      const paramTypeDef = getTypeDef(param, false);
-      return paramTypeDef === none ? getLiteral(module, param, i32) : param;
-    });
+    const typeArray = asArray(typeDef);
+    const params1 = params.map((param, index) => applyTypeDef(module, param, typeArray[index]));
+    // const params1 = params.map(param => {
+    //   const paramTypeDef = getTypeDef(param, false);
+    //   return paramTypeDef === none ? getLiteral(module, param, i32) : param;
+    // });
     const expr = exprFunc(...params1);
     setTypeDef(expr, resultDef);
     return expr;

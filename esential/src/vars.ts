@@ -1,6 +1,6 @@
 import { auto, ExpressionRef, Module, none } from 'binaryen';
 import { VarDefs, Expression, TypeDef, Dict, VarsAccessor } from './types';
-import { inferTypeDef, asType, setTypeDef, getTypeDef } from './typedefs';
+import { inferTypeDef, asType, setTypeDef, getTypeDef, applyTypeDef } from './typedefs';
 import { isArray, isPrimitive } from './utils';
 import { makeTupleProxy, getAssignable, stripTupleProxy } from './tuples';
 import { getLiteral } from './typedefs';
@@ -34,27 +34,36 @@ export const varSet = (
   prop: string,
   expression: Expression,
 ): ExpressionRef => {
-  let expr = getAssignable(module)(expression) as ExpressionRef;
+  // let expr = applyTypeDef(module, expr, typeDef);
+  // let expr = getAssignable(module)(expression) as ExpressionRef;
   let isGlobal = false;
-  let typeDef = varDefs[prop];
+  let typeDef: TypeDef | undefined = varDefs[prop];
   if (typeDef == null) {
     typeDef = globalVarDefs[prop];
-    isGlobal = true;
+    isGlobal = typeDef != null;
   }
+  const expr = applyTypeDef(module, expression, typeDef);
   if (typeDef == null) {
-    typeDef = inferTypeDef(stripTupleProxy(expression));
+    typeDef = getTypeDef(expr);
     varDefs[prop] = typeDef;
-    setTypeDef(expr, typeDef);
-    isGlobal = false;
-  } else {
-    const type = asType(typeDef);
-    const exprTypeDef = getTypeDef(expr, false);
-    if (exprTypeDef === none) {
-      expr = getLiteral(module, expr, type);
-    } else if (exprTypeDef !== none && asType(exprTypeDef) !== type) {
-      throw new Error(`Wrong assignment type, expected ${typeDef} and got ${exprTypeDef}`);
-    }
   }
+  //   varDefs[prop] = typeDef;
+
+  // setTypeDef(expr, typeDef);
+  // if (typeDef == null) {
+  //   typeDef = inferTypeDef(stripTupleProxy(expression));
+  //   varDefs[prop] = typeDef;
+  //   setTypeDef(expr, typeDef);
+  //   isGlobal = false;
+  // } else {
+  // const type = asType(typeDef);
+  // const exprTypeDef = getTypeDef(expr, false);
+  // if (exprTypeDef === none) {
+  //   expr = getLiteral(module, expr, type);
+  // } else if (exprTypeDef !== none && asType(exprTypeDef) !== type) {
+  //   throw new Error(`Wrong assignment type, expected ${typeDef} and got ${exprTypeDef}`);
+  // }
+  // }
   if (isGlobal) {
     return module.global.set(prop, expr);
   } else {

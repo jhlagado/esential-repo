@@ -61,7 +61,7 @@ export const getFunc = (
     const resultType = asType(resultDef);
     module.addFunctionImport(id, namespace, name, paramsType, resultType);
     const exprFunc = (...params: ExpressionRef[]) => module.call(id, params, resultType);
-    return getCallable(module, id, false, exprFunc, resultDef, callableIdMap);
+    return getCallable(module, id, false, exprFunc, params, resultDef, callableIdMap);
   } else {
     const bodyItems: ExpressionRef[] = [];
     const vars = { ...params, ...locals };
@@ -92,7 +92,7 @@ export const getFunc = (
       exprFunc = (...params: ExpressionRef[]) =>
         module.call_indirect(module.i32.const(index), params, paramsType, resultType);
     }
-    return getCallable(module, id, exported, exprFunc, resultDef, callableIdMap, exportedSet);
+    return getCallable(module, id, exported, exprFunc, params, resultDef, callableIdMap, exportedSet);
   }
 };
 
