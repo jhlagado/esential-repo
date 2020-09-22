@@ -16,5 +16,11 @@ export const asDict = <T>(entries: Entry<T>[]) =>
 export const asPages = (bytes: number) => ((bytes + 0xffff) & ~0xffff) >>> 16;
 export const asBytes = (pages: number) => pages << 16;
 
-// export const mapDict = <T, R>(dict: Dict<T>, mapFunc: MapFunc<T, R>) =>
-//   asDict<R>(Object.entries(dict).map(([key, value]) => [key, mapFunc(value)]));
+export const asArray = <T>(obj: Dict<T> | T[]) => {
+  return isArray<T>(obj)
+    ? obj
+    : Object.keys(obj)
+        .sort()
+        .map(key => obj[key]);
+};
+

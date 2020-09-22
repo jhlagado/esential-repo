@@ -3,7 +3,7 @@ import { VarDefs, Expression, TypeDef, Dict, VarsAccessor } from './types';
 import { inferTypeDef, asType, setTypeDef, getTypeDef } from './typedefs';
 import { isArray, isPrimitive } from './utils';
 import { makeTupleProxy, getAssignable, stripTupleProxy } from './tuples';
-import { getLiteral } from './funcs-utils';
+import { getLiteral } from './typedefs';
 
 export const varGet = (
   module: Module,

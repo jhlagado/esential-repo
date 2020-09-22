@@ -1,24 +1,8 @@
 import { Expression, TypeDef, VoidBlockFunc, Ref, Callable } from './types';
 
-import { ExpressionRef, auto, Module, none, i32, i64, f32, f64, Type } from 'binaryen';
-import { inferTypeDef, setTypeDef, getTypeDef, asType } from './typedefs';
+import { ExpressionRef, auto, Module, none, i32 } from 'binaryen';
+import { inferTypeDef, setTypeDef, getTypeDef, asType, getLiteral } from './typedefs';
 import { getAssignable, stripTupleProxy } from './tuples';
-
-export const getLiteral = (module: Module, value: number, type: Type = i32): ExpressionRef => {
-  const opDict = {
-    [i32]: module.i32,
-    [i64]: module.i64,
-    [f32]: module.f32,
-    [f64]: module.f64,
-  };
-  if (type in opDict) {
-    // override type checking because of error in type definition for i64.const
-    const expr = (opDict[type] as any).const(value);
-    setTypeDef(expr, type); // for primitives type = typeDef
-    return expr;
-  }
-  throw new Error(`Can only use primtive types in val, not ${type}`);
-};
 
 export const getResultFunc = (
   module: Module,

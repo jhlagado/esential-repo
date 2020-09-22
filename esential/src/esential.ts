@@ -15,7 +15,7 @@ import {
 import { FEATURE_MULTIVALUE } from './constants';
 import { getFunc, exportFuncs, getCompile, getGlobals, getLoad } from './lib-utils';
 import { getFOR, getIF } from './control';
-import { getLiteral } from './funcs-utils';
+import { getLiteral } from './typedefs';
 
 export const esential = (cfg?: EsentialCfg): EsentialContext => {
   const module = new Module();
