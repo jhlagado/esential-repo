@@ -5,7 +5,7 @@ global.console = { ...global.console, log: jest.fn() };
 
 const { lib, load, compile } = esential();
 
-lib(({ func, literal }) => {
+lib(({ func }) => {
   const { log } = lib(ioLib);
 
   const print3Times = func({}, ({ result }) => {

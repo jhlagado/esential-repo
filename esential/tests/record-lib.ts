@@ -2,13 +2,13 @@ import { i32 } from 'binaryen';
 import { LibFunc } from 'esential/src';
 import { addLib } from './add-lib';
 
-export const recordLib: LibFunc = ({ lib, func, literal }) => {
+export const recordLib: LibFunc = ({ lib, func }) => {
   const { addition } = lib(addLib);
 
   const returnTwoRecord = func({ export: false }, ({ vars: { u }, result }) => {
     result(
       //
-      u({ x: literal(1), y: literal(2) }),
+      u({ x: 1, y: 2 }),
       u(),
     );
   });

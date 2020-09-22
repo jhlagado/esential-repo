@@ -1,7 +1,7 @@
 import { i32, none } from 'binaryen';
 import { LibFunc, builtin } from 'esential/src';
 
-export const memoryLib: LibFunc = ({ func, module, literal }) => {
+export const memoryLib: LibFunc = ({ func, module }) => {
   const load = builtin(
     module,
     module.i32.load,
@@ -13,8 +13,8 @@ export const memoryLib: LibFunc = ({ func, module, literal }) => {
   const storeAndLoad = func({ params: { a: i32 }, result: [i32] }, ({ vars: { a }, result }) => {
     result(
       //
-      store(0, 0, literal(0), a()),
-      load(0, 0, literal(0)),
+      store(0, 0, 0, a()),
+      load(0, 0, 0),
     );
   });
 

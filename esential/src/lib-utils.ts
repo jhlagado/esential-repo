@@ -16,7 +16,7 @@ import {
 } from './types';
 import { getVarsAccessor } from './vars';
 import { getResultFunc, getCallable } from './funcs-utils';
-import { asType, getTypeDef, inferTypeDef, setTypeDef } from './typedefs';
+import { applyTypeDef, asType, getTypeDef, inferTypeDef, setTypeDef } from './typedefs';
 import { getAssignable, stripTupleProxy } from './tuples';
 
 export const exportFuncs = (
@@ -101,18 +101,9 @@ export const getGlobals = (module: Module, globalVarDefs: VarDefs) => (
   assignments: Dict<Expression>,
 ) => {
   Object.entries(assignments).forEach(([prop, expression]) => {
-    const expr = getAssignable(module)(expression) as ExpressionRef;
     const isGlobal = varDefs === null;
     let typeDef = varDefs[prop];
-    if (typeDef == null) {
-      typeDef = inferTypeDef(stripTupleProxy(expression));
-      setTypeDef(expr, typeDef);
-    } else {
-      const exprTypeDef = getTypeDef(expr, false);
-      if (exprTypeDef !== none && asType(exprTypeDef) !== asType(typeDef)) {
-        throw new Error(`Wrong assignment type, expected ${typeDef} and got ${exprTypeDef}`);
-      }
-    }
+    const expr = applyTypeDef(module, expression, typeDef);
     globalVarDefs[prop] = typeDef;
     return module.addGlobal(prop, asType(typeDef), true, expr);
   });
