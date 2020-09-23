@@ -1,5 +1,5 @@
 import { ExpressionRef, Module } from 'binaryen';
-import { Expression, TypeDef, TupleObj } from './types';
+import { Expression, TypeDef, TupleObj, Accessor } from './types';
 import { setTypeDef } from './typedefs';
 import { isArray, isPrimitive } from './utils';
 
@@ -7,14 +7,13 @@ const tupleProxies = new Map();
 
 export const isTupleProxy = (expr: Expression) => tupleProxies.has(expr);
 
-export const stripTupleProxy = (expr: Expression): Expression => {
-  return isTupleProxy(expr as any) ? tupleProxies.get(expr) : expr;
+export const stripTupleProxy = (expr: Expression | Accessor): Expression => {
+  const expr1 = typeof expr === 'function' ? expr() : expr;
+  return isTupleProxy(expr1 as any) ? tupleProxies.get(expr1) : expr1;
 };
 
-export const getAssignable = (module: Module) => (
-  expression: Expression,
-): ExpressionRef => {
-  const stripped = stripTupleProxy(expression);
+export const getAssignable = (module: Module, expression: Expression): ExpressionRef => {
+  const stripped = expression;
   if (isPrimitive<ExpressionRef>(stripped)) {
     return stripped;
   } else {

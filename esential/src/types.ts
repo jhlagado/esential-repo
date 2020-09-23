@@ -19,7 +19,7 @@ export type VarDefs = Dict<TypeDef>;
 export type Vars = Dict<any>;
 export type Imports = Dict<Dict<any>>;
 
-export type VoidBlockFunc = (...exprs: Expression[]) => void;
+export type VoidBlockFunc = (...exprs: (Expression | Accessor)[]) => void;
 
 export type FuncDef = {
   id?: string;

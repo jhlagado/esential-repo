@@ -19,7 +19,7 @@ export const resultLib: LibFunc = ({ func, module }) => {
       result(
         //
         u(2000),
-        u(),
+        u,
       );
     },
   );
