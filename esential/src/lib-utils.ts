@@ -49,7 +49,7 @@ export const getFunc = (
     id = `func${count}`,
     params = {},
     result,
-    locals = {},
+    globals: locals = {},
     namespace = 'namespace',
     name = 'name',
     export: exported = true,

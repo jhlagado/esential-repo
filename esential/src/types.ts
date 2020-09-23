@@ -27,7 +27,7 @@ export type FuncDef = {
   id?: string;
   params?: VarDefs;
   result?: TypeDef;
-  locals?: VarDefs;
+  globals?: VarDefs;
   export?: boolean;
   indirect?: boolean;
   external?: boolean;
