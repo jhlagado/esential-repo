@@ -9,7 +9,7 @@ export const getResultFunc = (
   module: Module,
   resultDefRef: Ref<TypeDef>,
   bodyItems: ExpressionRef[],
-): VoidBlockFunc => (...expressions: Expression[]) => {
+): VoidBlockFunc => (...expressions) => {
   const { length } = expressions;
   if (length < 1) {
     throw new Error(`Result function must have at least one arg`);

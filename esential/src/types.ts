@@ -19,9 +19,7 @@ export type VarDefs = Dict<TypeDef>;
 export type Vars = Dict<any>;
 export type Imports = Dict<Dict<any>>;
 
-export type StatementsBlockFunc<T> = (...exprs: ExpressionRef[]) => T;
-export type BlockFunc = StatementsBlockFunc<ExpressionRef>;
-export type VoidBlockFunc = StatementsBlockFunc<void>;
+export type VoidBlockFunc = (...exprs: Expression[]) => void;
 
 export type FuncDef = {
   id?: string;
