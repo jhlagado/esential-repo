@@ -13,6 +13,6 @@ it('should return a global with the value of 1000', () => {
 });
 
 it('should index into a tuple and return 2000', () => {
-  const j = exported.global1000();
+  const j = exported.global2000();
   expect(j).toBe(2000);
 });
