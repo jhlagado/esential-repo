@@ -23,4 +23,3 @@ export const asArray = <T>(obj: Dict<T> | T[]) => {
         .sort()
         .map(key => obj[key]);
 };
-

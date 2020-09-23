@@ -1,6 +1,6 @@
-import { Dict, Expression, TypeDef } from './types';
-import { ExpressionRef, Type, createType, none, Module, i32, f32, f64, i64 } from 'binaryen';
-import { asArray, asDict, isArray, isPrimitive } from './utils';
+import { TypeDef } from './types';
+import { ExpressionRef, Type, createType, none } from 'binaryen';
+import { isArray, isPrimitive } from './utils';
 
 const expressionTypeDefs = new Map<ExpressionRef, TypeDef>();
 
@@ -27,4 +27,3 @@ export const asType = (typeDef: TypeDef): Type => {
     return createType(typeArray);
   }
 };
-

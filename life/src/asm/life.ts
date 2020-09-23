@@ -1,14 +1,17 @@
-import { i32 } from 'binaryen';
+import { i32, none } from 'binaryen';
 import { builtin, LibFunc } from 'esential/src';
 
 export const lifeLib: LibFunc = ({ module, func, literal, globals, FOR, IF }) => {
-  const store = builtin(module.i32.store, i32);
-  const load = builtin(module.i32.load, i32);
-  const add = builtin(module.i32.add, i32);
-  const mul = builtin(module.i32.mul, i32);
-  const lt = builtin(module.i32.lt_u, i32);
-  const eqz = builtin(module.i32.eqz, i32);
-  const rem = builtin(module.i32.rem_u, i32);
+  const store = builtin(
+    module,
+    module.i32.store,
+    { offset: none, align: none, ptr: i32, value: i32 },
+    i32,
+  );
+  const load = builtin(module, module.i32.load, { offset: none, align: none, ptr: i32 }, i32);
+  const add = builtin(module, module.i32.add, { a: i32, b: i32 }, i32);
+  const mul = builtin(module, module.i32.mul, { a: i32, b: i32 }, i32);
+  const lt = builtin(module, module.i32.lt_u, { a: i32, b: i32 }, i32);
 
   globals(
     { width: i32, height: i32, offset: i32 },
@@ -18,8 +21,6 @@ export const lifeLib: LibFunc = ({ module, func, literal, globals, FOR, IF }) =>
       offset: literal(0),
     },
   );
-
-  //globals({width: i32, height: i32, offset: i32}, mutable:{width:true})
 
   const set = func(
     { params: { x: i32, y: i32, v: i32 }, locals: { y0: i32, pos: i32 } },

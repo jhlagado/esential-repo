@@ -1,6 +1,5 @@
-import { Expression, TypeDef, VoidBlockFunc, Ref, Callable, Dict } from './types';
-
 import { ExpressionRef, auto, Module } from 'binaryen';
+import { Expression, TypeDef, VoidBlockFunc, Ref, Callable, Dict } from './types';
 import { setTypeDef, getTypeDef } from './typedefs';
 import { getAssignable, stripTupleProxy } from './tuples';
 import { asArray } from './utils';
