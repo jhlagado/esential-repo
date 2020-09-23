@@ -77,7 +77,9 @@ export const builtin = (
 ): Function => {
   return (...params: any[]) => {
     const typeArray = asArray(paramTypeDefs);
-    const params1 = params.map((param, index) => applyTypeDef(module, stripTupleProxy(param), typeArray[index]));
+    const params1 = params.map((param, index) =>
+      applyTypeDef(module, stripTupleProxy(param), typeArray[index]),
+    );
     const expr = func(...params1);
     setTypeDef(expr, resultTypeDef);
     return expr;
