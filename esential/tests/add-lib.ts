@@ -10,8 +10,8 @@ export const addLib: LibFunc = ({ func, module }) => {
     ({ vars: { a, b, u }, result }) => {
       result(
         //
-        u(add(a(), b())),
-        u(),
+        u(add(a, b)),
+        u,
       );
     },
   );
@@ -22,8 +22,8 @@ export const addLib: LibFunc = ({ func, module }) => {
     ({ vars: { a, u }, result }) => {
       result(
         //
-        u(add(a(), 1)),
-        u(),
+        u(add(a, 1)),
+        u,
       );
     },
   );

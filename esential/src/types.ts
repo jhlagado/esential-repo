@@ -7,7 +7,7 @@ export type Entry<T> = [string, T];
 export type Dict<T> = { [key: string]: T };
 export type Expression = ExpressionRef | ExpressionRef[] | Dict<ExpressionRef>;
 export type TypeDef = Type | Type[] | Dict<Type>;
-export type Callable = (...params: ExpressionRef[]) => ExpressionRef;
+export type Callable = (...params: (ExpressionRef |Accessor)[]) => ExpressionRef;
 export type Lib = Dict<Callable>;
 
 export type TupleObj = {
@@ -25,6 +25,7 @@ export type FuncDef = {
   id?: string;
   params?: VarDefs;
   result?: TypeDef;
+  locals?: VarDefs;
   globals?: VarDefs;
   export?: boolean;
   indirect?: boolean;

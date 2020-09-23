@@ -15,9 +15,19 @@ export const ifLib: LibFunc = ({ module, lib, func, FOR, IF }) => {
       even(0),
       FOR(
         i(0),
-        lt(i(), 10),
-        i(add(i(), 1)),
-      )(IF(eqz(rem(i(), 2)))(even(add(even(), 1)))(odd(add(odd(), 1)), log(odd()))),
+        lt(i, 10),
+        i(add(i, 1)),
+      )(
+        //
+        IF(eqz(rem(i, 2)))(
+          //
+          even(add(even, 1)),
+        )(
+          //
+          odd(add(odd, 1)),
+          log(odd),
+        ),
+      ),
       odd(),
     );
   });

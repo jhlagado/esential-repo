@@ -11,13 +11,13 @@ export const loopLib: LibFunc = ({ module, func, FOR }) => {
       j(0),
       FOR(
         i(10),
-        gt(i(), 0),
-        i(sub(i(), 1)),
+        gt(i, 0),
+        i(sub(i, 1)),
       )(
         //
-        j(add(j(), 1)),
+        j(add(j, 1)),
       ),
-      j(),
+      j,
     );
   });
 

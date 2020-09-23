@@ -9,7 +9,7 @@ export const recordLib: LibFunc = ({ lib, func }) => {
     result(
       //
       u({ x: 1, y: 2 }),
-      u(),
+      u,
     );
   });
 

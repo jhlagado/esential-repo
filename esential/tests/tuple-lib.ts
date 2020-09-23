@@ -9,7 +9,7 @@ export const tupleLib: LibFunc = ({ lib, func }) => {
     result(
       //
       u([1, 2]),
-      u(),
+      u,
     );
   });
 

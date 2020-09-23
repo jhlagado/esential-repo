@@ -9,8 +9,8 @@ export const blockLib: LibFunc = ({ func, module, literal }) => {
       //
       a(1),
       b(2),
-      u(add(a(), b())),
-      u(),
+      u(add(a, b)),
+      u,
     );
   });
 

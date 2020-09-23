@@ -13,7 +13,7 @@ export const memoryLib: LibFunc = ({ func, module }) => {
   const storeAndLoad = func({ params: { a: i32 }, result: [i32] }, ({ vars: { a }, result }) => {
     result(
       //
-      store(0, 0, 0, a()),
+      store(0, 0, 0, a),
       load(0, 0, 0),
     );
   });

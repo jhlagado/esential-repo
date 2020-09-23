@@ -1,5 +1,5 @@
 import { ExpressionRef, auto, Module } from 'binaryen';
-import { Expression, TypeDef, VoidBlockFunc, Ref, Callable, Dict } from './types';
+import { Expression, TypeDef, VoidBlockFunc, Ref, Callable, Dict, Accessor } from './types';
 import { setTypeDef, getTypeDef } from './typedefs';
 import { getAssignable, stripTupleProxy } from './tuples';
 import { asArray } from './utils';
@@ -38,7 +38,7 @@ export const getCallable = (
   callableIdMap: Map<Callable, string>,
   exportedSet?: Set<Callable>,
 ) => {
-  const callable = (...params: ExpressionRef[]) => {
+  const callable = (...params: (ExpressionRef | Accessor)[]) => {
     const typeArray = asArray(typeDef);
     const params1 = params.map((param, index) =>
       applyTypeDef(module, stripTupleProxy(param), typeArray[index]),
