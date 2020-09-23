@@ -37,7 +37,7 @@ export const getCallable = (
 ) => {
   const callable = (...params: ExpressionRef[]) => {
     const typeArray = asArray(typeDef);
-    const params1 = params.map((param, index) => applyTypeDef(module, param, typeArray[index]));
+    const params1 = params.map((param, index) => applyTypeDef(module, stripTupleProxy(param), typeArray[index]));
     const expr = exprFunc(...params1);
     setTypeDef(expr, resultDef);
     return expr;

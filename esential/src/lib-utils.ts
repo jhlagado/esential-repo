@@ -18,6 +18,7 @@ import { getVarsAccessor } from './vars';
 import { getResultFunc, getCallable } from './funcs-utils';
 import { asType } from './typedefs';
 import { applyTypeDef } from './literals';
+import { stripTupleProxy } from './tuples';
 
 export const exportFuncs = (
   module: Module,
@@ -111,7 +112,7 @@ export const getGlobals = (module: Module, globalVarDefs: VarDefs) => (
 ) => {
   Object.entries(assignments).forEach(([prop, expression]) => {
     let typeDef = varDefs[prop];
-    const expr = applyTypeDef(module, expression, typeDef);
+    const expr = applyTypeDef(module, stripTupleProxy(expression), typeDef);
     globalVarDefs[prop] = typeDef;
     return module.addGlobal(prop, asType(typeDef), true, expr);
   });

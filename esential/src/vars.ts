@@ -2,7 +2,7 @@ import { ExpressionRef, Module } from 'binaryen';
 import { VarDefs, Expression, TypeDef, Dict, VarsAccessor } from './types';
 import { asType, setTypeDef, getTypeDef } from './typedefs';
 import { isPrimitive } from './utils';
-import { makeTupleProxy } from './tuples';
+import { makeTupleProxy, stripTupleProxy } from './tuples';
 import { applyTypeDef } from './literals';
 
 export const varGet = (
@@ -40,7 +40,7 @@ export const varSet = (
     typeDef = globalVarDefs[prop];
     isGlobal = typeDef != null;
   }
-  const expr = applyTypeDef(module, expression, typeDef);
+  const expr = applyTypeDef(module, stripTupleProxy(expression), typeDef);
   if (typeDef == null) {
     typeDef = getTypeDef(expr);
     varDefs[prop] = typeDef;

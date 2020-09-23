@@ -1,5 +1,5 @@
 import { ExpressionRef, Type, i32, i64, f32, f64, none, Module } from 'binaryen';
-import { isTupleProxy } from './tuples';
+import { isTupleProxy, stripTupleProxy } from './tuples';
 import { asType, getTypeDef, setTypeDef } from './typedefs';
 import { Dict, Expression, TypeDef } from './types';
 import { asArray, isArray, isPrimitive } from './utils';
@@ -44,9 +44,7 @@ export const applyTypeDef = (
   expression: Expression,
   typeDef?: TypeDef,
 ): ExpressionRef => {
-  if (isTupleProxy(expression)) {
-    return applyTypeDefPrimitive(module, expression, typeDef);
-  } else if (isPrimitive<ExpressionRef>(expression)) {
+  if (isPrimitive<ExpressionRef>(expression)) {
     return applyTypeDefPrimitive(module, expression, typeDef);
   } else {
     const typeArray = typeDef ? asArray<Type>(typeDef as any) : [];
@@ -79,7 +77,7 @@ export const builtin = (
 ): Function => {
   return (...params: any[]) => {
     const typeArray = asArray(paramTypeDefs);
-    const params1 = params.map((param, index) => applyTypeDef(module, param, typeArray[index]));
+    const params1 = params.map((param, index) => applyTypeDef(module, stripTupleProxy(param), typeArray[index]));
     const expr = func(...params1);
     setTypeDef(expr, resultTypeDef);
     return expr;
