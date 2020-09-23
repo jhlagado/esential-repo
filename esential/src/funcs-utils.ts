@@ -1,34 +1,27 @@
 import { Expression, TypeDef, VoidBlockFunc, Ref, Callable, Dict } from './types';
 
-import { ExpressionRef, auto, Module, none, i32 } from 'binaryen';
-import { inferTypeDef, setTypeDef, getTypeDef, asType, getLiteral, applyTypeDef } from './typedefs';
+import { ExpressionRef, auto, Module } from 'binaryen';
+import { setTypeDef, getTypeDef } from './typedefs';
 import { getAssignable, stripTupleProxy } from './tuples';
 import { asArray } from './utils';
+import { applyTypeDef } from './literals';
 
 export const getResultFunc = (
   module: Module,
   resultDefRef: Ref<TypeDef>,
   bodyItems: ExpressionRef[],
 ): VoidBlockFunc => (...expressions: Expression[]) => {
-  const exprs = expressions.map(getAssignable(module));
-  const { length } = exprs;
-  if (length === 0) {
+  const { length } = expressions;
+  if (length < 1) {
     throw new Error(`Result function must have at least one arg`);
   }
-  bodyItems.push(...exprs.slice(0, -1));
-  const [expr] = exprs.slice(-1);
-  if (resultDefRef.current === auto) {
-    const typeDef = inferTypeDef(stripTupleProxy(expr));
-    if (typeDef == null) {
-      throw new Error(`Couldn't infer ${expr}`);
-    }
-    setTypeDef(expr, typeDef);
-    resultDefRef.current = typeDef;
-  } else {
-    const exprTypeDef = getTypeDef(expr);
-    if (asType(exprTypeDef) != asType(resultDefRef.current)) {
-      throw new Error(`Wrong return type, expected ${resultDefRef} and got ${exprTypeDef}`);
-    }
+  const leadExprs = expressions.slice(0, -1).map(getAssignable(module));
+  bodyItems.push(...leadExprs);
+  const expression = expressions[length - 1];
+  const typeDef = resultDefRef.current === auto ? undefined : resultDefRef.current;
+  const expr = applyTypeDef(module, stripTupleProxy(expression), typeDef);
+  if (typeDef == null) {
+    resultDefRef.current = getTypeDef(expr);
   }
   bodyItems.push(module.return(expr));
 };

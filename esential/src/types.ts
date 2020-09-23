@@ -57,6 +57,8 @@ export type CompileOptions = {
   validate?: boolean;
   memory?: MemoryDef;
   table?: TableDef;
+  debugRaw?: boolean;
+  debugOptimized?: boolean;
 };
 
 export type Accessor = (expression?: Expression) => any;

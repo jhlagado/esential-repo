@@ -9,7 +9,6 @@ const { lib, load, compile, module } = esential({ memory: { ...size, instance } 
 
 lib(memoryLib);
 
-console.log('raw:', module.emitText());
 const exported = load(compile());
 
 it('should store a number and return it', () => {

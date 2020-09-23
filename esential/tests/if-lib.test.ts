@@ -5,7 +5,6 @@ global.console = { ...console, log: jest.fn(console.log) };
 
 const { lib, load, compile, module: m } = esential();
 lib(ifLib);
-console.log('raw:', m.emitText());
 const exported = load(compile(), {
   env: {
     log: (a: number) => {

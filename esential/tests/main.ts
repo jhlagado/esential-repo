@@ -6,6 +6,5 @@ const { lib, module, compile } = esential();
 
 lib(loopLib);
 
-console.log('Raw:', module.emitText());
 const binary = compile();
 writeFileSync('./dist/x.wasm', Buffer.from(binary));

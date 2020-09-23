@@ -16,7 +16,8 @@ import {
 } from './types';
 import { getVarsAccessor } from './vars';
 import { getResultFunc, getCallable } from './funcs-utils';
-import { applyTypeDef, asType } from './typedefs';
+import { asType } from './typedefs';
+import { applyTypeDef } from './literals';
 
 export const exportFuncs = (
   module: Module,
@@ -91,7 +92,16 @@ export const getFunc = (
       exprFunc = (...params: ExpressionRef[]) =>
         module.call_indirect(module.i32.const(index), params, paramsType, resultType);
     }
-    return getCallable(module, id, exported, exprFunc, params, resultDef, callableIdMap, exportedSet);
+    return getCallable(
+      module,
+      id,
+      exported,
+      exprFunc,
+      params,
+      resultDef,
+      callableIdMap,
+      exportedSet,
+    );
   }
 };
 
@@ -112,7 +122,12 @@ export const getCompile = (
   memoryDef: MemoryDef | null,
   tableDef: TableDef | null,
   indirectTable: IndirectInfo[],
-) => ({ optimize = true, validate = true }: CompileOptions = {}): any => {
+) => ({
+  optimize = true,
+  validate = true,
+  debugRaw = true,
+  debugOptimized: debugOpt = false,
+}: CompileOptions = {}): any => {
   if (memoryDef) {
     module.addMemoryImport('0', memoryDef.namespace!, memoryDef.name!);
     module.setMemory(memoryDef.initial!, memoryDef.maximum!, memoryDef.name!);
@@ -128,9 +143,15 @@ export const getCompile = (
       throw new Error(`Table maximum size too small, needs at least ${length}`);
     }
     // because .d.ts is wrong
-    (module.setFunctionTable as any)(tableDef.initial, tableDef.maximum, ids); 
+    (module.setFunctionTable as any)(tableDef.initial, tableDef.maximum, ids);
+  }
+  if (debugRaw) {
+    console.log('Raw: ', module.emitText());
   }
   if (optimize) module.optimize();
+  if (debugOpt) {
+    console.log('Optimised: ', module.emitText());
+  }
   if (validate && !module.validate()) throw new Error('validation error');
   return module.emitBinary();
 };

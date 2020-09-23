@@ -5,8 +5,10 @@ import { isArray, isPrimitive } from './utils';
 
 const tupleProxies = new Map();
 
+export const isTupleProxy = (expr: Expression): expr is ExpressionRef => tupleProxies.has(expr);
+
 export const stripTupleProxy = (expr: Expression): Expression => {
-  return tupleProxies.has(expr as any) ? tupleProxies.get(expr) : expr;
+  return isTupleProxy(expr as any) ? tupleProxies.get(expr) : expr;
 };
 
 export const getAssignable = (module: Module) => (expression: Expression): ExpressionRef => {
@@ -52,4 +54,3 @@ export const makeTupleProxy = (module: Module, expr: ExpressionRef, typeDef: Typ
   tupleProxies.set(proxy, expr);
   return proxy;
 };
-

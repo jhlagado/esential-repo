@@ -1,8 +1,9 @@
 import { ExpressionRef, Module } from 'binaryen';
 import { VarDefs, Expression, TypeDef, Dict, VarsAccessor } from './types';
-import { asType, setTypeDef, getTypeDef, applyTypeDef } from './typedefs';
+import { asType, setTypeDef, getTypeDef } from './typedefs';
 import { isPrimitive } from './utils';
 import { makeTupleProxy } from './tuples';
+import { applyTypeDef } from './literals';
 
 export const varGet = (
   module: Module,

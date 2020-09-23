@@ -19,5 +19,4 @@ lib(({ func }) => {
 });
 
 const exported = load(compile());
-console.log(module.emitText());
 console.log(exported.addition(41, 1));

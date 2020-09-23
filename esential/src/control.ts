@@ -1,5 +1,5 @@
 import { ExpressionRef, auto, Module } from 'binaryen';
-import { getLiteral } from './typedefs';
+import { getLiteral } from './literals';
 
 let scopeCount = 0;
 
