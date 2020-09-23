@@ -8,3 +8,7 @@ const exported = load(compile());
 it('should return a number', () => {
   expect(exported.return1000()).toBe(1000);
 });
+
+it('should return another number', () => {
+  expect(exported.return2000()).toBe(2000);
+});

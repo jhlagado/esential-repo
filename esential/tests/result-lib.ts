@@ -12,7 +12,20 @@ export const resultLib: LibFunc = ({ func, module }) => {
     },
   );
 
+  const return2000 = func(
+    {},
+
+    ({ vars: { u }, result }) => {
+      result(
+        //
+        u(2000),
+        u(),
+      );
+    },
+  );
+
   return {
     return1000,
+    return2000,
   };
 };
