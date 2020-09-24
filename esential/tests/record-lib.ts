@@ -17,7 +17,7 @@ export const recordLib: LibFunc = ({ lib, func }) => {
     result(
       //
       u(returnTwoRecord()),
-      u().y,
+      u.y,
     );
   });
 
@@ -25,7 +25,7 @@ export const recordLib: LibFunc = ({ lib, func }) => {
     result(
       //
       u(returnTwoRecord()),
-      addition(u().x, u().y),
+      addition(u.x, u.y),
     );
   });
 
@@ -33,7 +33,7 @@ export const recordLib: LibFunc = ({ lib, func }) => {
     result(
       //
       u(returnTwoRecord()),
-      addition(a(), addition(u().x, u().y)),
+      addition(a, addition(u.x, u.y)),
     );
   });
 
