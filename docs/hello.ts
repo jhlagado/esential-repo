@@ -1,12 +1,14 @@
 import { i32 } from 'binaryen';
-import { builtin, esential } from 'esential/src';
+import { esential } from 'esential/src';
 
-const { lib, module, load, compile } = esential();
+const { lib, load, compile } = esential();
 
-lib(({ func }) => {
-  const add = builtin(module, module.i32.add, { a: i32, b: i32 }, i32);
+lib(({ func, builtin }) => {
+  const {
+    i32: { add },
+  } = builtin;
 
-  const addition = func({ params: { a: i32, b: i32 } }, ({ vars: { a, b, u }, result }) => {
+  const addition = func({ params: { a: i32, b: i32 } }, (result, { a, b, u }) => {
     result(
       //
       u(add(a, b)),

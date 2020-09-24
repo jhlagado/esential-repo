@@ -49,14 +49,16 @@ And now the same thing in `Esential`
 
 ```js
 import { i32 } from 'binaryen';
-import { builtin, esential } from 'esential/src';
+import { esential } from 'esential/src';
 
 const { lib, module, load, compile } = esential();
 
-lib(({ func }) => {
-  const add = builtin(module, module.i32.add, { a: i32, b: i32 }, i32);
+lib(({ func, builtin }) => {
+  const {
+    i32: { add },
+  } = builtin;
 
-  const addition = func({ params: { a: i32, b: i32 } }, ({ vars: { a, b, u }, result }) => {
+  const addition = func({ params: { a: i32, b: i32 } }, (result, { a, b, u }) => {
     result(
       //
       u(add(a, b)),
@@ -70,6 +72,86 @@ lib(({ func }) => {
 
 const exported = load(compile());
 console.log(exported.addition(41, 1));
+```
+
+Here's another example. Say you want to loop 10 times. You have two variables, one which starts at 0 and the other at 10. On each iteration, decrement the first variable until it reaches zero and increment the second varibale until it reaches 10. Finally return the second variable.
+
+First in `Binaryen`
+
+```js
+import { Module } from 'binaryen';
+import binaryen from 'binaryen';
+
+const m: Module = new binaryen.Module();
+
+m.addFunction(
+  'add',
+  binaryen.createType([]),
+  binaryen.i32,
+  [binaryen.i32, binaryen.i32],
+  m.block(null as any, [
+    m.local.set(0, m.i32.const(10)),
+    m.local.set(1, m.i32.const(0)),
+    m.block('afterLoop', [
+      m.loop(
+        'loop',
+        m.block(null as any, [
+          m.br('afterLoop', m.i32.eqz(m.local.get(0, binaryen.i32))),
+          m.local.set(0, m.i32.sub(m.local.get(0, binaryen.i32), m.i32.const(1))),
+          m.local.set(1, m.i32.add(m.local.get(1, binaryen.i32), m.i32.const(1))),
+          m.br('loop'),
+        ]),
+      ),
+    ]),
+    m.return(m.local.get(1, binaryen.i32)),
+  ]),
+);
+m.addFunctionExport('add', 'add');
+if (!m.validate()) throw new Error('validation error');
+
+console.log('raw:', m.emitText());
+m.optimize();
+console.log('opt:', m.emitText());
+
+const compiled = new WebAssembly.Module(m.emitBinary());
+const instance: any = new WebAssembly.Instance(compiled, {});
+console.log(instance.exports.add(41, 1));
+```
+
+Then in `Esential`
+
+```js
+import { i32 } from 'binaryen';
+import { esential } from 'esential/src';
+
+const { lib, load, compile } = esential();
+
+lib(({ func, builtin, FOR }) => {
+  const {
+    i32: { add, sub, gt_s: gt },
+  } = builtin;
+
+  const eloop = func({ params: { a: i32, b: i32 } }, (result, { i, j }) => {
+    result(
+      j(0),
+      FOR(
+        i(10),
+        gt(i, 0),
+        i(sub(i, 1)),
+      )(
+        //
+        j(add(j, 1)),
+      ),
+      j,
+    );
+  });
+  return {
+    eloop,
+  };
+});
+
+const exported = load(compile());
+console.log(exported.eloop());
 ```
 
 ## Running with experimental switches
