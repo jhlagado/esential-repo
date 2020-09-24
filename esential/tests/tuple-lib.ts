@@ -5,7 +5,7 @@ import { addLib } from './add-lib';
 export const tupleLib: LibFunc = ({ lib, func }) => {
   const { addition } = lib(addLib);
 
-  const returnTwo = func({ export: false }, ({ u }, result) => {
+  const returnTwo = func({ export: false }, (result, { u }) => {
     result(
       //
       u([1, 2]),
@@ -13,7 +13,7 @@ export const tupleLib: LibFunc = ({ lib, func }) => {
     );
   });
 
-  const selectRight = func({}, ({ u }, result) => {
+  const selectRight = func({}, (result, { u }) => {
     result(
       //
       u(returnTwo()),
@@ -21,7 +21,7 @@ export const tupleLib: LibFunc = ({ lib, func }) => {
     );
   });
 
-  const addTwo = func({}, ({ u }, result) => {
+  const addTwo = func({}, (result, { u }) => {
     result(
       //
       u(returnTwo()),
@@ -29,7 +29,7 @@ export const tupleLib: LibFunc = ({ lib, func }) => {
     );
   });
 
-  const addThree = func({ params: { a: i32 } }, ({ u, a }, result) => {
+  const addThree = func({ params: { a: i32 } }, (result, { u, a }) => {
     result(
       //
       u(returnTwo()),

@@ -113,13 +113,13 @@ export const getVarsAccessor = (
   varDefs: Dict<TypeDef>,
   globalVarDefs: Dict<TypeDef>,
 ): VarsAccessor => {
-  const proxy = new Proxy({}, {
-    get(_target: any, prop: string) {
-      return accessor(module, varDefs, globalVarDefs, prop);
+  const proxy = new Proxy(
+    {},
+    {
+      get(_target: any, prop: string) {
+        return accessor(module, varDefs, globalVarDefs, prop);
+      },
     },
-    // apply(_target, _this, args) {
-    //   console.log('vars proxy!!!!!', { proxy, args });
-    // },
-  });
+  );
   return proxy;
 };

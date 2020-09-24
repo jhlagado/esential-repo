@@ -7,7 +7,7 @@ export const ifLib: LibFunc = ({ builtin, lib, func, FOR, IF }) => {
     i32: { add, lt_u: lt, rem_u: rem, eqz },
   } = builtin;
 
-  const oddeven = func({}, ({ odd, even, i }, result) => {
+  const oddeven = func({}, (result, { odd, even, i }) => {
     result(
       odd(0),
       even(0),

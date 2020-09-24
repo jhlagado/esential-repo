@@ -6,7 +6,7 @@ export const loopLib: LibFunc = ({ builtin, func, FOR }) => {
     i32: { add, sub, gt_s: gt },
   } = builtin;
 
-  const looper = func({}, ({ i, j }, result) => {
+  const looper = func({}, (result, { i, j }) => {
     result(
       j(0),
       FOR(

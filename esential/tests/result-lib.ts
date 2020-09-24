@@ -4,7 +4,7 @@ export const resultLib: LibFunc = ({ func }) => {
   const return1000 = func(
     { params: {} },
 
-    (_vars, result) => {
+    result => {
       result(1000);
     },
   );
@@ -12,7 +12,7 @@ export const resultLib: LibFunc = ({ func }) => {
   const return2000 = func(
     {},
 
-    ({ u }, result) => {
+    (result, { u }) => {
       result(
         //
         u(2000),

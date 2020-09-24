@@ -6,7 +6,7 @@ export const blockLib: LibFunc = ({ func, builtin }) => {
     i32: { add },
   } = builtin;
 
-  const blockadd = func({ locals: { a: i32, b: i32 } }, ({ a, b, u }, result) => {
+  const blockadd = func({ locals: { a: i32, b: i32 } }, (result, { a, b, u }) => {
     result(
       //
       a(1),

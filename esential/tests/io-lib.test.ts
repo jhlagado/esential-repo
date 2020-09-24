@@ -8,7 +8,7 @@ const { lib, load, compile } = esential();
 lib(({ func }) => {
   const { log } = lib(ioLib);
 
-  const print3Times = func({}, (vars, result) => {
+  const print3Times = func({}, result => {
     result(
       //
       log(1),

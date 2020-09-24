@@ -9,7 +9,7 @@ export const indirectLib: LibFunc = ({ func, builtin }) => {
   const indirectAddition = func(
     { params: { a: i32, b: i32 }, indirect: true },
 
-    ({ a, b }, result) => {
+    (result, { a, b }) => {
       result(add(a, b));
     },
   );
@@ -17,7 +17,7 @@ export const indirectLib: LibFunc = ({ func, builtin }) => {
   const indirect123 = func(
     { params: { a: i32, b: i32 }, result: i32 },
 
-    ({ a, b }, result) => {
+    (result, { a, b }) => {
       result(indirectAddition(a, b));
     },
   );
