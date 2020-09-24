@@ -1,4 +1,4 @@
-import { Entry, Dict } from './types';
+import { Entry, Dict, Signature } from './types';
 
 export const isPrim = <T>(value: any): value is T => Number.isInteger(value);
 
@@ -21,3 +21,5 @@ export const asArray = <T>(obj: Dict<T> | T[]) => {
         .sort()
         .map(key => obj[key]);
 };
+
+export const isSignature = (obj: any): obj is Signature => 'params' in obj && 'result' in obj;

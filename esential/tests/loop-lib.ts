@@ -1,10 +1,10 @@
 import { i32 } from 'binaryen';
-import { builtin, LibFunc } from 'esential/src';
+import { ops, LibFunc } from 'esential/src';
 
 export const loopLib: LibFunc = ({ module, func, FOR }) => {
-  const add = builtin(module, module.i32.add, { a: i32, b: i32 }, i32);
-  const sub = builtin(module, module.i32.sub, { a: i32, b: i32 }, i32);
-  const gt = builtin(module, module.i32.gt_s, { a: i32, b: i32 }, i32);
+  const {
+    i32: { add, sub, gt_s: gt },
+  } = ops(module);
 
   const looper = func({}, ({ vars: { i, j }, result }) => {
     result(

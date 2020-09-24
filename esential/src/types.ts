@@ -1,5 +1,6 @@
 import { ExpressionRef, Type, Module } from 'binaryen';
 
+export type Thunk<T> = () => T;
 export type Ref<T> = { current: T };
 export type updateFunc<T> = (item: T) => T;
 export type MapFunc<T, R> = (item: T) => R;
@@ -10,6 +11,10 @@ export type TypeDef = Type | Type[] | Dict<Type>;
 export type Accessor = {
   (expression?: Expression): any;
   [key: string]: ExpressionRef;
+};
+export type Signature = {
+  params: Dict<TypeDef>;
+  result: TypeDef;
 };
 
 export type Callable = (...params: (ExpressionRef | Accessor)[]) => ExpressionRef;

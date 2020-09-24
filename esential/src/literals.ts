@@ -70,19 +70,3 @@ export const applyTypeDef = (
   }
 };
 
-export const builtin = (
-  module: Module,
-  func: Function,
-  paramTypeDefs: Dict<TypeDef> | TypeDef[],
-  resultTypeDef: TypeDef,
-): Function => {
-  return (...params: any[]) => {
-    const typeArray = asArray(paramTypeDefs);
-    const params1 = params.map((param, index) =>
-      applyTypeDef(module, resolveAccessors(param), typeArray[index]),
-    );
-    const expr = func(...params1);
-    setTypeDef(expr, resultTypeDef);
-    return expr;
-  };
-};

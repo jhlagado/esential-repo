@@ -75,7 +75,7 @@ export const accessor = (
   const accessor = getAccessor(module, localVarDefs, globalVarDefs, name);
 
   return new Proxy<Accessor>(accessor as Accessor, {
-    get(_target: any, subProp: number | string) {
+    get(_target: any, prop: number | string) {
       const varDefs = { ...globalVarDefs, ...localVarDefs };
       const typeDef = varDefs[name];
       if (typeDef == null) {
@@ -86,21 +86,21 @@ export const accessor = (
       } else {
         const expr = accessor();
         if (Array.isArray(typeDef)) {
-          const index = subProp as number;
+          const index = prop as number;
           if (index >= typeDef.length) {
-            throw new Error(`Max tuple index should be ${typeDef.length} but received ${subProp}`);
+            throw new Error(`Max tuple index should be ${typeDef.length} but received ${prop}`);
           }
           const valueExpr = module.tuple.extract(expr, index);
           setTypeDef(valueExpr, typeDef[index]);
           return valueExpr;
         } else {
           const typeDefDict = typeDef;
-          const index = Object.keys(typeDef).indexOf(subProp as string);
+          const index = Object.keys(typeDef).indexOf(prop as string);
           if (index < 0) {
-            throw new Error(`Could not find ${subProp} in record`);
+            throw new Error(`Could not find ${prop} in record`);
           }
           const valueExpr = module.tuple.extract(expr, index);
-          setTypeDef(valueExpr, typeDefDict[subProp]);
+          setTypeDef(valueExpr, typeDefDict[prop]);
           return valueExpr;
         }
       }
