@@ -51,7 +51,7 @@ export const getFunc = (
     const varsAccessor = getVarsAccessor(module, vars, globalVars);
     const resultRef: Ref<TypeDef> = { current: result == null ? auto : result };
     const resultFunc = getResultFunc(module, resultRef, bodyItems);
-    if (initializer) initializer({ vars: varsAccessor, result: resultFunc});
+    if (initializer) initializer(varsAccessor, resultFunc);
     const resultDef = resultRef.current === auto ? none : resultRef.current;
     const { length: paramsLength } = Object.values(params);
     const paramsType = createType(Object.values(params).map(asType));
@@ -111,7 +111,7 @@ export const getGlobals = (module: Module, globalVarDefs: VarDefs) => (
 ) => {
   Object.entries(assignments).forEach(([prop, expression]) => {
     let typeDef = varDefs[prop];
-    const expr = applyTypeDef(module, (expression), typeDef);
+    const expr = applyTypeDef(module, expression, typeDef);
     globalVarDefs[prop] = typeDef;
     return module.addGlobal(prop, asType(typeDef), true, expr);
   });

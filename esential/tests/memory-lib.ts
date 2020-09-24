@@ -6,7 +6,7 @@ export const memoryLib: LibFunc = ({ func, builtin }) => {
     i32: { load, store },
   } = builtin;
 
-  const storeAndLoad = func({ params: { a: i32 }, result: [i32] }, ({ vars: { a }, result }) => {
+  const storeAndLoad = func({ params: { a: i32 }, result: [i32] }, ({ a }, result) => {
     result(
       //
       store(0, 0, 0, a),

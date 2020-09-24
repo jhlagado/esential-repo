@@ -1,12 +1,12 @@
 import { i32 } from 'binaryen';
-import { LibFunc,  } from 'esential/src';
+import { LibFunc } from 'esential/src';
 
 export const blockLib: LibFunc = ({ func, builtin }) => {
   const {
     i32: { add },
   } = builtin;
 
-  const blockadd = func({ locals: { a: i32, b: i32 } }, ({ vars: { a, b, u }, result }) => {
+  const blockadd = func({ locals: { a: i32, b: i32 } }, ({ a, b, u }, result) => {
     result(
       //
       a(1),

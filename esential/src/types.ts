@@ -78,7 +78,7 @@ export type FuncImplDef = {
   vars: VarsAccessor;
   result: VoidBlockFunc;
 };
-export type Initializer = (funcImplDef: FuncImplDef) => void;
+export type Initializer = (vars: VarsAccessor, result: VoidBlockFunc) => void;
 
 export type LibFunc = (mod: EsentialContext, args?: Dict<any>) => Dict<any>;
 
