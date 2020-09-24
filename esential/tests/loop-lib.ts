@@ -3,7 +3,7 @@ import { LibFunc } from 'esential/src';
 
 export const loopLib: LibFunc = ({ builtin, func, FOR }) => {
   const {
-    i32: { add, sub, gt_s: gt },
+    i32: { add, sub, gt },
   } = builtin;
 
   const looper = func({}, (result, { i, j }) => {

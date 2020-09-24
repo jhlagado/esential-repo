@@ -15,6 +15,7 @@ export type Accessor = {
 export type Signature = {
   params: Dict<TypeDef>;
   result: TypeDef;
+  alt?: string;
 };
 
 export type Callable = (...params: (ExpressionRef | Accessor)[]) => ExpressionRef;

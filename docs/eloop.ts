@@ -5,7 +5,7 @@ const { lib, load, compile } = esential();
 
 lib(({ func, builtin, FOR }) => {
   const {
-    i32: { add, sub, gt_s: gt },
+    i32: { add, sub, gt },
   } = builtin;
 
   const eloop = func({ params: { a: i32, b: i32 } }, (result, { i, j }) => {
