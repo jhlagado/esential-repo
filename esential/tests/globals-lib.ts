@@ -11,7 +11,7 @@ export const globalsLib: LibFunc = ({ func, literal, globals, module }) => {
   });
 
   const global2000 = func({}, ({ vars: { g2 }, result }) => {
-    result(g2()[1]);
+    result(g2[1]);
   });
 
   return {
