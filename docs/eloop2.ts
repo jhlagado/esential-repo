@@ -1,9 +1,9 @@
-import { i32 } from 'binaryen';
 import { esential } from 'esential/src';
 
 const { lib, load, compile } = esential();
 
 lib(({ func, builtin, FOR, IF }) => {
+
   const {
     i32: { add, lt, eqz, rem },
   } = builtin;

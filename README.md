@@ -157,12 +157,12 @@ console.log(exported.eloop());
 And here is a slightly more complicated function in `Esential` which counts to 10 and adds up the even numbers and the odd numbers and returns the odd total.
 
 ```js
-import { i32 } from 'binaryen';
 import { esential } from 'esential/src';
 
 const { lib, load, compile } = esential();
 
 lib(({ func, builtin, FOR, IF }) => {
+
   const {
     i32: { add, lt, eqz, rem },
   } = builtin;
