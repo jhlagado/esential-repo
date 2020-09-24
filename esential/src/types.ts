@@ -94,6 +94,7 @@ export type EsentialContext = {
   globals: (varDefs: VarDefs, assignments: Dict<Expression>) => void;
   getIndirectInfo(callable: Callable): IndirectInfo | undefined;
   lib: (func: LibFunc, args?: Dict<any>) => any;
+  builtin: Dict<any>;
   literal(value: number, type?: Type): ExpressionRef;
   FOR: (
     initializer: ExpressionRef,

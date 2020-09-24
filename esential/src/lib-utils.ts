@@ -19,23 +19,6 @@ import { getResultFunc, getCallable } from './funcs-utils';
 import { asType } from './typedefs';
 import { applyTypeDef } from './literals';
 
-export const exportFuncs = (
-  module: Module,
-  lib: Dict<any>,
-  exportedSet: Set<Callable>,
-  callableIdMap: Map<Callable, string>,
-) => {
-  Object.entries(lib).forEach(([externalName, callable]) => {
-    if (exportedSet.has(callable)) {
-      const internalName = callableIdMap.get(callable);
-      if (internalName) {
-        module.addFunctionExport(internalName, externalName);
-        exportedSet.delete(callable);
-      }
-    }
-  });
-};
-
 export const getFunc = (
   module: Module,
   callableIdMap: Map<Callable, string>,
@@ -103,6 +86,23 @@ export const getFunc = (
       exportedSet,
     );
   }
+};
+
+export const exportFuncs = (
+  module: Module,
+  lib: Dict<any>,
+  exportedSet: Set<Callable>,
+  callableIdMap: Map<Callable, string>,
+) => {
+  Object.entries(lib).forEach(([externalName, callable]) => {
+    if (exportedSet.has(callable)) {
+      const internalName = callableIdMap.get(callable);
+      if (internalName) {
+        module.addFunctionExport(internalName, externalName);
+        exportedSet.delete(callable);
+      }
+    }
+  });
 };
 
 export const getGlobals = (module: Module, globalVarDefs: VarDefs) => (

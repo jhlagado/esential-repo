@@ -1,10 +1,10 @@
 import { i32 } from 'binaryen';
-import { LibFunc, ops } from 'esential/src';
+import { LibFunc } from 'esential/src';
 
-export const addLib: LibFunc = ({ func, module }) => {
+export const addLib: LibFunc = ({ func, builtin }) => {
   const {
     i32: { add },
-  } = ops(module);
+  } = builtin;
 
   const addition = func(
     { params: { a: i32, b: i32 } },

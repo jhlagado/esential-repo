@@ -108,17 +108,19 @@ export const accessor = (
   });
 };
 
+export const initVarsAccessor = (varDefs: Dict<TypeDef>) => (
+  params: Dict<TypeDef>,
+  locals: Dict<TypeDef>,
+) => Object.assign(varDefs, params, locals);
+
 export const getVarsAccessor = (
   module: Module,
   varDefs: Dict<TypeDef>,
   globalVarDefs: Dict<TypeDef>,
 ): VarsAccessor => {
-  return new Proxy(
-    {},
-    {
-      get(_target: any, prop: string) {
-        return accessor(module, varDefs, globalVarDefs, prop);
-      },
+  return new Proxy(initVarsAccessor(varDefs), {
+    get(_target: any, prop: string) {
+      return accessor(module, varDefs, globalVarDefs, prop);
     },
-  );
+  });
 };

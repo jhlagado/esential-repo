@@ -34,7 +34,7 @@ export const builtinProxy = (module: Module, sigs: Dict<any>, moduleBase: any = 
     },
   });
 
-export const ops = (module: Module) =>
+export const getBuiltin = (module: Module) =>
   builtinProxy(module, {
     i32: {
       add: { params: { a: i32, b: i32 }, result: i32 },
