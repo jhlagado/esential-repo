@@ -7,7 +7,12 @@ export type Entry<T> = [string, T];
 export type Dict<T> = { [key: string]: T };
 export type Expression = ExpressionRef | ExpressionRef[] | Dict<ExpressionRef>;
 export type TypeDef = Type | Type[] | Dict<Type>;
-export type Callable = (...params: (ExpressionRef |Accessor)[]) => ExpressionRef;
+export type Accessor = {
+  (expression?: Expression): any;
+  [key: string]: ExpressionRef;
+};
+
+export type Callable = (...params: (ExpressionRef | Accessor)[]) => ExpressionRef;
 export type Lib = Dict<Callable>;
 
 export type TupleObj = {
@@ -59,8 +64,6 @@ export type CompileOptions = {
   debugRaw?: boolean;
   debugOptimized?: boolean;
 };
-
-export type Accessor = (expression?: Expression) => any;
 
 export type VarsAccessor = {
   [prop: string]: Accessor;

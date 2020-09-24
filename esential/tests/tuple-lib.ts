@@ -17,7 +17,7 @@ export const tupleLib: LibFunc = ({ lib, func }) => {
     result(
       //
       u(returnTwo()),
-      u()[1],
+      u[1],
     );
   });
 
