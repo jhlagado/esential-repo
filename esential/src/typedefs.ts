@@ -1,6 +1,6 @@
 import { TypeDef } from './types';
 import { ExpressionRef, Type, createType, none } from 'binaryen';
-import { isArray, isPrimitive } from './utils';
+import { isPrimitive } from './utils';
 
 const expressionTypeDefs = new Map<ExpressionRef, TypeDef>();
 
@@ -23,7 +23,7 @@ export const asType = (typeDef: TypeDef): Type => {
   if (isPrimitive<Type>(typeDef)) {
     return typeDef;
   } else {
-    const typeArray: Type[] = isArray<Type>(typeDef) ? typeDef : Object.values(typeDef);
+    const typeArray: Type[] = Array.isArray(typeDef) ? typeDef : Object.values(typeDef);
     return createType(typeArray);
   }
 };

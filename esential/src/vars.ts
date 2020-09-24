@@ -55,13 +55,41 @@ export const varSet = (
 
 export const accessor = (
   module: Module,
-  varDefs: Dict<TypeDef>,
+  localVarDefs: Dict<TypeDef>,
   globalVarDefs: Dict<TypeDef>,
   prop: string,
-) => (expression?: Expression): any => {
-  return expression == null
-    ? varGet(module, varDefs, globalVarDefs, prop)
-    : varSet(module, varDefs, globalVarDefs, prop, expression);
+) => {
+  const accessorFunc = (expression?: Expression): any => {
+    return expression == null
+      ? varGet(module, localVarDefs, globalVarDefs, prop)
+      : varSet(module, localVarDefs, globalVarDefs, prop, expression);
+  };
+  return new Proxy(accessorFunc, {
+    // get(_target: any, prop: number | string) {
+    //   const varDefs = { ...globalVarDefs, ...localVarDefs };
+    //   const typeDef = varDefs[prop];
+    //   if (isPrimitive<ExpressionRef>(typeDef)) {
+    //     throw new Error(`Cannot index a primitive value`);
+    //   } else if (isArray<ExpressionRef>(typeDef)) {
+    //     const index = prop as number;
+    //     if (index >= typeDef.length) {
+    //       throw new Error(`Max tuple index should be ${typeDef.length} but received ${prop}`);
+    //     }
+    //     const valueExpr = module.tuple.extract(expr, index);
+    //     setTypeDef(valueExpr, typeDef[index]);
+    //     return valueExpr;
+    //   } else {
+    //     const typeDefDict = typeDef;
+    //     const index = Object.keys(typeDef).indexOf(prop as string);
+    //     if (index < 0) {
+    //       throw new Error(`Could not find ${prop} in record`);
+    //     }
+    //     const valueExpr = module.tuple.extract(expr, index);
+    //     setTypeDef(valueExpr, typeDefDict[prop]);
+    //     return valueExpr;
+    //   }
+    // },
+  });
 };
 
 export const getVarsAccessor = (

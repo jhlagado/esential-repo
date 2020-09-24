@@ -1,7 +1,7 @@
 import { ExpressionRef, Module } from 'binaryen';
 import { Expression, TypeDef, TupleObj, Accessor } from './types';
 import { setTypeDef } from './typedefs';
-import { isArray, isPrimitive } from './utils';
+import { isPrimitive } from './utils';
 
 const tupleProxies = new Map();
 
@@ -17,7 +17,7 @@ export const getAssignable = (module: Module, expression: Expression): Expressio
   if (isPrimitive<ExpressionRef>(stripped)) {
     return stripped;
   } else {
-    const exprArray = isArray<ExpressionRef>(stripped)
+    const exprArray = Array.isArray(stripped)
       ? stripped
       : Object.keys(stripped)
           .sort()
@@ -32,7 +32,7 @@ export const makeTupleProxy = (module: Module, expr: ExpressionRef, typeDef: Typ
     get(_target: any, prop: number | string) {
       if (isPrimitive<ExpressionRef>(typeDef)) {
         throw new Error(`Cannot index a primitive value`);
-      } else if (isArray<ExpressionRef>(typeDef)) {
+      } else if (Array.isArray(typeDef)) {
         const index = prop as number;
         if (index >= typeDef.length) {
           throw new Error(`Max tuple index should be ${typeDef.length} but received ${prop}`);
