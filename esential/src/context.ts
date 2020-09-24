@@ -13,7 +13,7 @@ import {
   TypeDef,
 } from './types';
 import { FEATURE_MULTIVALUE } from './constants';
-import { getFunc, exportFuncs, getCompile, getGlobals, getLoad } from './lib-utils';
+import { getFunc, exportFuncs, getCompile, getGlobals, getLoad } from './context-utils';
 import { getFOR, getIF } from './control';
 import { getLiteral } from './literals';
 import { getBuiltin } from './builtin';
