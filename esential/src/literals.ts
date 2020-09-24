@@ -1,8 +1,8 @@
 import { ExpressionRef, Type, i32, i64, f32, f64, none, Module } from 'binaryen';
-import { stripTupleProxy } from './tuples';
 import { asType, getTypeDef, setTypeDef } from './typedefs';
 import { Dict, Expression, TypeDef } from './types';
 import { asArray, isPrimitive } from './utils';
+import { resolveAccessors } from './accessors';
 
 export const getLiteral = (module: Module, value: number, type: Type = i32): ExpressionRef => {
   const opDict = {
@@ -41,9 +41,10 @@ export const applyTypeDefPrimitive = (
 
 export const applyTypeDef = (
   module: Module,
-  expression: Expression,
+  expression1: Expression,
   typeDef?: TypeDef,
 ): ExpressionRef => {
+  const expression = resolveAccessors(expression1);
   if (isPrimitive<ExpressionRef>(expression)) {
     return applyTypeDefPrimitive(module, expression, typeDef);
   } else {
@@ -78,7 +79,7 @@ export const builtin = (
   return (...params: any[]) => {
     const typeArray = asArray(paramTypeDefs);
     const params1 = params.map((param, index) =>
-      applyTypeDef(module, stripTupleProxy(param), typeArray[index]),
+      applyTypeDef(module, resolveAccessors(param), typeArray[index]),
     );
     const expr = func(...params1);
     setTypeDef(expr, resultTypeDef);
