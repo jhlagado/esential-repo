@@ -1,7 +1,10 @@
-import { i32, Module, none } from 'binaryen';
+import { Module } from 'binaryen';
 import { asArray, isSignature, resolveAccessors, setTypeDef } from '.';
+import { builtinData } from './builtin-data';
 import { applyTypeDef } from './literals';
 import { Dict, TypeDef } from './types';
+
+const builtinCallableMap = new Map<string, any>();
 
 export const builtinCallable = (
   module: Module,
@@ -20,31 +23,34 @@ export const builtinCallable = (
   };
 };
 
-export const builtinProxy = (module: Module, sigs: Dict<any>, moduleBase: any = module) =>
+export const builtinProxy = (
+  module: Module,
+  sigs: Dict<any>,
+  moduleBase: any = module,
+  path: string = '',
+) =>
   new Proxy(sigs, {
     get(_target, name: string): any {
-      const sig = sigs[name];
+      let realName = name;
+      let sig = sigs[realName];
+      if (sig == null) {
+        realName = `${name}_s`;
+        sig = sigs[realName];
+      }
       if (sig == null) {
         throw new Error(`No builtin with the name ${name}`);
-      } else if (isSignature(sig)) {
-        const realName = sig.alt || name;
-        return builtinCallable(module, moduleBase[realName], sig.params, sig.result);
       } else {
-        return builtinProxy(module, sigs[name], moduleBase[name]);
+        const path1 = path + '.' + realName;
+        if (isSignature(sig)) {
+          if (builtinCallableMap.has(path1)) return builtinCallableMap.get(path1);
+          const b = builtinCallable(module, moduleBase[realName], sig.params, sig.result);
+          builtinCallableMap.set(path1, b);
+          return b;
+        } else {
+          return builtinProxy(module, sigs[name], moduleBase[name], path1);
+        }
       }
     },
   });
 
-export const getBuiltin = (module: Module) =>
-  builtinProxy(module, {
-    i32: {
-      add: { params: { a: i32, b: i32 }, result: i32 },
-      eqz: { params: { a: i32 }, result: i32 },
-      gt: { params: { a: i32, b: i32 }, result: i32, alt: 'gt_s' },
-      load: { params: { offset: none, align: none, ptr: i32, value: i32 }, result: i32 },
-      lt: { params: { a: i32, b: i32 }, result: i32, alt: 'lt_s' },
-      rem: { params: { a: i32, b: i32 }, result: i32, alt: 'rem_s' },
-      store: { params: { offset: none, align: none, ptr: i32 }, result: i32 },
-      sub: { params: { a: i32, b: i32 }, result: i32 },
-    },
-  });
+export const getBuiltin = (module: Module) => builtinProxy(module, builtinData);
