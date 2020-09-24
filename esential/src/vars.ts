@@ -5,12 +5,12 @@ import { isPrimitive } from './utils';
 import { makeTupleProxy, stripTupleProxy } from './tuples';
 import { applyTypeDef } from './literals';
 
-export const variableGet = (
+export const getGetter = (
   module: Module,
   varDefs: VarDefs,
   globalVarDefs: Dict<TypeDef>,
   name: string,
-) => {
+) => () => {
   if (!(name in varDefs) && !(name in globalVarDefs)) {
     throw new Error(`Getter: unknown variable '${name}'`);
   }
@@ -27,35 +27,12 @@ export const variableGet = (
   return expr;
 };
 
-export const varGet = (
-  module: Module,
-  varDefs: VarDefs,
-  globalVarDefs: Dict<TypeDef>,
-  name: string,
-) => {
-  if (!(name in varDefs) && !(name in globalVarDefs)) {
-    throw new Error(`Getter: unknown variable '${name}'`);
-  }
-  let expr, typeDef;
-  if (name in varDefs) {
-    typeDef = varDefs[name];
-    const index = Object.keys(varDefs).lastIndexOf(name);
-    expr = module.local.get(index, asType(typeDef));
-  } else {
-    typeDef = globalVarDefs[name];
-    expr = module.global.get(name, asType(typeDef));
-  }
-  setTypeDef(expr, typeDef);
-  return isPrimitive<ExpressionRef>(typeDef) ? expr : makeTupleProxy(module, expr, typeDef);
-};
-
-export const varSet = (
+export const getSetter = (
   module: Module,
   varDefs: Dict<TypeDef>,
   globalVarDefs: Dict<TypeDef>,
   name: string,
-  expression: Expression,
-): ExpressionRef => {
+) => (expression: Expression): ExpressionRef => {
   let isGlobal = false;
   let typeDef: TypeDef | undefined = varDefs[name];
   if (typeDef == null) {
@@ -75,18 +52,26 @@ export const varSet = (
   }
 };
 
+const getAccessor = (
+  module: Module,
+  localVarDefs: Dict<TypeDef>,
+  globalVarDefs: Dict<TypeDef>,
+  name: string,
+) => {
+  const getter = getGetter(module, localVarDefs, globalVarDefs, name);
+  const setter = getSetter(module, localVarDefs, globalVarDefs, name);
+  return (expression?: Expression): any => (expression == null ? getter() : setter(expression));
+};
+
 export const accessor = (
   module: Module,
   localVarDefs: Dict<TypeDef>,
   globalVarDefs: Dict<TypeDef>,
   name: string,
 ) => {
-  const accessorFunc = (expression?: Expression): any => {
-    return expression == null
-      ? varGet(module, localVarDefs, globalVarDefs, name)
-      : varSet(module, localVarDefs, globalVarDefs, name, expression);
-  };
-  return new Proxy<Accessor>(accessorFunc as Accessor, {
+  const accessor = getAccessor(module, localVarDefs, globalVarDefs, name);
+
+  return new Proxy<Accessor>(accessor as Accessor, {
     get(_target: any, subProp: number | string) {
       const varDefs = { ...globalVarDefs, ...localVarDefs };
       const typeDef = varDefs[name];
@@ -96,7 +81,7 @@ export const accessor = (
       if (isPrimitive<ExpressionRef>(typeDef)) {
         throw new Error(`Cannot index a primitive value`);
       } else {
-        const expr = variableGet(module, localVarDefs, globalVarDefs, name);
+        const expr = accessor();
         if (Array.isArray(typeDef)) {
           const index = subProp as number;
           if (index >= typeDef.length) {
