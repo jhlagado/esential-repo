@@ -51,7 +51,7 @@ export const getFunc = (
     const varsAccessor = getVarsAccessor(module, vars, globalVars);
     const resultRef: Ref<TypeDef> = { current: result == null ? auto : result };
     const resultFunc = getResultFunc(module, resultRef, bodyItems);
-    if (initializer) initializer({ vars: varsAccessor, result: resultFunc });
+    if (initializer) initializer({ vars: varsAccessor, result: resultFunc});
     const resultDef = resultRef.current === auto ? none : resultRef.current;
     const { length: paramsLength } = Object.values(params);
     const paramsType = createType(Object.values(params).map(asType));

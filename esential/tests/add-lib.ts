@@ -9,7 +9,8 @@ export const addLib: LibFunc = ({ func, builtin }) => {
   const addition = func(
     { params: { a: i32, b: i32 } },
 
-    ({ vars: { a, b, u }, result }) => {
+    ({ vars, result }) => {
+      const { a, b, u } = vars;
       result(
         //
         u(add(a, b)),
