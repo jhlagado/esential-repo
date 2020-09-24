@@ -33,7 +33,7 @@ export const tupleLib: LibFunc = ({ lib, func }) => {
     result(
       //
       u(returnTwo()),
-      addition(a(), addition(u[0], u[1])),
+      addition(a, addition(u[0], u[1])),
     );
   });
 
