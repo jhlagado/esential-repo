@@ -26,7 +26,7 @@ export const ifLib: LibFunc = ({ builtin, lib, func, FOR, IF }) => {
           log(odd),
         ),
       ),
-      odd(),
+      odd,
     );
   });
 

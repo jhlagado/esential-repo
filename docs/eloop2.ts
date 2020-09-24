@@ -26,7 +26,7 @@ lib(({ func, builtin, FOR, IF }) => {
           odd(add(odd, 1)),
         ),
       ),
-      odd(),
+      odd,
     );
   });
 
