@@ -1,6 +1,6 @@
 import { Entry, Dict } from './types';
 
-export const isPrimitive = <T>(value: any): value is T => Number.isInteger(value);
+export const isPrim = <T>(value: any): value is T => Number.isInteger(value);
 
 export const asBool = (value: boolean) => (value ? -1 : 0);
 

@@ -1,7 +1,7 @@
 import { ExpressionRef, Type, i32, i64, f32, f64, none, Module } from 'binaryen';
 import { asType, getTypeDef, setTypeDef } from './typedefs';
 import { Dict, Expression, TypeDef } from './types';
-import { asArray, isPrimitive } from './utils';
+import { asArray, isPrim } from './utils';
 import { resolveAccessors } from './accessors';
 
 export const getLiteral = (module: Module, value: number, type: Type = i32): ExpressionRef => {
@@ -45,7 +45,7 @@ export const applyTypeDef = (
   typeDef?: TypeDef,
 ): ExpressionRef => {
   const expression = resolveAccessors(expression1);
-  if (isPrimitive<ExpressionRef>(expression)) {
+  if (isPrim<ExpressionRef>(expression)) {
     return applyTypeDefPrimitive(module, expression, typeDef);
   } else {
     const typeArray = typeDef ? asArray<Type>(typeDef as any) : [];

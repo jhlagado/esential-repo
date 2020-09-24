@@ -1,9 +1,23 @@
 import { ExpressionRef, auto, Module } from 'binaryen';
-import { TypeDef, VoidBlockFunc, Ref, Callable, Dict, Accessor } from './types';
+import { TypeDef, VoidBlockFunc, Ref, Callable, Dict, Accessor, Expression } from './types';
 import { setTypeDef, getTypeDef } from './typedefs';
-import { asArray } from './utils';
+import { asArray, isPrim } from './utils';
 import { applyTypeDef } from './literals';
-import { getAssignable } from './accessors';
+import { resolveAccessors } from './accessors';
+
+export const getAssignable = (module: Module, expression: Expression): ExpressionRef => {
+  const stripped = resolveAccessors(expression);
+  if (isPrim<ExpressionRef>(stripped)) {
+    return stripped;
+  } else {
+    const exprArray = Array.isArray(stripped)
+      ? stripped
+      : Object.keys(stripped)
+          .sort()
+          .map(key => stripped[key]);
+    return module.tuple.make(exprArray);
+  }
+};
 
 export const getResultFunc = (
   module: Module,

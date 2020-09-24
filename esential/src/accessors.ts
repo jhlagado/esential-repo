@@ -1,25 +1,11 @@
 import { ExpressionRef, Module } from 'binaryen';
 import { VarDefs, Expression, TypeDef, Dict, VarsAccessor, Accessor } from './types';
 import { asType, setTypeDef, getTypeDef } from './typedefs';
-import { isPrimitive } from './utils';
+import { isPrim } from './utils';
 import { applyTypeDef } from './literals';
 
 export const resolveAccessors = (expr: Expression | Accessor): Expression => {
   return typeof expr === 'function' ? expr() : expr;
-};
-
-export const getAssignable = (module: Module, expression: Expression): ExpressionRef => {
-  const stripped = resolveAccessors(expression);
-  if (isPrimitive<ExpressionRef>(stripped)) {
-    return stripped;
-  } else {
-    const exprArray = Array.isArray(stripped)
-      ? stripped
-      : Object.keys(stripped)
-          .sort()
-          .map(key => stripped[key]);
-    return module.tuple.make(exprArray);
-  }
 };
 
 export const getGetter = (
@@ -95,7 +81,7 @@ export const accessor = (
       if (typeDef == null) {
         throw new Error(`Variable ${name} has not yet been initialized`);
       }
-      if (isPrimitive<ExpressionRef>(typeDef)) {
+      if (isPrim<ExpressionRef>(typeDef)) {
         throw new Error(`Cannot index a primitive value`);
       } else {
         const expr = accessor();
