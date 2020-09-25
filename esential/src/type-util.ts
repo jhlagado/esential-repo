@@ -1,5 +1,5 @@
-import { TypeDef } from './types';
 import { ExpressionRef, Type, createType, none } from 'binaryen';
+import { TypeDef } from './types';
 import { isPrim } from './util';
 
 const typeDefMap = new Map<Type, TypeDef>();

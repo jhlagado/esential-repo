@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Module, Type } from 'binaryen';
+import { Module } from 'binaryen';
 import {
   Callable,
   LibFunc,

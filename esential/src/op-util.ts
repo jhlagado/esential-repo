@@ -3,7 +3,6 @@ import { asArray, isSignature, setTypeDef } from '.';
 import { opsSignatures } from './ops-sigs';
 import { literalize } from './literals';
 import { Dict, OpUtils, TypeDef } from './types';
-import { Signature } from 'typescript';
 
 const builtinCallableMap = new Map<string, any>();
 
