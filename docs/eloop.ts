@@ -3,12 +3,11 @@ import { esential } from 'esential/src';
 
 const { lib, load, compile } = esential();
 
-lib(({ func, builtin, FOR }) => {
-  const {
-    i32: { add, sub, gt },
-  } = builtin;
+lib(({ func, ops, FOR }) => {
 
-  const eloop = func({ params: { a: i32, b: i32 } }, (result, { i, j }) => {
+  const { add, sub, gt } = ops.i32;
+
+  const main = func({ params: { a: i32, b: i32 } }, (result, { i, j }) => {
     result(
       j(0),
       FOR(
@@ -23,9 +22,9 @@ lib(({ func, builtin, FOR }) => {
     );
   });
   return {
-    eloop,
+    main,
   };
 });
 
 const exported = load(compile());
-console.log(exported.eloop());
+console.log(exported.main());

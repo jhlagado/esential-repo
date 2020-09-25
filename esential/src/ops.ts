@@ -1,6 +1,6 @@
 import { Module } from 'binaryen';
 import { asArray, isSignature, resolveAccessors, setTypeDef } from '.';
-import { builtinData } from './builtin-data';
+import { builtinData } from './ops-data';
 import { applyTypeDef } from './literals';
 import { Dict, TypeDef } from './types';
 
@@ -53,4 +53,4 @@ export const builtinProxy = (
     },
   });
 
-export const getBuiltin = (module: Module) => builtinProxy(module, builtinData);
+export const getOps = (module: Module) => builtinProxy(module, builtinData);

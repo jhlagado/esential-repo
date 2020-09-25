@@ -1,11 +1,9 @@
 import { LibFunc } from 'esential/src';
 import { ioLib } from './io-lib';
 
-export const ifLib: LibFunc = ({ builtin, lib, func, FOR, IF }) => {
+export const ifLib: LibFunc = ({ ops, lib, func, FOR, IF }) => {
   const { log } = lib(ioLib);
-  const {
-    i32: { add, lt, rem: rem, eqz },
-  } = builtin;
+  const { add, lt, rem: rem, eqz } = ops.i32;
 
   const oddeven = func({}, (result, { odd, even, i }) => {
     result(

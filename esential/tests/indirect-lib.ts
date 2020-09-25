@@ -1,10 +1,9 @@
 import { i32 } from 'binaryen';
 import { LibFunc } from 'esential/src';
 
-export const indirectLib: LibFunc = ({ func, builtin }) => {
-  const {
-    i32: { add },
-  } = builtin;
+export const indirectLib: LibFunc = ({ func, ops }) => {
+
+  const { add } = ops.i32;
 
   const indirectAddition = func(
     { params: { a: i32, b: i32 }, indirect: true },

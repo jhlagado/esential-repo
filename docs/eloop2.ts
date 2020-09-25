@@ -2,13 +2,11 @@ import { esential } from 'esential/src';
 
 const { lib, load, compile } = esential();
 
-lib(({ func, builtin, FOR, IF }) => {
+lib(({ func, ops, FOR, IF }) => {
+  
+  const { add, lt, eqz, rem } = ops.i32;
 
-  const {
-    i32: { add, lt, eqz, rem },
-  } = builtin;
-
-  const eloop2 = func({}, (result, { odd, even, i }) => {
+  const main = func({}, (result, { odd, even, i }) => {
     result(
       odd(0),
       even(0),
@@ -31,9 +29,9 @@ lib(({ func, builtin, FOR, IF }) => {
   });
 
   return {
-    eloop2,
+    main,
   };
 });
 
 const exported = load(compile());
-console.log(exported.eloop2());
+console.log(exported.main());

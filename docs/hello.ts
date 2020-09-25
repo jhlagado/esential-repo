@@ -3,12 +3,10 @@ import { esential } from 'esential/src';
 
 const { lib, load, compile } = esential();
 
-lib(({ func, builtin }) => {
-  const {
-    i32: { add },
-  } = builtin;
+lib(({ func, ops }) => {
+  const { add } = ops.i32;
 
-  const addition = func({ params: { a: i32, b: i32 } }, (result, { a, b, u }) => {
+  const main = func({ params: { a: i32, b: i32 } }, (result, { a, b, u }) => {
     result(
       //
       u(add(a, b)),
@@ -16,9 +14,9 @@ lib(({ func, builtin }) => {
     );
   });
   return {
-    addition,
+    main,
   };
 });
 
 const exported = load(compile());
-console.log(exported.addition(41, 1));
+console.log(exported.main(41, 1));
