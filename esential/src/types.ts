@@ -20,7 +20,7 @@ export type Signature = {
 
 export type Callable = (...params: Expression[]) => ExpressionRef;
 
-export type VoidBlockFunc = (...exprs: Expression[]) => void;
+export type VoidBlockFunc = (...exprs: Expression[]) => void ;
 
 export type FuncDef = {
   id?: string;

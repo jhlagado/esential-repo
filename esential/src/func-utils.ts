@@ -1,19 +1,9 @@
 import { ExpressionRef, auto, Module } from 'binaryen';
-import { TypeDef, VoidBlockFunc, Ref, Callable, Dict, Accessor, Expression } from './types';
+import { TypeDef, VoidBlockFunc, Ref, Callable, Dict, Expression } from './types';
 import { setTypeDef, getTypeDef } from './typedefs';
-import { asArray, isPrim } from './utils';
+import { asArray } from './utils';
 import { literalize } from './literals';
 import { resolveExpression } from './utils';
-
-export const asExpressionRef = (module: Module, expression: Expression): ExpressionRef => {
-  const resolved = resolveExpression(expression);
-  if (isPrim<ExpressionRef>(resolved)) {
-    return resolved;
-  } else {
-    const exprArray = asArray(resolved)
-    return module.tuple.make(exprArray);
-  }
-};
 
 export const getResultFunc = (
   module: Module,
@@ -24,8 +14,7 @@ export const getResultFunc = (
   if (length < 1) {
     throw new Error(`Result function must have at least one arg`);
   }
-  // const leadExprs = expressions.slice(0, -1).map(getAssignable(module));
-  const leadExprs = expressions.slice(0, -1).map(expression => asExpressionRef(module, expression));
+  const leadExprs = expressions.slice(0, -1).map(resolveExpression) as ExpressionRef[];
   bodyItems.push(...leadExprs);
   const expression = expressions[length - 1];
   const typeDef = resultDefRef.current === auto ? undefined : resultDefRef.current;
@@ -46,7 +35,7 @@ export const getCallable = (
   callableIdMap: Map<Callable, string>,
   exportedSet?: Set<Callable>,
 ) => {
-  const callable = (...params: (Expression)[]) => {
+  const callable = (...params: Expression[]) => {
     const typeArray = asArray(typeDef);
     const params1 = params.map((param, index) => literalize(module, param, typeArray[index]));
     const expr = exprFunc(...params1);

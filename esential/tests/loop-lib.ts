@@ -1,6 +1,4 @@
-import { auto, Module } from 'binaryen';
-import { Expression, LibFunc } from 'esential';
-import { asExpressionRef } from '../src';
+import { LibFunc } from 'esential';
 
 export const loopLib: LibFunc = ({ block, func, FOR, i32: { add, sub, gt } }) => {
   //
