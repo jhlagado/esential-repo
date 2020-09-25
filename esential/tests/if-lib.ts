@@ -1,7 +1,7 @@
 import { LibFunc } from 'esential';
 import { ioLib } from './io-lib';
 
-export const ifLib: LibFunc = ({ i32: { add, lt, rem, eqz }, lib, func, FOR, IF }) => {
+export const ifLib: LibFunc = ({ lib, func, FOR, IF, i32: { add, lt, rem, eqz } }) => {
   //
   const { log } = lib(ioLib);
 

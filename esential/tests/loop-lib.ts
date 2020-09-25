@@ -1,7 +1,6 @@
-import { i32 } from 'binaryen';
 import { LibFunc } from 'esential';
 
-export const loopLib: LibFunc = ({ i32: { add, sub, gt }, func, FOR }) => {
+export const loopLib: LibFunc = ({ func, FOR, i32: { add, sub, gt } }) => {
   //
   const looper = func({}, (result, { i, j }) => {
     result(
