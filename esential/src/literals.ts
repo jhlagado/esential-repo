@@ -41,15 +41,15 @@ export const literalizePrim = (
 
 export const literalize = (
   module: Module,
-  expression1: Expression,
+  expression: Expression,
   typeDef?: TypeDef,
 ): ExpressionRef => {
-  const expression = resolveExpression(expression1);
-  if (isPrim<ExpressionRef>(expression)) {
-    return literalizePrim(module, expression, typeDef);
+  const resolved = resolveExpression(expression);
+  if (isPrim<ExpressionRef>(resolved)) {
+    return literalizePrim(module, resolved, typeDef);
   } else {
     const typeArray = typeDef ? asArray<Type>(typeDef as any) : [];
-    const exprArray = asArray<ExpressionRef>(expression).map((expr, index) => {
+    const exprArray = asArray<ExpressionRef>(resolved).map((expr, index) => {
       const expr1 = literalizePrim(module, expr, typeArray[index]);
       if (typeArray[index] == null) {
         typeArray[index] = getTypeDef(expr1) as number;
@@ -57,9 +57,9 @@ export const literalize = (
       return expr1;
     });
     const tupleExpr = module.tuple.make(exprArray);
-    let typeDef1: TypeDef = Array.isArray(expression)
+    let typeDef1: TypeDef = Array.isArray(resolved)
       ? typeArray
-      : Object.keys(expression)
+      : Object.keys(resolved)
           .sort()
           .reduce((acc, key, index) => {
             (acc as Dict<Type>)[key] = typeArray[index];

@@ -10,11 +10,7 @@ export const asExpressionRef = (module: Module, expression: Expression): Express
   if (isPrim<ExpressionRef>(resolved)) {
     return resolved;
   } else {
-    const exprArray = Array.isArray(resolved)
-      ? resolved
-      : Object.keys(resolved)
-          .sort()
-          .map(key => resolved[key]);
+    const exprArray = asArray(resolved)
     return module.tuple.make(exprArray);
   }
 };
