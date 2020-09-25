@@ -2,7 +2,6 @@ import { i32 } from 'binaryen';
 import { LibFunc } from 'esential/src';
 
 export const addLib: LibFunc = ({ func, ops }) => {
-
   const { add } = ops.i32;
 
   const addition = func(

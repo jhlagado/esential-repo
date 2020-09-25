@@ -29,13 +29,11 @@ export const getResultFunc = (
     throw new Error(`Result function must have at least one arg`);
   }
   // const leadExprs = expressions.slice(0, -1).map(getAssignable(module));
-  const leadExprs = expressions
-    .slice(0, -1)
-    .map(expression => getAssignable(module, (expression)));
+  const leadExprs = expressions.slice(0, -1).map(expression => getAssignable(module, expression));
   bodyItems.push(...leadExprs);
   const expression = expressions[length - 1];
   const typeDef = resultDefRef.current === auto ? undefined : resultDefRef.current;
-  const expr = applyTypeDef(module, (expression), typeDef);
+  const expr = applyTypeDef(module, expression, typeDef);
   if (typeDef == null) {
     resultDefRef.current = getTypeDef(expr);
   }
@@ -54,9 +52,7 @@ export const getCallable = (
 ) => {
   const callable = (...params: (ExpressionRef | Accessor)[]) => {
     const typeArray = asArray(typeDef);
-    const params1 = params.map((param, index) =>
-      applyTypeDef(module, (param), typeArray[index]),
-    );
+    const params1 = params.map((param, index) => applyTypeDef(module, param, typeArray[index]));
     const expr = exprFunc(...params1);
     setTypeDef(expr, resultDef);
     return expr;

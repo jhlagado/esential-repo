@@ -69,4 +69,3 @@ export const applyTypeDef = (
     return tupleExpr;
   }
 };
-

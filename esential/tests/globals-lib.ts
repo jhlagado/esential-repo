@@ -2,7 +2,6 @@ import { i32 } from 'binaryen';
 import { LibFunc } from 'esential/src';
 
 export const globalsLib: LibFunc = ({ func, ops, globals }) => {
-
   const { add } = ops.i32;
 
   globals({ g1: i32, g2: [i32, i32] }, { g1: 999, g2: [1000, 2000] });

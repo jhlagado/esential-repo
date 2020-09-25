@@ -1,4 +1,4 @@
-import { none, i32, i64, f32, f64 } from "binaryen";
+import { none, i32, i64, f32, f64 } from 'binaryen';
 
 export const builtinData = {
   i32: {

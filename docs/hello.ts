@@ -4,7 +4,6 @@ import { esential } from 'esential/src';
 const { lib, load, compile } = esential();
 
 lib(({ func, ops }) => {
-  
   const { add } = ops.i32;
 
   const main = func({ params: { a: i32, b: i32 } }, (result, { a, b, u }) => {
