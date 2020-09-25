@@ -63,3 +63,20 @@ export const getCallable = (
   }
   return callable;
 };
+
+export const exportFuncs = (
+  module: Module,
+  lib: Dict<any>,
+  exportedSet: Set<Callable>,
+  callableIdMap: Map<Callable, string>,
+) => {
+  Object.entries(lib).forEach(([externalName, callable]) => {
+    if (exportedSet.has(callable)) {
+      const internalName = callableIdMap.get(callable);
+      if (internalName) {
+        module.addFunctionExport(internalName, externalName);
+        exportedSet.delete(callable);
+      }
+    }
+  });
+};

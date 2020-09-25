@@ -1,5 +1,5 @@
 import { ExpressionRef, Module } from 'binaryen';
-import { VarDefs, Expression, TypeDef, Dict, VarsAccessor, Accessor } from './types';
+import { Expression, TypeDef, Dict, Accessor } from './types';
 import { asType, setTypeDef, getTypeDef } from './typedefs';
 import { isPrim } from './utils';
 import { applyTypeDef } from './literals';
@@ -10,7 +10,7 @@ export const resolveAccessors = (expr: Expression | Accessor): Expression => {
 
 export const getGetter = (
   module: Module,
-  varDefs: VarDefs,
+  varDefs: Dict<TypeDef>,
   globalVarDefs: Dict<TypeDef>,
   name: string,
 ) => () => {
@@ -112,7 +112,7 @@ export const getVarsAccessor = (
   module: Module,
   varDefs: Dict<TypeDef>,
   globalVarDefs: Dict<TypeDef>,
-): VarsAccessor => {
+) => {
   const proxy = new Proxy(
     {},
     {

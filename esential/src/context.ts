@@ -3,7 +3,6 @@ import { Module, Type } from 'binaryen';
 import {
   Callable,
   LibFunc,
-  Lib,
   EsentialContext,
   Dict,
   IndirectInfo,
@@ -14,15 +13,13 @@ import {
 } from './types';
 import { FEATURE_MULTIVALUE } from './constants';
 import {
-  getFunc,
-  exportFuncs,
   getCompile,
-  getGlobals,
   getLoad,
-  getExternal,
 } from './context-utils';
 import { getFOR, getIF } from './control';
 import { getOps } from './ops';
+import { exportFuncs } from './funcs-utils';
+import { getFunc, getExternal, getGlobals } from './lib-utils';
 
 export const esential = (cfg?: EsentialCfg): EsentialContext => {
   const module = new Module();
@@ -52,13 +49,12 @@ export const esential = (cfg?: EsentialCfg): EsentialContext => {
 
   const callableIdMap = new Map<Callable, string>();
   const callableIndirectMap = new Map<Callable, IndirectInfo>();
-  const libMap = new Map<LibFunc, Lib>();
+  const libMap = new Map<LibFunc, Dict<Callable>>();
   const exportedSet = new Set<Callable>();
   const indirectTable: IndirectInfo[] = [];
   const globalVars: Dict<TypeDef> = {};
 
   const context: EsentialContext = {
-    module,
     lib(libFunc: LibFunc, args: Dict<any> = {}) {
       if (libMap.has(libFunc)) {
         return libMap.get(libFunc);
@@ -71,14 +67,17 @@ export const esential = (cfg?: EsentialCfg): EsentialContext => {
     func: getFunc(module, callableIdMap, exportedSet, indirectTable, globalVars),
     external: getExternal(module, callableIdMap),
     globals: getGlobals(module, globalVars),
-    getIndirectInfo: (callable: Callable) => callableIndirectMap.get(callable),
-    getMemory: () => memoryDef,
-    getTable: () => tableDef,
     ops: getOps(module),
     FOR: getFOR(module),
     IF: getIF(module),
+    
+    module,
     compile: getCompile(module, memoryDef, tableDef, indirectTable),
     load: getLoad(memoryDef, tableDef),
+
+    getIndirectInfo: (callable: Callable) => callableIndirectMap.get(callable),
+    getMemory: () => memoryDef,
+    getTable: () => tableDef,
   };
   return context;
 };

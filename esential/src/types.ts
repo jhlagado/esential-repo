@@ -8,34 +8,31 @@ export type Entry<T> = [string, T];
 export type Dict<T> = { [key: string]: T };
 export type Expression = ExpressionRef | ExpressionRef[] | Dict<ExpressionRef>;
 export type TypeDef = Type | Type[] | Dict<Type>;
+
 export type Accessor = {
   (expression?: Expression): any;
   [key: string]: ExpressionRef;
 };
+
 export type Signature = {
   params: Dict<TypeDef>;
   result: TypeDef;
 };
 
 export type Callable = (...params: (ExpressionRef | Accessor)[]) => ExpressionRef;
-export type Lib = Dict<Callable>;
 
 export type TupleObj = {
   expr: ExpressionRef;
   typeDef: TypeDef;
 };
 
-export type VarDefs = Dict<TypeDef>;
-export type Vars = Dict<any>;
-export type Imports = Dict<Dict<any>>;
-
 export type VoidBlockFunc = (...exprs: (Expression | Accessor)[]) => void;
 
 export type FuncDef = {
   id?: string;
-  params?: VarDefs;
+  params?: Dict<TypeDef>;
   result?: TypeDef;
-  locals?: VarDefs;
+  locals?: Dict<TypeDef>;
   export?: boolean;
   indirect?: boolean;
   namespace?: string;
@@ -44,7 +41,7 @@ export type FuncDef = {
 
 export type ExternalDef = {
   id?: string;
-  params?: VarDefs;
+  params?: Dict<TypeDef>;
   result?: TypeDef;
   namespace?: string;
   name?: string;
@@ -76,15 +73,7 @@ export type CompileOptions = {
   debugOptimized?: boolean;
 };
 
-export type VarsAccessor = {
-  [prop: string]: Accessor;
-};
-
-export type FuncImplDef = {
-  vars: VarsAccessor;
-  result: VoidBlockFunc;
-};
-export type Initializer = (result: VoidBlockFunc, vars: VarsAccessor) => void;
+export type Initializer = (result: VoidBlockFunc, vars: Dict<Accessor>) => void;
 
 export type LibFunc = (mod: EsentialContext, args?: Dict<any>) => Dict<any>;
 
@@ -94,12 +83,9 @@ export type EsentialCfg = {
 };
 
 export type EsentialContext = {
-  module: Module;
-  compile: (options?: CompileOptions) => Uint8Array;
   func: (def: FuncDef, funcImpl?: Initializer) => Callable;
   external: (def: ExternalDef) => Callable;
-  globals: (varDefs: VarDefs, assignments: Dict<Expression>) => void;
-  getIndirectInfo(callable: Callable): IndirectInfo | undefined;
+  globals: (varDefs: Dict<TypeDef>, assignments: Dict<Expression>) => void;
   lib: (func: LibFunc, args?: Dict<any>) => any;
   ops: Dict<any>;
   FOR: (
@@ -110,7 +96,12 @@ export type EsentialContext = {
   IF: (
     condition: ExpressionRef,
   ) => (...thenBody: ExpressionRef[]) => (...elseBody: ExpressionRef[]) => ExpressionRef;
-  load: (binary: Uint8Array, imports?: Imports) => any;
+
+  module: Module;
+  compile: (options?: CompileOptions) => Uint8Array;
+  load: (binary: Uint8Array, imports?: Dict<Dict<any>>) => any;
+
+  getIndirectInfo(callable: Callable): IndirectInfo | undefined;
   getMemory: () => MemoryDef | null;
   getTable: () => TableDef | null;
 };
