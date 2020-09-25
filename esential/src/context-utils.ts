@@ -31,61 +31,50 @@ export const getFunc = (
     id = `func${count}`,
     params = {},
     result,
-    globals: locals = {},
+    locals = {},
     namespace = 'namespace',
     name = 'name',
     export: exported = true,
     indirect = false,
-    external = false,
   } = def;
-  if (external) {
-    const resultDef = result == null ? none : result;
-    const paramsType = createType(Object.values(params).map(asType));
-    const resultType = asType(resultDef);
-    module.addFunctionImport(id, namespace, name, paramsType, resultType);
-    const exprFunc = (...params: ExpressionRef[]) => module.call(id, params, resultType);
-    return getCallable(module, id, false, exprFunc, params, resultDef, callableIdMap);
+  const bodyItems: ExpressionRef[] = [];
+  const vars = { ...params, ...locals };
+  const varsAccessor = getVarsAccessor(module, vars, globalVars);
+  const resultRef: Ref<TypeDef> = { current: result == null ? auto : result };
+  const resultFunc = getResultFunc(module, resultRef, bodyItems);
+  if (initializer) initializer(resultFunc, varsAccessor);
+  const resultDef = resultRef.current === auto ? none : resultRef.current;
+  const { length: paramsLength } = Object.values(params);
+  const paramsType = createType(Object.values(params).map(asType));
+  const resultType = asType(resultDef);
+  const localTypes = Object.values(vars)
+    .slice(paramsLength)
+    .map(asType);
+  module.addFunction(id, paramsType, resultType, localTypes, module.block(null as any, bodyItems));
+  let exprFunc;
+  if (!indirect) {
+    exprFunc = (...params: ExpressionRef[]) => module.call(id, params, resultType);
   } else {
-    const bodyItems: ExpressionRef[] = [];
-    const vars = { ...params, ...locals };
-    const varsAccessor = getVarsAccessor(module, vars, globalVars);
-    const resultRef: Ref<TypeDef> = { current: result == null ? auto : result };
-    const resultFunc = getResultFunc(module, resultRef, bodyItems);
-    if (initializer) initializer(resultFunc, varsAccessor);
-    const resultDef = resultRef.current === auto ? none : resultRef.current;
-    const { length: paramsLength } = Object.values(params);
-    const paramsType = createType(Object.values(params).map(asType));
-    const resultType = asType(resultDef);
-    const localTypes = Object.values(vars)
-      .slice(paramsLength)
-      .map(asType);
-    module.addFunction(
-      id,
-      paramsType,
-      resultType,
-      localTypes,
-      module.block(null as any, bodyItems),
-    );
-    let exprFunc;
-    if (!indirect) {
-      exprFunc = (...params: ExpressionRef[]) => module.call(id, params, resultType);
-    } else {
-      const { length: index } = indirectTable;
-      indirectTable.push({ index, id, paramDefs: params, resultDef: resultDef });
-      exprFunc = (...params: ExpressionRef[]) =>
-        module.call_indirect(module.i32.const(index), params, paramsType, resultType);
-    }
-    return getCallable(
-      module,
-      id,
-      exported,
-      exprFunc,
-      params,
-      resultDef,
-      callableIdMap,
-      exportedSet,
-    );
+    const { length: index } = indirectTable;
+    indirectTable.push({ index, id, paramDefs: params, resultDef: resultDef });
+    exprFunc = (...params: ExpressionRef[]) =>
+      module.call_indirect(module.i32.const(index), params, paramsType, resultType);
   }
+  return getCallable(module, id, exported, exprFunc, params, resultDef, callableIdMap, exportedSet);
+};
+
+export const getExternal = (module: Module, callableIdMap: Map<Callable, string>) => (
+  def: FuncDef,
+  initializer?: Initializer,
+): Callable => {
+  const count = callableIdMap.size;
+  const { id = `func${count}`, params = {}, result, namespace = 'namespace', name = 'name' } = def;
+  const resultDef = result == null ? none : result;
+  const paramsType = createType(Object.values(params).map(asType));
+  const resultType = asType(resultDef);
+  module.addFunctionImport(id, namespace, name, paramsType, resultType);
+  const exprFunc = (...params: ExpressionRef[]) => module.call(id, params, resultType);
+  return getCallable(module, id, false, exprFunc, params, resultDef, callableIdMap);
 };
 
 export const exportFuncs = (

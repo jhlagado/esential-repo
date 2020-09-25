@@ -13,7 +13,7 @@ import {
   TypeDef,
 } from './types';
 import { FEATURE_MULTIVALUE } from './constants';
-import { getFunc, exportFuncs, getCompile, getGlobals, getLoad } from './context-utils';
+import { getFunc, exportFuncs, getCompile, getGlobals, getLoad, getExternal } from './context-utils';
 import { getFOR, getIF } from './control';
 import { getLiteral } from './literals';
 import { getBuiltin } from './builtin';
@@ -63,6 +63,7 @@ export const esential = (cfg?: EsentialCfg): EsentialContext => {
       return lib;
     },
     func: getFunc(module, callableIdMap, exportedSet, indirectTable, globalVars),
+    external: getExternal(module, callableIdMap),
     globals: getGlobals(module, globalVars),
     getIndirectInfo: (callable: Callable) => callableIndirectMap.get(callable),
     getMemory: () => memoryDef,

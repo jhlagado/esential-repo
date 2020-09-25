@@ -37,10 +37,16 @@ export type FuncDef = {
   params?: VarDefs;
   result?: TypeDef;
   locals?: VarDefs;
-  globals?: VarDefs;
   export?: boolean;
   indirect?: boolean;
-  external?: boolean;
+  namespace?: string;
+  name?: string;
+};
+
+export type ExternalDef = {
+  id?: string;
+  params?: VarDefs;
+  result?: TypeDef;
   namespace?: string;
   name?: string;
 };
@@ -92,6 +98,7 @@ export type EsentialContext = {
   module: Module;
   compile: (options?: CompileOptions) => Uint8Array;
   func: (def: FuncDef, funcImpl?: Initializer) => Callable;
+  external: (def: ExternalDef) => Callable;
   globals: (varDefs: VarDefs, assignments: Dict<Expression>) => void;
   getIndirectInfo(callable: Callable): IndirectInfo | undefined;
   lib: (func: LibFunc, args?: Dict<any>) => any;
