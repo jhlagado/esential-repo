@@ -53,9 +53,8 @@ import { esential } from 'esential/src';
 
 const { lib, load, compile } = esential();
 
-lib(({ func, i32:{add} }) => {
-  const { add } = ops.i32;
-
+lib(({ func, i32: { add } }) => {
+  //
   const main = func({ params: { a: i32, b: i32 } }, (result, { a, b, u }) => {
     result(
       //
@@ -124,9 +123,8 @@ import { esential } from 'esential/src';
 
 const { lib, load, compile } = esential();
 
-lib(({ func, i32:{add}, FOR }) => {
-  const { add, sub, gt } = ops.i32;
-
+lib(({ func, i32: { add, sub, gt }, FOR }) => {
+  //
   const main = func({ params: { a: i32, b: i32 } }, (result, { i, j }) => {
     result(
       j(0),
@@ -157,9 +155,8 @@ import { esential } from 'esential/src';
 
 const { lib, load, compile } = esential();
 
-lib(({ func, ops, FOR, IF }) => {
-  const { add, lt, eqz, rem } = ops.i32;
-
+lib(({ func, i32: { add, lt, eqz, rem }, FOR, IF }) => {
+  //
   const main = func({}, (result, { odd, even, i }) => {
     result(
       odd(0),
