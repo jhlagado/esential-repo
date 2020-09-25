@@ -3,18 +3,18 @@ import { TypeDef, VoidBlockFunc, Ref, Callable, Dict, Accessor, Expression } fro
 import { setTypeDef, getTypeDef } from './typedefs';
 import { asArray, isPrim } from './utils';
 import { applyTypeDef } from './literals';
-import { resolveAccessors } from './accessors';
+import { resolveExpression } from './utils';
 
-export const getAssignable = (module: Module, expression: Expression): ExpressionRef => {
-  const stripped = resolveAccessors(expression);
-  if (isPrim<ExpressionRef>(stripped)) {
-    return stripped;
+export const asExpressionRef = (module: Module, expression: Expression): ExpressionRef => {
+  const resolved = resolveExpression(expression);
+  if (isPrim<ExpressionRef>(resolved)) {
+    return resolved;
   } else {
-    const exprArray = Array.isArray(stripped)
-      ? stripped
-      : Object.keys(stripped)
+    const exprArray = Array.isArray(resolved)
+      ? resolved
+      : Object.keys(resolved)
           .sort()
-          .map(key => stripped[key]);
+          .map(key => resolved[key]);
     return module.tuple.make(exprArray);
   }
 };
@@ -29,7 +29,7 @@ export const getResultFunc = (
     throw new Error(`Result function must have at least one arg`);
   }
   // const leadExprs = expressions.slice(0, -1).map(getAssignable(module));
-  const leadExprs = expressions.slice(0, -1).map(expression => getAssignable(module, expression));
+  const leadExprs = expressions.slice(0, -1).map(expression => asExpressionRef(module, expression));
   bodyItems.push(...leadExprs);
   const expression = expressions[length - 1];
   const typeDef = resultDefRef.current === auto ? undefined : resultDefRef.current;

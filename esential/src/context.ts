@@ -18,7 +18,7 @@ import {
 } from './context-utils';
 import { getFOR, getIF } from './control';
 import { getOps } from './ops';
-import { exportFuncs } from './funcs-utils';
+import { exportFuncs } from './func-utils';
 import { getFunc, getExternal, getGlobals } from './lib-utils';
 
 export const esential = (cfg?: EsentialCfg): EsentialContext => {

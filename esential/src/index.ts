@@ -4,7 +4,7 @@ export * from './constants';
 export * from './context';
 export * from './context-utils';
 export * from './control';
-export * from './funcs-utils';
+export * from './func-utils';
 export * from './literals';
 export * from './ops';
 export * from './types';

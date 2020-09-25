@@ -4,10 +4,6 @@ import { asType, setTypeDef, getTypeDef } from './typedefs';
 import { isPrim } from './utils';
 import { applyTypeDef } from './literals';
 
-export const resolveAccessors = (expr: Expression | Accessor): Expression => {
-  return typeof expr === 'function' ? expr() : expr;
-};
-
 export const getGetter = (
   module: Module,
   varDefs: Dict<TypeDef>,

@@ -10,7 +10,7 @@ import {
   Expression,
 } from './types';
 import { getVarsAccessor } from './accessors';
-import { getResultFunc, getCallable } from './funcs-utils';
+import { getResultFunc, getCallable } from './func-utils';
 import { asType } from './typedefs';
 import { applyTypeDef } from './literals';
 

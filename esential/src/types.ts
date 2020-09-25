@@ -6,27 +6,21 @@ export type updateFunc<T> = (item: T) => T;
 export type MapFunc<T, R> = (item: T) => R;
 export type Entry<T> = [string, T];
 export type Dict<T> = { [key: string]: T };
-export type Expression = ExpressionRef | ExpressionRef[] | Dict<ExpressionRef>;
-export type TypeDef = Type | Type[] | Dict<Type>;
 
-export type Accessor = {
+export type Accessor = Dict<ExpressionRef> & {
   (expression?: Expression): any;
-  [key: string]: ExpressionRef;
 };
+export type Expression = ExpressionRef | ExpressionRef[] | Dict<ExpressionRef> | Accessor;
+export type TypeDef = Type | Type[] | Dict<Type>;
 
 export type Signature = {
   params: Dict<TypeDef>;
   result: TypeDef;
 };
 
-export type Callable = (...params: (ExpressionRef | Accessor)[]) => ExpressionRef;
+export type Callable = (...params: (ExpressionRef)[]) => ExpressionRef;
 
-export type TupleObj = {
-  expr: ExpressionRef;
-  typeDef: TypeDef;
-};
-
-export type VoidBlockFunc = (...exprs: (Expression | Accessor)[]) => void;
+export type VoidBlockFunc = (...exprs: (Expression)[]) => void;
 
 export type FuncDef = {
   id?: string;

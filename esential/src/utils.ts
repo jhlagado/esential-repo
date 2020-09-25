@@ -1,4 +1,4 @@
-import { Entry, Dict, Signature } from './types';
+import { Entry, Dict, Signature, Expression } from './types';
 
 export const isPrim = <T>(value: any): value is T => Number.isInteger(value);
 
@@ -23,3 +23,7 @@ export const asArray = <T>(obj: Dict<T> | T[]) => {
 };
 
 export const isSignature = (obj: any): obj is Signature => 'params' in obj && 'result' in obj;
+
+export const resolveExpression = (expr: Expression): Expression => {
+  return typeof expr === 'function' ? expr() : expr;
+};
