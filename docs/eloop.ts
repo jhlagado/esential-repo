@@ -3,7 +3,7 @@ import { esential } from 'esential';
 
 const { lib, load, compile } = esential();
 
-lib(({ func, i32: { add, sub, gt }, FOR }) => {
+lib(({ func, FOR, i32: { add, sub, gt } }) => {
   //
   const main = func({ params: { a: i32, b: i32 } }, (result, { i, j }) => {
     result(

@@ -2,7 +2,7 @@ import { esential } from 'esential';
 
 const { lib, load, compile } = esential();
 
-lib(({ func, i32: { add, lt, eqz, rem }, FOR, IF }) => {
+lib(({ func, FOR, IF, i32: { add, lt, eqz, rem } }) => {
   //
   const main = func({}, (result, { odd, even, i }) => {
     result(
