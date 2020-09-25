@@ -25,9 +25,8 @@ export const getTypeDef = (expr: ExpressionRef, failThrow = true): TypeDef => {
 };
 
 export const getTypeDef2 = (type: Type, failThrow = true): TypeDef => {
-  if (typeDefMap.has(type)) {
-    return typeDefMap.get(type) as Type;
-  }
+  if (type === none) return none;
+  if (typeDefMap.has(type)) return typeDefMap.get(type) as Type;
   if (failThrow) {
     throw new Error(`Could not find typeDef for ${type}`);
   } else {
@@ -35,7 +34,7 @@ export const getTypeDef2 = (type: Type, failThrow = true): TypeDef => {
   }
 };
 
-export const asType = (typeDef: TypeDef): Type => {
+export const asType = (typeDef: TypeDef): Type => { 
   if (isPrim<Type>(typeDef)) {
     typeDefMap.set(typeDef, typeDef);
     return typeDef;
