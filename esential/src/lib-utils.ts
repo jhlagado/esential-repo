@@ -1,4 +1,4 @@
-import { auto, ExpressionRef, none, createType, Module } from 'binaryen';
+import { auto, ExpressionRef, none, createType, Module, getExpressionType } from 'binaryen';
 import {
   Callable,
   IndirectInfo,
@@ -11,7 +11,7 @@ import {
 } from './types';
 import { getVarsAccessor } from './accessors';
 import { getResultFunc, getCallable } from './func-utils';
-import { asType } from './typedefs';
+import { asType, setTypeDef } from './typedefs';
 import { literalize } from './literals';
 import { resolveExpression } from './utils';
 
@@ -82,9 +82,8 @@ export const getGlobals = (module: Module, globalVarDefs: Dict<TypeDef>) => (
   });
 };
 
-export const getBlock = (module: Module) => (...args: Expression[]) =>
-  module.block(
-    null as any,
-    args.map(arg => resolveExpression(arg) as ExpressionRef),
-    auto,
-  );
+export const getBlock = (module: Module) => (...args: Expression[]) => {
+  const expr = module.block(null as any, args.map(resolveExpression), auto);
+  setTypeDef(expr, getExpressionType(expr));
+  return expr;
+};

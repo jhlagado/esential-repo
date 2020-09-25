@@ -1,6 +1,6 @@
 import { LibFunc } from 'esential';
 
-export const resultLib: LibFunc = ({ func }) => {
+export const resultLib: LibFunc = ({ func, block }) => {
   //
   const return1000 = func(
     { params: {} },
@@ -16,8 +16,7 @@ export const resultLib: LibFunc = ({ func }) => {
     (result, { u }) => {
       result(
         //
-        u(2000),
-        u,
+        block(u(2000), u),
       );
     },
   );
