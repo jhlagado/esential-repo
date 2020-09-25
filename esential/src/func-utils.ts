@@ -1,13 +1,13 @@
 import { ExpressionRef, auto, Module, getExpressionType } from 'binaryen';
 import { TypeDef, VoidBlockFunc, Ref, Callable, Dict, Expression } from './types';
-import { setTypeDef, getTypeDef, getTypeDef2 } from './typedefs';
+import { setTypeDef, getTypeDef } from './typedefs';
 import { asArray } from './utils';
 import { literalize } from './literals';
 import { resolveExpression } from './utils';
 
 export const getResultFunc = (
   module: Module,
-  resultDefRef: Ref<TypeDef>,
+  resultRef: Ref<TypeDef>,
   bodyItems: ExpressionRef[],
 ): VoidBlockFunc => (...expressions) => {
   const { length } = expressions;
@@ -17,10 +17,10 @@ export const getResultFunc = (
   const leadExprs = expressions.slice(0, -1).map(resolveExpression);
   bodyItems.push(...leadExprs);
   const expression = expressions[length - 1];
-  const typeDef = resultDefRef.current === auto ? undefined : resultDefRef.current;
+  const typeDef = resultRef.current === auto ? undefined : resultRef.current;
   const expr = literalize(module, expression, typeDef);
   if (typeDef == null) {
-    resultDefRef.current = getTypeDef2(getExpressionType(expr));
+    resultRef.current = getTypeDef(getExpressionType(expr));
   }
   bodyItems.push(module.return(expr));
 };

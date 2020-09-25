@@ -1,5 +1,5 @@
 import { ExpressionRef, Type, i32, i64, f32, f64, none, Module, getExpressionType } from 'binaryen';
-import { asType, getTypeDef, getTypeDef2, setTypeDef } from './typedefs';
+import { asType, getTypeDef, setTypeDef } from './typedefs';
 import { Dict, Expression, TypeDef } from './types';
 import { asArray, isPrim } from './utils';
 import { resolveExpression } from './utils';
@@ -26,7 +26,7 @@ export const literalizePrim = (
   typeDef?: TypeDef,
 ): ExpressionRef => {
   if (typeDef === none) return expr;
-  const exprTypeDef = getTypeDef2(getExpressionType(expr), false);
+  const exprTypeDef = getTypeDef(getExpressionType(expr), false);
   if (exprTypeDef === none) {
     return asLiteral(module, expr, asType(typeDef || i32));
   } else {

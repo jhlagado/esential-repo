@@ -1,4 +1,4 @@
-import { ExpressionRef, Module } from 'binaryen';
+import { ExpressionRef, getExpressionType, Module } from 'binaryen';
 import { Expression, TypeDef, Dict, Accessor } from './types';
 import { asType, setTypeDef, getTypeDef } from './typedefs';
 import { isPrim } from './utils';
@@ -40,7 +40,7 @@ export const getSetter = (
   }
   const expr = literalize(module, expression, typeDef);
   if (typeDef == null) {
-    typeDef = getTypeDef(expr);
+    typeDef = getTypeDef(getExpressionType(expr));
     varDefs[name] = typeDef;
   }
   if (isGlobal) {
