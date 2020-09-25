@@ -4,7 +4,7 @@ import { Dict, Expression, TypeDef } from './types';
 import { asArray, isPrim } from './utils';
 import { resolveAccessors } from './accessors';
 
-export const getLiteral = (module: Module, value: number, type: Type = i32): ExpressionRef => {
+export const asLiteral = (module: Module, value: number, type: Type = i32): ExpressionRef => {
   const opDict = {
     [i32]: module.i32,
     [i64]: module.i64,
@@ -30,7 +30,7 @@ export const applyTypeDefPrimitive = (
   }
   const exprTypeDef = getTypeDef(expr, false);
   if (exprTypeDef === none) {
-    return getLiteral(module, expr, asType(typeDef || i32));
+    return asLiteral(module, expr, asType(typeDef || i32));
   } else {
     if (typeDef != null && asType(typeDef) !== asType(exprTypeDef)) {
       throw new Error(`Type mismatch: expected ${typeDef} but got ${exprTypeDef}`);

@@ -15,7 +15,6 @@ import {
 import { FEATURE_MULTIVALUE } from './constants';
 import { getFunc, exportFuncs, getCompile, getGlobals, getLoad, getExternal } from './context-utils';
 import { getFOR, getIF } from './control';
-import { getLiteral } from './literals';
 import { getBuiltin } from './builtin';
 
 export const esential = (cfg?: EsentialCfg): EsentialContext => {
@@ -69,7 +68,6 @@ export const esential = (cfg?: EsentialCfg): EsentialContext => {
     getMemory: () => memoryDef,
     getTable: () => tableDef,
     builtin: getBuiltin(module),
-    literal: (value: number, type?: Type) => getLiteral(module, value, type),
     FOR: getFOR(module),
     IF: getIF(module),
     compile: getCompile(module, memoryDef, tableDef, indirectTable),
