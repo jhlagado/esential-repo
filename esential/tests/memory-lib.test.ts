@@ -1,4 +1,4 @@
-import { asPages, esential } from 'esential/src';
+import { asPages, esential } from 'esential';
 import { memoryLib } from './memory-lib';
 
 const pages = asPages(500000);

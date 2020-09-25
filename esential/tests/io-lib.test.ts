@@ -1,4 +1,4 @@
-import { esential } from 'esential/src';
+import { esential } from 'esential';
 import { ioLib } from './io-lib';
 
 global.console = { ...global.console, log: jest.fn() };

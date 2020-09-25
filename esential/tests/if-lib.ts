@@ -1,4 +1,4 @@
-import { LibFunc } from 'esential/src';
+import { LibFunc } from 'esential';
 import { ioLib } from './io-lib';
 
 export const ifLib: LibFunc = ({ ops, lib, func, FOR, IF }) => {

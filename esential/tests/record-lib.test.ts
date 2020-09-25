@@ -1,4 +1,4 @@
-import { esential } from 'esential/src';
+import { esential } from 'esential';
 import { recordLib } from './record-lib';
 
 const { lib, load, compile } = esential();

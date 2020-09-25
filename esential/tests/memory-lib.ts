@@ -1,5 +1,5 @@
 import { i32, none } from 'binaryen';
-import { LibFunc } from 'esential/src';
+import { LibFunc } from 'esential';
 
 export const memoryLib: LibFunc = ({ func, ops }) => {
   const { load, store } = ops.i32;

@@ -1,5 +1,5 @@
 import { i32 } from 'binaryen';
-import { LibFunc } from 'esential/src';
+import { LibFunc } from 'esential';
 
 export const ioLib: LibFunc = ({ external }) => {
   const log = external({

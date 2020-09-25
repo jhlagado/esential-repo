@@ -1,4 +1,4 @@
-import { esential } from 'esential/src';
+import { esential } from 'esential';
 import { ifLib } from './if-lib';
 
 global.console = { ...console, log: jest.fn(console.log) };

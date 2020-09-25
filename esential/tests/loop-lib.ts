@@ -1,5 +1,5 @@
 import { i32 } from 'binaryen';
-import { LibFunc } from 'esential/src';
+import { LibFunc } from 'esential';
 
 export const loopLib: LibFunc = ({ ops, func, FOR }) => {
   const { add, sub, gt } = ops.i32;

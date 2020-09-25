@@ -1,4 +1,4 @@
-import { esential } from 'esential/src';
+import { esential } from 'esential';
 import { resultLib } from './result-lib';
 
 const { lib, load, compile } = esential();
