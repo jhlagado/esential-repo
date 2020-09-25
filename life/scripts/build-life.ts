@@ -1,4 +1,4 @@
-import { build } from 'esential/src/build';
+import { build } from 'esential';
 import { lifeLib } from '../src/asm/life';
 import { WIDTH, HEIGHT } from '../src/common/constants';
 import { calcNumPages } from '../src/common/tools';

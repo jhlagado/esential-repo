@@ -1,70 +1,52 @@
 import { i32, none } from 'binaryen';
-import { builtin, LibFunc } from 'esential/src';
+import { LibFunc } from 'esential';
 
-export const lifeLib: LibFunc = ({ module, func, literal, globals, FOR, IF }) => {
-  const store = builtin(
-    module,
-    module.i32.store,
-    { offset: none, align: none, ptr: i32, value: i32 },
-    i32,
-  );
-  const load = builtin(module, module.i32.load, { offset: none, align: none, ptr: i32 }, i32);
-  const add = builtin(module, module.i32.add, { a: i32, b: i32 }, i32);
-  const mul = builtin(module, module.i32.mul, { a: i32, b: i32 }, i32);
-  const lt = builtin(module, module.i32.lt_u, { a: i32, b: i32 }, i32);
+export const lifeLib: LibFunc = ({ ops, func, globals, FOR }) => {
+  const {store, load, add, mul, lt}=ops.i32;
 
   globals(
     { width: i32, height: i32, offset: i32 },
     {
-      width: literal(0),
-      height: literal(0),
-      offset: literal(0),
+      width: 0,
+      height: 0,
+      offset: 0,
     },
   );
 
   const set = func(
     { params: { x: i32, y: i32, v: i32 }, locals: { y0: i32, pos: i32 } },
-    ({ vars: { x, y, v, y0, pos, pos4, width, height, offset }, result }) => {
+    (result, { x, y, v, y0, pos, pos4, width, offset }) => {
       result(
         y0(mul(y(), width())),
         pos(add(add(offset(), y0()), x())),
-        pos4(mul(pos(), literal(4))),
+        pos4(mul(pos(), 4)),
         store(0, 0, pos4(), v()),
-        literal(0),
+        0,
       );
     },
   );
 
-  const init = func(
-    { params: { width: i32, height: i32 } },
-    ({ vars: { width, height, i, j }, result }) => {
-      result(
-        //
-        module.global.set('width', width()),
-        module.global.set('height', height()),
-        module.global.set('offset', mul(width(), height())),
-        FOR(
-          j(literal(0)),
-          lt(j(), height()),
-          j(add(j(), literal(1))),
-        )(
-          FOR(
-            i(literal(0)),
-            lt(i(), width()),
-            i(add(i(), literal(1))),
-          )(store(0, 0, i(), literal(2000))),
-        ),
-        literal(21),
-      );
-    },
-  );
-
-  const step = func({}, ({ vars: { j, k }, result }) => {
+  const init = func({ params: { w: i32, h: i32 } }, (result, { width, height, offset, w, h, i, j }) => {
     result(
       //
-      j(load(0, 0, literal(0))),
-      k(add(j(), literal(1))),
-      store(0, 0, literal(0), k()),
+      width(w),
+      height(h),
+      offset(mul(w, h)),
+      FOR(
+        j(0),
+        lt(j(), height()),
+        j(add(j(), 1)),
+      )(FOR(i(0), lt(i(), width()), i(add(i(), 1)))(store(0, 0, i(), 2000))),
+      21,
+    );
+  });
+
+  const step = func({}, (result, { j, k }) => {
+    result(
+      //
+      j(load(0, 0, 0)),
+      k(add(j(), 1)),
+      store(0, 0, 0, k()),
       k(),
     );
   });
