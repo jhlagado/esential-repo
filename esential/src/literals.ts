@@ -1,8 +1,8 @@
 import { ExpressionRef, Type, i32, i64, f32, f64, none, Module, getExpressionType } from 'binaryen';
-import { asType, getTypeDef, setTypeDef } from './typedefs';
+import { asType, getTypeDef, setTypeDef } from './type-util';
 import { Dict, Expression, TypeDef } from './types';
-import { asArray, isPrim } from './utils';
-import { resolveExpression } from './utils';
+import { asArray, isPrim } from './util';
+import { resolveExpression } from './util';
 
 export const asLiteral = (module: Module, value: number, type: Type = i32): ExpressionRef => {
   const opDict = {

@@ -1,9 +1,9 @@
 import { ExpressionRef, auto, Module, getExpressionType } from 'binaryen';
 import { TypeDef, VoidBlockFunc, Ref, Callable, Dict, Expression } from './types';
-import { setTypeDef, getTypeDef } from './typedefs';
-import { asArray } from './utils';
+import { setTypeDef, getTypeDef } from './type-util';
+import { asArray } from './util';
 import { literalize } from './literals';
-import { resolveExpression } from './utils';
+import { resolveExpression } from './util';
 
 export const getResultFunc = (
   module: Module,

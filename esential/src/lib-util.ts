@@ -10,10 +10,10 @@ import {
   Expression,
 } from './types';
 import { getVarsAccessor } from './accessors';
-import { getResultFunc, getCallable } from './func-utils';
-import { asType, setTypeDef } from './typedefs';
+import { getResultFunc, getCallable } from './func-util';
+import { asType, setTypeDef } from './type-util';
 import { literalize } from './literals';
-import { resolveExpression } from './utils';
+import { resolveExpression } from './util';
 
 export const getFunc = (
   module: Module,

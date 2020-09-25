@@ -1,7 +1,7 @@
 import { ExpressionRef, getExpressionType, Module } from 'binaryen';
 import { Expression, TypeDef, Dict, Accessor } from './types';
-import { asType, setTypeDef, getTypeDef } from './typedefs';
-import { isPrim } from './utils';
+import { asType, setTypeDef, getTypeDef } from './type-util';
+import { isPrim } from './util';
 import { literalize } from './literals';
 
 export const getGetter = (
