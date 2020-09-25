@@ -49,7 +49,7 @@ And now the same thing in `Esential`
 
 ```js
 import { i32 } from 'binaryen';
-import { esential } from 'esential/src';
+import { esential } from 'esential';
 
 const { lib, load, compile } = esential();
 
@@ -119,7 +119,7 @@ Then in `Esential`
 
 ```js
 import { i32 } from 'binaryen';
-import { esential } from 'esential/src';
+import { esential } from 'esential';
 
 const { lib, load, compile } = esential();
 
@@ -151,7 +151,7 @@ console.log(exported.main());
 And here is a slightly more complicated function in `Esential` which counts to 10 and adds up the even numbers and the odd numbers and returns the odd total.
 
 ```js
-import { esential } from 'esential/src';
+import { esential } from 'esential';
 
 const { lib, load, compile } = esential();
 
