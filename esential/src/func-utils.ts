@@ -50,7 +50,7 @@ export const getCallable = (
   callableIdMap: Map<Callable, string>,
   exportedSet?: Set<Callable>,
 ) => {
-  const callable = (...params: (ExpressionRef | Accessor)[]) => {
+  const callable = (...params: (Expression)[]) => {
     const typeArray = asArray(typeDef);
     const params1 = params.map((param, index) => literalize(module, param, typeArray[index]));
     const expr = exprFunc(...params1);

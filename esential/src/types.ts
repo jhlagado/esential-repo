@@ -18,7 +18,7 @@ export type Signature = {
   result: TypeDef;
 };
 
-export type Callable = (...params: (ExpressionRef)[]) => ExpressionRef;
+export type Callable = (...params: (Expression)[]) => ExpressionRef;
 
 export type VoidBlockFunc = (...exprs: (Expression)[]) => void;
 
