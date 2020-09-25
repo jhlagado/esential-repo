@@ -18,9 +18,9 @@ export type Signature = {
   result: TypeDef;
 };
 
-export type Callable = (...params: (Expression)[]) => ExpressionRef;
+export type Callable = (...params: Expression[]) => ExpressionRef;
 
-export type VoidBlockFunc = (...exprs: (Expression)[]) => void;
+export type VoidBlockFunc = (...exprs: Expression[]) => void;
 
 export type FuncDef = {
   id?: string;
@@ -76,16 +76,11 @@ export type EsentialCfg = {
   table?: TableDef;
 };
 
-export type EsentialContext = {
+export type LibUtils = {
   func: (def: FuncDef, funcImpl?: Initializer) => Callable;
   external: (def: ExternalDef) => Callable;
   globals: (varDefs: Dict<TypeDef>, assignments: Dict<Expression>) => void;
   lib: (func: LibFunc, args?: Dict<any>) => any;
-  ops: Dict<any>;
-  i32: Dict<any>;
-  i64: Dict<any>;
-  f32: Dict<any>;
-  f64: Dict<any>;
   FOR: (
     initializer: ExpressionRef,
     condition: ExpressionRef,
@@ -94,7 +89,17 @@ export type EsentialContext = {
   IF: (
     condition: ExpressionRef,
   ) => (...thenBody: ExpressionRef[]) => (...elseBody: ExpressionRef[]) => ExpressionRef;
+};
 
+export type OpUtils = {
+  i32: Dict<any>;
+  i64: Dict<any>;
+  f32: Dict<any>;
+  f64: Dict<any>;
+  memory: Dict<any>;
+};
+
+export type ContextUtils = {
   module: Module;
   compile: (options?: CompileOptions) => Uint8Array;
   load: (binary: Uint8Array, imports?: Dict<Dict<any>>) => any;
@@ -103,3 +108,5 @@ export type EsentialContext = {
   getMemory: () => MemoryDef | null;
   getTable: () => TableDef | null;
 };
+
+export type EsentialContext = LibUtils & OpUtils & ContextUtils;

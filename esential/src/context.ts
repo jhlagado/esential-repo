@@ -14,7 +14,7 @@ import {
 import { FEATURE_MULTIVALUE } from './constants';
 import { getCompile, getLoad } from './context-utils';
 import { getFOR, getIF } from './control';
-import { getOps, getOps1 } from './ops';
+import { getOps, getBuiltinProxy } from './op-utils';
 import { exportFuncs } from './func-utils';
 import { getFunc, getExternal, getGlobals } from './lib-utils';
 
@@ -64,13 +64,9 @@ export const esential = (cfg?: EsentialCfg): EsentialContext => {
     func: getFunc(module, callableIdMap, exportedSet, indirectTable, globalVars),
     external: getExternal(module, callableIdMap),
     globals: getGlobals(module, globalVars),
-    ops: getOps(module),
-    i32: getOps1(module, 'i32'),
-    i64: getOps1(module, 'i64'),
-    f32: getOps1(module, 'f32'),
-    f64: getOps1(module, 'f64'),
     FOR: getFOR(module),
     IF: getIF(module),
+    ...getOps(module),
 
     module,
     compile: getCompile(module, memoryDef, tableDef, indirectTable),

@@ -2,7 +2,7 @@ import { Module } from 'binaryen';
 import { asArray, isSignature, setTypeDef } from '.';
 import { opsSignatures } from './ops-sigs';
 import { literalize } from './literals';
-import { Dict, TypeDef } from './types';
+import { Dict, OpUtils, TypeDef } from './types';
 import { Signature } from 'typescript';
 
 const builtinCallableMap = new Map<string, any>();
@@ -52,6 +52,16 @@ export const builtinProxy = (
     },
   });
 
-export const getOps = (module: Module) => builtinProxy(module, opsSignatures);
-export const getOps1 = (module: Module, key: string) =>
-  builtinProxy(module, (opsSignatures as any)[key] as Dict<Signature>, (module as any)[key], key);
+export const getBuiltinProxy = (module: Module, key: keyof Module) => {
+  const sigs = opsSignatures[key];
+  const base = module[key];
+  return builtinProxy(module, sigs, base, key);
+};
+
+export const getOps = (module: Module): OpUtils => ({
+  i32: getBuiltinProxy(module, 'i32'),
+  i64: getBuiltinProxy(module, 'i64'),
+  f32: getBuiltinProxy(module, 'f32'),
+  f64: getBuiltinProxy(module, 'f64'),
+  memory: getBuiltinProxy(module, 'memory'),
+});

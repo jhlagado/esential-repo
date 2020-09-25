@@ -6,7 +6,7 @@ export * from './context-utils';
 export * from './control';
 export * from './func-utils';
 export * from './literals';
-export * from './ops';
+export * from './op-utils';
 export * from './types';
 export * from './typedefs';
 export * from './utils';

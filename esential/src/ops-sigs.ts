@@ -1,6 +1,7 @@
 import { none, i32, i64, f32, f64 } from 'binaryen';
+import { Dict } from './types';
 
-export const opsSignatures = {
+export const opsSignatures: Dict<any> = {
   i32: {
     const: { params: { value: none }, result: i32 },
     clz: { params: { value: i32 }, result: i32 },
