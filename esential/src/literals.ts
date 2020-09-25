@@ -20,7 +20,7 @@ export const asLiteral = (module: Module, value: number, type: Type = i32): Expr
   throw new Error(`Can only use primitive types in val, not ${type}`);
 };
 
-export const applyTypeDefPrimitive = (
+export const literalizePrim = (
   module: Module,
   expr: ExpressionRef,
   typeDef?: TypeDef,
@@ -39,18 +39,18 @@ export const applyTypeDefPrimitive = (
   }
 };
 
-export const applyTypeDef = (
+export const literalize = (
   module: Module,
   expression1: Expression,
   typeDef?: TypeDef,
 ): ExpressionRef => {
   const expression = resolveExpression(expression1);
   if (isPrim<ExpressionRef>(expression)) {
-    return applyTypeDefPrimitive(module, expression, typeDef);
+    return literalizePrim(module, expression, typeDef);
   } else {
     const typeArray = typeDef ? asArray<Type>(typeDef as any) : [];
     const exprArray = asArray<ExpressionRef>(expression).map((expr, index) => {
-      const expr1 = applyTypeDefPrimitive(module, expr, typeArray[index]);
+      const expr1 = literalizePrim(module, expr, typeArray[index]);
       if (typeArray[index] == null) {
         typeArray[index] = getTypeDef(expr1) as number;
       }

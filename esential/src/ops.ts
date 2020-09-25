@@ -1,7 +1,7 @@
 import { Module } from 'binaryen';
 import { asArray, isSignature, setTypeDef } from '.';
 import { opsSignatures } from './ops-sigs';
-import { applyTypeDef } from './literals';
+import { literalize } from './literals';
 import { Dict, TypeDef } from './types';
 
 const builtinCallableMap = new Map<string, any>();
@@ -14,7 +14,7 @@ export const builtinCallable = (
 ): Function => {
   return (...params: any[]) => {
     const typeArray = asArray(paramTypeDefs);
-    const params1 = params.map((param, index) => applyTypeDef(module, param, typeArray[index]));
+    const params1 = params.map((param, index) => literalize(module, param, typeArray[index]));
     const expr = func(...params1);
     setTypeDef(expr, resultTypeDef);
     return expr;

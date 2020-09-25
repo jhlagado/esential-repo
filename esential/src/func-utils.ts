@@ -2,7 +2,7 @@ import { ExpressionRef, auto, Module } from 'binaryen';
 import { TypeDef, VoidBlockFunc, Ref, Callable, Dict, Accessor, Expression } from './types';
 import { setTypeDef, getTypeDef } from './typedefs';
 import { asArray, isPrim } from './utils';
-import { applyTypeDef } from './literals';
+import { literalize } from './literals';
 import { resolveExpression } from './utils';
 
 export const asExpressionRef = (module: Module, expression: Expression): ExpressionRef => {
@@ -33,7 +33,7 @@ export const getResultFunc = (
   bodyItems.push(...leadExprs);
   const expression = expressions[length - 1];
   const typeDef = resultDefRef.current === auto ? undefined : resultDefRef.current;
-  const expr = applyTypeDef(module, expression, typeDef);
+  const expr = literalize(module, expression, typeDef);
   if (typeDef == null) {
     resultDefRef.current = getTypeDef(expr);
   }
@@ -52,7 +52,7 @@ export const getCallable = (
 ) => {
   const callable = (...params: (ExpressionRef | Accessor)[]) => {
     const typeArray = asArray(typeDef);
-    const params1 = params.map((param, index) => applyTypeDef(module, param, typeArray[index]));
+    const params1 = params.map((param, index) => literalize(module, param, typeArray[index]));
     const expr = exprFunc(...params1);
     setTypeDef(expr, resultDef);
     return expr;

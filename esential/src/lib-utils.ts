@@ -12,7 +12,7 @@ import {
 import { getVarsAccessor } from './accessors';
 import { getResultFunc, getCallable } from './func-utils';
 import { asType } from './typedefs';
-import { applyTypeDef } from './literals';
+import { literalize } from './literals';
 
 export const getFunc = (
   module: Module,
@@ -75,7 +75,7 @@ export const getGlobals = (module: Module, globalVarDefs: Dict<TypeDef>) => (
 ) => {
   Object.entries(assignments).forEach(([prop, expression]) => {
     let typeDef = varDefs[prop];
-    const expr = applyTypeDef(module, expression, typeDef);
+    const expr = literalize(module, expression, typeDef);
     globalVarDefs[prop] = typeDef;
     return module.addGlobal(prop, asType(typeDef), true, expr);
   });
