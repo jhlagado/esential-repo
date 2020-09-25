@@ -51,14 +51,12 @@ And now the same thing in `Esential`
 import { i32 } from 'binaryen';
 import { esential } from 'esential/src';
 
-const { lib, module, load, compile } = esential();
+const { lib, load, compile } = esential();
 
-lib(({ func, builtin }) => {
-  const {
-    i32: { add },
-  } = builtin;
+lib(({ func, ops }) => {
+  const { add } = ops.i32;
 
-  const addition = func({ params: { a: i32, b: i32 } }, (result, { a, b, u }) => {
+  const main = func({ params: { a: i32, b: i32 } }, (result, { a, b, u }) => {
     result(
       //
       u(add(a, b)),
@@ -66,12 +64,12 @@ lib(({ func, builtin }) => {
     );
   });
   return {
-    addition,
+    main,
   };
 });
 
 const exported = load(compile());
-console.log(exported.addition(41, 1));
+console.log(exported.main(41, 1));
 ```
 
 Here's another example. Say you want to loop 10 times. You have two variables, one which starts at 0 and the other at 10. On each iteration, decrement the first variable until it reaches zero and increment the second varibale until it reaches 10. Finally return the second variable.
@@ -126,12 +124,10 @@ import { esential } from 'esential/src';
 
 const { lib, load, compile } = esential();
 
-lib(({ func, builtin, FOR }) => {
-  const {
-    i32: { add, sub, gt_s: gt },
-  } = builtin;
+lib(({ func, ops, FOR }) => {
+  const { add, sub, gt } = ops.i32;
 
-  const eloop = func({ params: { a: i32, b: i32 } }, (result, { i, j }) => {
+  const main = func({ params: { a: i32, b: i32 } }, (result, { i, j }) => {
     result(
       j(0),
       FOR(
@@ -146,12 +142,12 @@ lib(({ func, builtin, FOR }) => {
     );
   });
   return {
-    eloop,
+    main,
   };
 });
 
 const exported = load(compile());
-console.log(exported.eloop());
+console.log(exported.main());
 ```
 
 And here is a slightly more complicated function in `Esential` which counts to 10 and adds up the even numbers and the odd numbers and returns the odd total.
@@ -161,13 +157,10 @@ import { esential } from 'esential/src';
 
 const { lib, load, compile } = esential();
 
-lib(({ func, builtin, FOR, IF }) => {
+lib(({ func, ops, FOR, IF }) => {
+  const { add, lt, eqz, rem } = ops.i32;
 
-  const {
-    i32: { add, lt, eqz, rem },
-  } = builtin;
-
-  const eloop2 = func({}, (result, { odd, even, i }) => {
+  const main = func({}, (result, { odd, even, i }) => {
     result(
       odd(0),
       even(0),
@@ -190,12 +183,12 @@ lib(({ func, builtin, FOR, IF }) => {
   });
 
   return {
-    eloop2,
+    main,
   };
 });
 
 const exported = load(compile());
-console.log(exported.eloop2());
+console.log(exported.main());
 ```
 
 ## Running with experimental switches
