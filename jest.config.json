@@ -6,8 +6,8 @@
   },
   "testRegex": "^.*.test.(ts|tsx)$",
   "collectCoverageFrom": [
-    "src/**/*.{ts,tsx}",
-    "!src/icons/**/*.{ts,tsx}",
+    "esential/src/**/*.{ts,tsx}",
+    "!esential/src/icons/**/*.{ts,tsx}",
     "!**/node_modules/**",
     "!**/coverage/**",
     "!src/index.tsx",

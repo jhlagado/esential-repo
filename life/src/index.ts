@@ -62,7 +62,7 @@ const run = async (canvas: HTMLCanvasElement) => {
       // setTimeout(update, 1000 / 30);
       setTimeout(update, 1000);
       // mem.copyWithin(0, boardSize, boardSize + boardSize); // copy output to input
-      console.log('mem at 0', mem[0]);
+      console.log('mem at 0', mem[0].toString(16));
       exports.step(); // perform the next step
     })();
 
