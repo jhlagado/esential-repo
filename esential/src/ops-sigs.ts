@@ -1,6 +1,6 @@
 import { none, i32, i64, f32, f64 } from 'binaryen';
 
-export const builtinData = {
+export const opsSignatures = {
   i32: {
     const: { params: { value: none }, result: i32 },
     clz: { params: { value: i32 }, result: i32 },
@@ -181,7 +181,6 @@ export const builtinData = {
     store: { params: { offset: none, align: none, ptr: f64, value: f64 }, result: f64 },
   },
 
-  // Host operations
   memory: {
     size: { params: {}, result: i32 },
     grow: { params: { value: none }, result: i32 },
