@@ -3,3 +3,4 @@ coverage/
 .cache/
 .vscode/
 dist/
+yarn.lock
