@@ -1,6 +1,7 @@
 import { LibFunc } from 'esential';
 
 export const resultLib: LibFunc = ({ func }) => {
+  //
   const return1000 = func(
     { params: {} },
 

@@ -3,6 +3,7 @@ import { asArray, isSignature, setTypeDef } from '.';
 import { opsSignatures } from './ops-sigs';
 import { literalize } from './literals';
 import { Dict, TypeDef } from './types';
+import { Signature } from 'typescript';
 
 const builtinCallableMap = new Map<string, any>();
 
@@ -52,3 +53,5 @@ export const builtinProxy = (
   });
 
 export const getOps = (module: Module) => builtinProxy(module, opsSignatures);
+export const getOps1 = (module: Module, key: string) =>
+  builtinProxy(module, (opsSignatures as any)[key] as Dict<Signature>, (module as any)[key], key);

@@ -1,9 +1,8 @@
 import { i32, none } from 'binaryen';
 import { LibFunc } from 'esential';
 
-export const memoryLib: LibFunc = ({ func, ops }) => {
-  const { load, store } = ops.i32;
-
+export const memoryLib: LibFunc = ({ func, i32: { load, store } }) => {
+  //
   const storeAndLoad = func({ params: { a: i32 }, result: [i32] }, (result, { a }) => {
     result(
       //

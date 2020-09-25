@@ -1,8 +1,7 @@
 import { i32, none } from 'binaryen';
 import { LibFunc } from 'esential';
 
-export const lifeLib: LibFunc = ({ ops, func, globals, FOR }) => {
-  const {store, load, add, mul, lt}=ops.i32;
+export const lifeLib: LibFunc = ({ i32:{store, load, add, mul, lt}, func, globals, FOR }) => {
 
   globals(
     { width: i32, height: i32, offset: i32 },

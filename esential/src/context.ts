@@ -12,12 +12,9 @@ import {
   TypeDef,
 } from './types';
 import { FEATURE_MULTIVALUE } from './constants';
-import {
-  getCompile,
-  getLoad,
-} from './context-utils';
+import { getCompile, getLoad } from './context-utils';
 import { getFOR, getIF } from './control';
-import { getOps } from './ops';
+import { getOps, getOps1 } from './ops';
 import { exportFuncs } from './func-utils';
 import { getFunc, getExternal, getGlobals } from './lib-utils';
 
@@ -68,9 +65,13 @@ export const esential = (cfg?: EsentialCfg): EsentialContext => {
     external: getExternal(module, callableIdMap),
     globals: getGlobals(module, globalVars),
     ops: getOps(module),
+    i32: getOps1(module, 'i32'),
+    i64: getOps1(module, 'i64'),
+    f32: getOps1(module, 'f32'),
+    f64: getOps1(module, 'f64'),
     FOR: getFOR(module),
     IF: getIF(module),
-    
+
     module,
     compile: getCompile(module, memoryDef, tableDef, indirectTable),
     load: getLoad(memoryDef, tableDef),

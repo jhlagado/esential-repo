@@ -2,6 +2,7 @@ import { i32 } from 'binaryen';
 import { LibFunc } from 'esential';
 
 export const ioLib: LibFunc = ({ external }) => {
+  //
   const log = external({
     namespace: 'env',
     name: 'log',

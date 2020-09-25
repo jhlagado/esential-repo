@@ -82,6 +82,10 @@ export type EsentialContext = {
   globals: (varDefs: Dict<TypeDef>, assignments: Dict<Expression>) => void;
   lib: (func: LibFunc, args?: Dict<any>) => any;
   ops: Dict<any>;
+  i32: Dict<any>;
+  i64: Dict<any>;
+  f32: Dict<any>;
+  f64: Dict<any>;
   FOR: (
     initializer: ExpressionRef,
     condition: ExpressionRef,

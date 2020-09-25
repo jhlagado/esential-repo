@@ -3,6 +3,7 @@ import { LibFunc } from 'esential';
 import { addLib } from './add-lib';
 
 export const recordLib: LibFunc = ({ lib, func }) => {
+  //
   const { addition } = lib(addLib);
 
   const returnTwoRecord = func({ export: false }, (result, { u }) => {
