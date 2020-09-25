@@ -16,7 +16,7 @@ import { getCompile, getLoad } from './context-utils';
 import { getFOR, getIF } from './control';
 import { getOps, getBuiltinProxy } from './op-utils';
 import { exportFuncs } from './func-utils';
-import { getFunc, getExternal, getGlobals } from './lib-utils';
+import { getFunc, getExternal, getGlobals, getBlock } from './lib-utils';
 
 export const esential = (cfg?: EsentialCfg): EsentialContext => {
   const module = new Module();
@@ -66,6 +66,8 @@ export const esential = (cfg?: EsentialCfg): EsentialContext => {
     globals: getGlobals(module, globalVars),
     FOR: getFOR(module),
     IF: getIF(module),
+    block: getBlock(module),
+
     ...getOps(module),
 
     module,

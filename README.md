@@ -123,13 +123,16 @@ import { esential } from 'esential';
 
 const { lib, load, compile } = esential();
 
-lib(({ func, FOR, i32: { add, sub, gt } }) => {
+lib(({ func, block, FOR, i32: { add, sub, gt } }) => {
   //
   const main = func({ params: { a: i32, b: i32 } }, (result, { i, j }) => {
     result(
-      j(0),
       FOR(
-        i(10),
+        block(
+          //
+          i(10),
+          j(0),
+        ),
         gt(i, 0),
         i(sub(i, 1)),
       )(
@@ -155,14 +158,17 @@ import { esential } from 'esential';
 
 const { lib, load, compile } = esential();
 
-lib(({ func, FOR, IF, i32: { add, lt, eqz, rem } }) => {
+lib(({ func, block, FOR, IF, i32: { add, lt, eqz, rem } }) => {
   //
   const main = func({}, (result, { odd, even, i }) => {
     result(
-      odd(0),
-      even(0),
       FOR(
-        i(0),
+        block(
+          //
+          odd(0),
+          even(0),
+          i(0),
+        ),
         lt(i, 10),
         i(add(i, 1)),
       )(

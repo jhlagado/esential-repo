@@ -89,6 +89,7 @@ export type LibUtils = {
   IF: (
     condition: ExpressionRef,
   ) => (...thenBody: ExpressionRef[]) => (...elseBody: ExpressionRef[]) => ExpressionRef;
+  block: (...args: Expression[]) => ExpressionRef;
 };
 
 export type OpUtils = {

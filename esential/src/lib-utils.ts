@@ -10,7 +10,7 @@ import {
   Expression,
 } from './types';
 import { getVarsAccessor } from './accessors';
-import { getResultFunc, getCallable } from './func-utils';
+import { getResultFunc, getCallable, asExpressionRef } from './func-utils';
 import { asType } from './typedefs';
 import { literalize } from './literals';
 
@@ -81,3 +81,9 @@ export const getGlobals = (module: Module, globalVarDefs: Dict<TypeDef>) => (
   });
 };
 
+export const getBlock = (module: Module) => (...args: Expression[]) =>
+  module.block(
+    null as any,
+    args.map(arg => asExpressionRef(module, arg)),
+    auto,
+  );

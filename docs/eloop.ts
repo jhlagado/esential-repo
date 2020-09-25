@@ -3,13 +3,16 @@ import { esential } from 'esential';
 
 const { lib, load, compile } = esential();
 
-lib(({ func, FOR, i32: { add, sub, gt } }) => {
+lib(({ func, block, FOR, i32: { add, sub, gt } }) => {
   //
   const main = func({ params: { a: i32, b: i32 } }, (result, { i, j }) => {
     result(
-      j(0),
       FOR(
-        i(10),
+        block(
+          //
+          i(10),
+          j(0),
+        ),
         gt(i, 0),
         i(sub(i, 1)),
       )(
