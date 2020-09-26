@@ -4,11 +4,11 @@ import { Exported } from './types';
 import { rgb2bgr } from './utils';
 
 const run = async (canvas: HTMLCanvasElement) => {
-  const ctx = canvas.getContext('2d');
-  if (!ctx) {
+  const context = canvas.getContext('2d');
+  if (!context) {
     return;
   }
-  ctx.imageSmoothingEnabled = false;
+  context.imageSmoothingEnabled = false;
 
   canvas.width = WIDTH;
   canvas.height = HEIGHT;
@@ -38,6 +38,10 @@ const run = async (canvas: HTMLCanvasElement) => {
         abort: function() {
           return;
         },
+        log: (a: number) => {
+          console.log(a);
+          return;
+        },
       },
       config: {
         BGR_ALIVE: rgb2bgr(RGB_ALIVE) | 1, // little endian, LSB must be set
@@ -58,21 +62,21 @@ const run = async (canvas: HTMLCanvasElement) => {
     const mem = new Uint32Array(memory.buffer);
 
     // Update about 30 times a second
-    (function update() {
-      // setTimeout(update, 1000 / 30);
-      setTimeout(update, 1000);
-      // mem.copyWithin(0, boardSize, boardSize + boardSize); // copy output to input
-      console.log('mem at 0', mem[0].toString(16));
-      exports.step(); // perform the next step
-    })();
+    // (function update() {
+    //   // setTimeout(update, 1000 / 30);
+    //   setTimeout(update, 1000);
+    //   // mem.copyWithin(0, boardSize, boardSize + boardSize); // copy output to input
+    //   console.log('mem at 0', mem[0].toString(16));
+    //   exports.step(); // perform the next step
+    // })();
 
-    // Keep rendering the output at [size, 2*size]
-    const imageData = ctx.createImageData(WIDTH, HEIGHT);
-    const argb = new Uint32Array(imageData.data.buffer);
+    const imageData = context.createImageData(WIDTH, HEIGHT);
+    const pixels = new Uint32Array(imageData.data.buffer);
+
     (function render() {
-      requestAnimationFrame(render);
-      argb.set(mem.subarray(boardSize, boardSize + boardSize)); // copy output to image buffer
-      ctx.putImageData(imageData, 0, 0); // apply image buffer
+      // requestAnimationFrame(render);
+      pixels.set(mem.subarray(boardSize, 2 * boardSize)); // copy output to image buffer
+      context.putImageData(imageData, 0, 0); // apply image buffer
     })();
 
     // addAllListeners(canvas, document);

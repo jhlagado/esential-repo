@@ -8,4 +8,6 @@ console.log(pages);
 const size = { initial: pages, maximum: pages };
 const instance = new WebAssembly.Memory(size);
 
-build(lifeLib, 'dist/life.wasm', { memory: { ...size, instance } });
+build(lifeLib, 'dist/life.wasm', {
+  memory: { ...size, instance },
+});
