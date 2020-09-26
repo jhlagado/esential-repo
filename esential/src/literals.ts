@@ -1,16 +1,17 @@
-import { ExpressionRef, Type, i32, i64, f32, f64, none, Module, getExpressionType } from 'binaryen';
+import { ExpressionRef, Type, i32, i64, f32, f64, none, Module, getExpressionType, auto } from 'binaryen';
 import { asType, getTypeDef, setTypeDef } from './type-util';
 import { Dict, Expression, TypeDef } from './types';
 import { asArray, isPrim } from './util';
 import { resolveExpression } from './util';
 
-export const asLiteral = (module: Module, value: number, type: Type = i32): ExpressionRef => {
+export const asLiteral = (module: Module, value: number, type?: Type): ExpressionRef => {
   const opDict = {
     [i32]: module.i32,
     [i64]: module.i64,
     [f32]: module.f32,
     [f64]: module.f64,
   };
+  if (type == null || type === auto) type = Number.isInteger(value) ? i32 : f32;
   if (type in opDict) {
     // .d.ts error in type definition for i64.const
     const expr = (opDict[type] as any).const(value);
@@ -28,7 +29,7 @@ export const literalizePrim = (
   if (typeDef === none) return expr;
   const exprTypeDef = getTypeDef(getExpressionType(expr), false);
   if (exprTypeDef === none) {
-    return asLiteral(module, expr, asType(typeDef || i32));
+    return asLiteral(module, expr, asType(typeDef));
   } else {
     if (typeDef != null && asType(typeDef) !== asType(exprTypeDef)) {
       throw new Error(`Type mismatch: expected ${typeDef} but got ${exprTypeDef}`);

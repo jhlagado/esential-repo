@@ -42,6 +42,9 @@ const run = async (canvas: HTMLCanvasElement) => {
           console.log(a);
           return;
         },
+        rnd: () => {
+          return Math.random() < 0.1;
+        },
       },
       config: {
         BGR_ALIVE: rgb2bgr(RGB_ALIVE) | 1, // little endian, LSB must be set
@@ -54,9 +57,6 @@ const run = async (canvas: HTMLCanvasElement) => {
     const exports = module.instance.exports as Exported;
 
     const sanity = exports.init(WIDTH, HEIGHT);
-    if (sanity === 0) {
-      throw new Error(`Couldn't initialise wasm file`);
-    }
     console.log('wasm loaded', sanity.toString(10));
 
     const mem = new Uint32Array(memory.buffer);

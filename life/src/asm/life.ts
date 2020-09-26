@@ -1,12 +1,14 @@
-import { i32, none } from 'binaryen';
+import { f32, i32, none } from 'binaryen';
 import { LibFunc } from 'esential';
 
 export const lifeLib: LibFunc = ({
   i32: { store, load, add, sub, mul, div, lt },
+  f32: { lt: f32_lt },
   external,
   func,
   globals,
   FOR,
+  IF,
 }) => {
   globals(
     { width: i32, height: i32, offset: i32 },
@@ -21,6 +23,13 @@ export const lifeLib: LibFunc = ({
     namespace: 'env',
     name: 'log',
     params: { a: i32 },
+  });
+
+  const rnd = external({
+    namespace: 'env',
+    name: 'rnd',
+    params: {},
+    result: i32,
   });
 
   const inc = func({ params: { a: i32 } }, (result, { a }) => {
@@ -76,12 +85,9 @@ export const lifeLib: LibFunc = ({
             i(0),
             lt(i, width),
             i(inc(i)),
-          )(set(i, j, 0xffff00ff)),
+          )(IF(rnd())(set(i, j, 0xffff00ff))(set(i, j, 0xffffff00))),
         ),
-        // store(0, 0, getPos(0, 0), 0xffff00ff),
-        set(0, 0, 0xffff00ff),
-        // store(0, 0, getPos(0, 0), 0xffff00ff),
-        getPos(0, 0),
+        0,
       );
     },
   );

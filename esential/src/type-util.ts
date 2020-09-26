@@ -1,4 +1,4 @@
-import { ExpressionRef, Type, createType, none } from 'binaryen';
+import { ExpressionRef, Type, createType, none, auto } from 'binaryen';
 import { TypeDef } from './types';
 import { isPrim } from './util';
 
@@ -18,7 +18,8 @@ export const getTypeDef = (type: Type, failThrow = true): TypeDef => {
   }
 };
 
-export const asType = (typeDef: TypeDef): Type => { 
+export const asType = (typeDef?: TypeDef): Type => {
+  if (typeDef == null) return auto;
   if (isPrim<Type>(typeDef)) {
     typeDefMap.set(typeDef, typeDef);
     return typeDef;
