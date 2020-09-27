@@ -1,13 +1,15 @@
 import { f32, i32, none } from 'binaryen';
 import { LibFunc } from 'esential';
+import { RGB_ALIVE, RGB_DEAD } from '../common/constants';
 
 export const lifeLib: LibFunc = ({
-  i32: { store, load, store8, load8_u, add, sub, mul, lt, eqz, eq, and },
+  i32: { store, load, store8, load8_u, add, sub, mul, lt, gt, eqz, eq, and, or },
   external,
   func,
   globals,
   FOR,
   IF,
+  module,
 }) => {
   globals(
     { width: i32, widthM1: i32, height: i32, heightM1: i32, offset: i32 },
@@ -106,7 +108,7 @@ export const lifeLib: LibFunc = ({
 
   const isAlive = func(
     { params: { x: i32, y: i32 } }, //
-    (result, { x, y, pixel, temp }) => {
+    (result, { x, y }) => {
       result(and(getPixel(x, y), 1));
     },
   );
@@ -128,8 +130,7 @@ export const lifeLib: LibFunc = ({
         ca(isAlive(xp1, yp1)),
         cb(isAlive(xp1, yp1)),
         cc(isAlive(xp1, yp1)),
-        add(aa,add(ab,add(ac,add(ba,add(bc,add(ca,add(cb,cc,))))))),
-        // add(aa,3)
+        add(aa, add(ab, add(ac, add(ba, add(bc, add(ca, add(cb, cc))))))),
       );
     },
   );
@@ -147,7 +148,7 @@ export const lifeLib: LibFunc = ({
           i(0),
           lt(i, width),
           i(add1(i)),
-        )(IF(rnd())(setPixel(i, j, 0xffffffff))(setPixel(i, j, 0))),
+        )(IF(rnd())(setPixel(i, j, RGB_ALIVE))(setPixel(i, j, RGB_DEAD))),
       ),
       0,
     );
@@ -168,7 +169,7 @@ export const lifeLib: LibFunc = ({
     },
   );
 
-  const step = func({}, (result, { width, height, i, j }) => {
+  const step = func({}, (result, { width, height, i, j, count, pixel }) => {
     result(
       //
       FOR(
@@ -182,15 +183,14 @@ export const lifeLib: LibFunc = ({
           lt(i, sub1(width)),
           i(add1(i)),
         )(
-          //
-          fadePixel(i, j),
-          setPixel(i, j, getPixel(i, j)),
+          pixel(getPixel(i, j)),
+          count(countNeighbors(i, j)),
+          IF(lt(count, 2))(pixel(RGB_DEAD))(),
+          IF(gt(count, 3))(pixel(RGB_DEAD))(),
+          IF(eq(count, 3))(pixel(RGB_ALIVE))(),
+          setPixel(i, j, pixel),
         ),
       ),
-      // store(0, 0, 0, 0),
-      // log(getPixel(1, 1)),
-      // log(isAlive(1, 1)),
-      log(countNeighbors(1, 1)),
       0,
     );
   });

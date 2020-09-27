@@ -63,10 +63,9 @@ const run = async (canvas: HTMLCanvasElement) => {
 
     const mem = new Uint32Array(memory.buffer);
 
-    // Update about 30 times a second
     (function update() {
-      setTimeout(update, 1000 / 3); // setTimeout(update, 1000 / 30);
-      mem.copyWithin(0, boardSize, boardSize + boardSize); // copy output to input
+      setTimeout(update, 1000 / 3); 
+      mem.copyWithin(0, boardSize, boardSize + boardSize); 
       exports.step();
     })();
 
