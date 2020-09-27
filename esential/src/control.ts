@@ -1,5 +1,9 @@
-import { ExpressionRef, auto, Module } from 'binaryen';
+import { ExpressionRef, auto, Module, getExpressionType } from 'binaryen';
+import { getBlock } from './func-util';
 import { asLiteral } from './literals';
+import { setTypeDef } from './type-util';
+import { Expression } from './types';
+import { resolveExpression } from './util';
 
 let scopeCount = 0;
 
@@ -34,12 +38,13 @@ export const getFOR = (module: Module) => (
   );
 };
 
+//TODO make this a first class expression
 export const getIF = (module: Module) => (condition: ExpressionRef) => (
-  ...thenBody: ExpressionRef[]
-) => (...elseBody: ExpressionRef[]) => {
+  ...thenBody: Expression[]
+) => (...elseBody: Expression[]) => {
   return module.if(
     condition,
-    module.block(null as any, thenBody),
-    module.block(null as any, elseBody),
+    module.block(null as any, thenBody.map(resolveExpression), auto),
+    module.block(null as any, elseBody.map(resolveExpression), auto),
   );
 };

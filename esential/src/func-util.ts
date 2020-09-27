@@ -65,3 +65,9 @@ export const exportFuncs = (
     }
   });
 };
+
+export const getBlock = (module: Module) => (...args: Expression[]) => {
+  const expr = module.block(null as any, args.map(resolveExpression), auto);
+  setTypeDef(expr, getExpressionType(expr));
+  return expr;
+};

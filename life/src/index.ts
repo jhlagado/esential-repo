@@ -39,7 +39,8 @@ const run = async (canvas: HTMLCanvasElement) => {
           return;
         },
         log: (a: number) => {
-          console.log(a);
+          if (a < 0) a = 0xffffffff + a + 1;
+          console.log(a.toString(16));
           return;
         },
         rnd: () => {
@@ -62,19 +63,17 @@ const run = async (canvas: HTMLCanvasElement) => {
     const mem = new Uint32Array(memory.buffer);
 
     // Update about 30 times a second
-    // (function update() {
-    //   // setTimeout(update, 1000 / 30);
-    //   setTimeout(update, 1000);
-    //   // mem.copyWithin(0, boardSize, boardSize + boardSize); // copy output to input
-    //   console.log('mem at 0', mem[0].toString(16));
-    //   exports.step(); // perform the next step
-    // })();
+    (function update() {
+      setTimeout(update, 1000 / 3); // setTimeout(update, 1000 / 30);
+      mem.copyWithin(0, boardSize, boardSize + boardSize); // copy output to input
+      exports.step();
+    })();
 
     const imageData = context.createImageData(WIDTH, HEIGHT);
     const pixels = new Uint32Array(imageData.data.buffer);
 
     (function render() {
-      // requestAnimationFrame(render);
+      requestAnimationFrame(render);
       pixels.set(mem.subarray(boardSize, 2 * boardSize)); // copy output to image buffer
       context.putImageData(imageData, 0, 0); // apply image buffer
     })();

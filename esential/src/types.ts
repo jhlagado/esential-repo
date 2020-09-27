@@ -88,7 +88,7 @@ export type LibUtils = {
   ) => (...body: ExpressionRef[]) => ExpressionRef;
   IF: (
     condition: ExpressionRef,
-  ) => (...thenBody: ExpressionRef[]) => (...elseBody: ExpressionRef[]) => ExpressionRef;
+  ) => (...thenBody: Expression[]) => (...elseBody: Expression[]) => ExpressionRef;
   block: (...args: Expression[]) => ExpressionRef;
 };
 

@@ -1,9 +1,14 @@
+import { i32 } from 'binaryen';
 import { LibFunc } from 'esential';
 import { ioLib } from './io-lib';
 
 export const ifLib: LibFunc = ({ lib, func, block, FOR, IF, i32: { add, lt, rem, eqz } }) => {
   //
   const { log } = lib(ioLib);
+
+  // const isOdd = func({ params: { a: i32 } }, (result, { a }) => {
+  //   result(IFF(eqz(rem(a, 2)))(100)(200));
+  // });
 
   const oddeven = func({}, (result, { odd, even, i }) => {
     result(
@@ -32,6 +37,7 @@ export const ifLib: LibFunc = ({ lib, func, block, FOR, IF, i32: { add, lt, rem,
   });
 
   return {
+    // isOdd,
     oddeven,
   };
 };
