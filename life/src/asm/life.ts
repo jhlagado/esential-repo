@@ -2,7 +2,7 @@ import { f32, i32, none } from 'binaryen';
 import { LibFunc } from 'esential';
 
 export const lifeLib: LibFunc = ({
-  i32: { store, load, store8, load8_u, add, sub, mul, div, lt },
+  i32: { store, load, store8, load8_u, add, sub, mul, lt, eqz, eq, and },
   external,
   func,
   globals,
@@ -10,10 +10,12 @@ export const lifeLib: LibFunc = ({
   IF,
 }) => {
   globals(
-    { width: i32, height: i32, offset: i32 },
+    { width: i32, widthM1: i32, height: i32, heightM1: i32, offset: i32 },
     {
       width: 0,
+      widthM1: 0,
       height: 0,
+      heightM1: 0,
       offset: 0,
     },
   );
@@ -31,11 +33,11 @@ export const lifeLib: LibFunc = ({
     result: i32,
   });
 
-  const inc = func({ params: { a: i32 } }, (result, { a }) => {
+  const add1 = func({ params: { a: i32 } }, (result, { a }) => {
     result(add(a, 1));
   });
 
-  const dec = func({ params: { a: i32 } }, (result, { a }) => {
+  const sub1 = func({ params: { a: i32 } }, (result, { a }) => {
     result(sub(a, 1));
   });
 
@@ -72,10 +74,62 @@ export const lifeLib: LibFunc = ({
       result(
         //
         pos(add(getPos(x, y, 0), 3)),
-        alpha(dec(load8_u(0, 0, pos))),
+        alpha(sub1(load8_u(0, 0, pos))),
         IF(lt(alpha, 0))(alpha(0))(),
         store8(0, 0, pos, alpha),
         0,
+      );
+    },
+  );
+
+  const getM1 = func(
+    { params: { x: i32, limit: i32 } }, //
+    (result, { limit, x, temp }) => {
+      result(
+        //
+        IF(eqz(x))(temp(sub1(limit)))(temp(sub1(x))),
+        temp,
+      );
+    },
+  );
+
+  const getP1 = func(
+    { params: { x: i32, limit: i32 } }, //
+    (result, { limit, x, temp }) => {
+      result(
+        //
+        IF(eq(x, sub1(limit)))(temp(0))(temp(add1(x))),
+        temp,
+      );
+    },
+  );
+
+  const isAlive = func(
+    { params: { x: i32, y: i32 } }, //
+    (result, { x, y, pixel, temp }) => {
+      result(and(getPixel(x, y), 1));
+    },
+  );
+
+  const countNeighbors = func(
+    { params: { x: i32, y: i32 } }, //
+    (result, { x, y, width, height, xm1, xp1, ym1, yp1, aa, ab, ac, ba, bc, ca, cb, cc }) => {
+      result(
+        //
+        xm1(getM1(x, width)),
+        xp1(getP1(x, width)),
+        ym1(getM1(y, height)),
+        yp1(getP1(y, height)),
+        aa(isAlive(xm1, ym1)),
+        ab(isAlive(x, ym1)),
+        ac(isAlive(xp1, ym1)),
+        ba(isAlive(xm1, y)),
+        bc(isAlive(xp1, y)),
+        ca(isAlive(xp1, yp1)),
+        cb(isAlive(xp1, yp1)),
+        cc(isAlive(xp1, yp1)),
+        add(aa,add(ab,add(ac,add(ba,add(bc,add(ca,add(cb,cc,))))))),
+        // add(aa,3)
       );
     },
   );
@@ -86,14 +140,14 @@ export const lifeLib: LibFunc = ({
       FOR(
         j(0),
         lt(j, height),
-        j(inc(j)),
+        j(add1(j)),
       )(
         FOR(
           //
           i(0),
           lt(i, width),
-          i(inc(i)),
-        )(IF(rnd())(setPixel(i, j, 0xffffffff))(setPixel(i, j, 0x00ffffff))),
+          i(add1(i)),
+        )(IF(rnd())(setPixel(i, j, 0xffffffff))(setPixel(i, j, 0))),
       ),
       0,
     );
@@ -101,37 +155,42 @@ export const lifeLib: LibFunc = ({
 
   const init = func(
     { params: { w: i32, h: i32 } }, //
-    (result, { width, height, offset, w, h }) => {
+    (result, { width, widthM1, height, heightM1, offset, w, h }) => {
       result(
         //
         width(w),
+        widthM1(sub1(w)),
         height(h),
+        heightM1(sub1(h)),
         offset(mul(w, h)),
         randomize(),
       );
     },
   );
 
-  const step = func({}, (result, { width, height, i, j, pixel }) => {
+  const step = func({}, (result, { width, height, i, j }) => {
     result(
       //
       FOR(
         j(1),
-        lt(j, dec(height)),
-        j(inc(j)),
+        lt(j, sub1(height)),
+        j(add1(j)),
       )(
         FOR(
           //
           i(1),
-          lt(i, dec(width)),
-          i(inc(i)),
+          lt(i, sub1(width)),
+          i(add1(i)),
         )(
           //
           fadePixel(i, j),
           setPixel(i, j, getPixel(i, j)),
         ),
       ),
-      pixel(getPixel(0, 0)),
+      // store(0, 0, 0, 0),
+      // log(getPixel(1, 1)),
+      // log(isAlive(1, 1)),
+      log(countNeighbors(1, 1)),
       0,
     );
   });

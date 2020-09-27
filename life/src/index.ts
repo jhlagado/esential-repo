@@ -38,13 +38,14 @@ const run = async (canvas: HTMLCanvasElement) => {
         abort: function() {
           return;
         },
-        log: (a: number) => {
-          if (a < 0) a = 0xffffffff + a + 1;
-          console.log(a.toString(16));
+        log: (number: number) => {
+          let hex = number;
+          if (hex < 0) hex = 0xffffffff + hex + 1;
+          console.log(hex.toString(16), `(${number})`);
           return;
         },
         rnd: () => {
-          return Math.random() < 0.1;
+          return Math.random() < 0.5;
         },
       },
       config: {
