@@ -44,7 +44,7 @@ export const getIF = (module: Module) => (condition: ExpressionRef) => (
 ) => (...elseBody: Expression[]) => {
   return module.if(
     condition,
-    module.block(null as any, thenBody.map(resolveExpression), auto),
-    module.block(null as any, elseBody.map(resolveExpression), auto),
+    module.block(null as any, thenBody.map(resolveExpression)),
+    module.block(null as any, elseBody.map(resolveExpression)),
   );
 };

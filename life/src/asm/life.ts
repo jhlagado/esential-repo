@@ -116,14 +116,14 @@ export const lifeLib: LibFunc = ({
     result(
       //
       FOR(
-        j(0),
-        lt(j, height),
+        j(1),
+        lt(j, dec(height)),
         j(inc(j)),
       )(
         FOR(
           //
-          i(0),
-          lt(i, width),
+          i(1),
+          lt(i, dec(width)),
           i(inc(i)),
         )(
           //
@@ -131,6 +131,7 @@ export const lifeLib: LibFunc = ({
           setPixel(i, j, getPixel(i, j)),
         ),
       ),
+      pixel(getPixel(0, 0)),
       0,
     );
   });
