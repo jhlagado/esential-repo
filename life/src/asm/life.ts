@@ -115,22 +115,48 @@ export const lifeLib: LibFunc = ({
 
   const countNeighbors = func(
     { params: { x: i32, y: i32 } }, //
-    (result, { x, y, width, height, xm1, xp1, ym1, yp1, aa, ab, ac, ba, bc, ca, cb, cc }) => {
+    (
+      result,
+      { x, y, width, height, xm1, xp1, ym1, yp1, aa, ab, ac, ba, bc, ca, cb, cc, count },
+    ) => {
       result(
         //
         xm1(getM1(x, width)),
         xp1(getP1(x, width)),
         ym1(getM1(y, height)),
         yp1(getP1(y, height)),
+        // IF(and(eq(x, 10), eq(y, 10)))(
+        //   log(0x111110),
+        //   log(x),
+        //   log(y),
+        //   log(xm1),
+        //   log(xp1),
+        //   log(ym1),
+        //   log(yp1),
+        // )(),
+
         aa(isAlive(xm1, ym1)),
         ab(isAlive(x, ym1)),
         ac(isAlive(xp1, ym1)),
         ba(isAlive(xm1, y)),
         bc(isAlive(xp1, y)),
-        ca(isAlive(xp1, yp1)),
-        cb(isAlive(xp1, yp1)),
+        ca(isAlive(xm1, yp1)),
+        cb(isAlive(x, yp1)),
         cc(isAlive(xp1, yp1)),
-        add(aa, add(ab, add(ac, add(ba, add(bc, add(ca, add(cb, cc))))))),
+
+        log(0x22220),
+        log(aa),
+        log(ab),
+        log(ac),
+        log(ba),
+        log(bc),
+        log(ca),
+        log(cb),
+        log(cc),
+
+        count(add(aa, add(ab, add(ac, add(ba, add(bc, add(ca, add(cb, cc)))))))),
+        // IF(and(eq(x, 10), eq(y, 10)))(log(0x33330), log(count))(),
+        count,
       );
     },
   );
@@ -148,7 +174,13 @@ export const lifeLib: LibFunc = ({
           i(0),
           lt(i, width),
           i(add1(i)),
-        )(IF(rnd())(setPixel(i, j, RGB_ALIVE))(setPixel(i, j, RGB_DEAD))),
+        )(
+          //
+          IF(rnd())(setPixel(i, j, RGB_ALIVE))(setPixel(i, j, RGB_DEAD)),
+          IF(and(eq(j, 2), and(gt(i, 0), lt(i, 4))))(setPixel(i, j, RGB_ALIVE))(
+            setPixel(i, j, RGB_DEAD),
+          ),
+        ),
       ),
       0,
     );
@@ -173,22 +205,30 @@ export const lifeLib: LibFunc = ({
     result(
       //
       FOR(
-        j(1),
-        lt(j, sub1(height)),
+        j(0),
+        lt(j, height),
         j(add1(j)),
       )(
         FOR(
           //
-          i(1),
-          lt(i, sub1(width)),
+          i(0),
+          lt(i, width),
           i(add1(i)),
         )(
-          pixel(getPixel(i, j)),
+          log(1111111),
+          log(i),
+          log(j),
           count(countNeighbors(i, j)),
+          log(count),
+          pixel(getPixel(i, j)),
+          // IF(and(eq(i, 10), eq(j, 10)))(log(pixel))(),
+
           IF(lt(count, 2))(pixel(RGB_DEAD))(),
           IF(gt(count, 3))(pixel(RGB_DEAD))(),
           IF(eq(count, 3))(pixel(RGB_ALIVE))(),
-          setPixel(i, j, pixel),
+
+          // IF(and(eq(i, 10), eq(j, 10)))(log(pixel))(),
+          // setPixel(i, j, pixel),
         ),
       ),
       0,

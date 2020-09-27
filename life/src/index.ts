@@ -48,12 +48,12 @@ const run = async (canvas: HTMLCanvasElement) => {
           return Math.random() < 0.5;
         },
       },
-      config: {
-        BGR_ALIVE: rgb2bgr(RGB_ALIVE) | 1, // little endian, LSB must be set
-        BGR_DEAD: rgb2bgr(RGB_DEAD) & ~1, // little endian, LSB must not be set
-        BIT_ROT,
-      },
-      Math: Math as any,
+      // config: {
+      //   BGR_ALIVE: rgb2bgr(RGB_ALIVE) | 1, // little endian, LSB must be set
+      //   BGR_DEAD: rgb2bgr(RGB_DEAD) & ~1, // little endian, LSB must not be set
+      //   BIT_ROT,
+      // },
+      // Math: Math as any,
     });
 
     const exports = module.instance.exports as Exported;
@@ -64,9 +64,10 @@ const run = async (canvas: HTMLCanvasElement) => {
     const mem = new Uint32Array(memory.buffer);
 
     (function update() {
-      setTimeout(update, 1000 / 3); 
+      // setTimeout(update, 1000 );
       mem.copyWithin(0, boardSize, boardSize + boardSize); 
       exports.step();
+      
     })();
 
     const imageData = context.createImageData(WIDTH, HEIGHT);
