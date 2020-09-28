@@ -1,7 +1,8 @@
 import { HEIGHT, RGB_ALIVE, RGB_DEAD, BIT_ROT, WASM_FILENAME, WIDTH } from './common/constants';
 import { calcNumPages } from './common/tools';
+import { addAllListeners } from './events';
 import { Exported } from './types';
-import { rgb2bgr } from './utils';
+import { addListeners } from './utils';
 
 const run = async (canvas: HTMLCanvasElement) => {
   const context = canvas.getContext('2d');
@@ -48,17 +49,11 @@ const run = async (canvas: HTMLCanvasElement) => {
           return Math.random() < 0.1;
         },
       },
-      // config: {
-      //   BGR_ALIVE: rgb2bgr(RGB_ALIVE) | 1, // little endian, LSB must be set
-      //   BGR_DEAD: rgb2bgr(RGB_DEAD) & ~1, // little endian, LSB must not be set
-      //   BIT_ROT,
-      // },
-      // Math: Math as any,
     });
 
-    const exports = module.instance.exports as Exported;
+    const exported = module.instance.exports as Exported;
 
-    const sanity = exports.init(WIDTH, HEIGHT);
+    const sanity = exported.init(WIDTH, HEIGHT);
     console.log('wasm loaded', sanity.toString(10));
 
     const mem = new Uint32Array(memory.buffer);
@@ -66,7 +61,7 @@ const run = async (canvas: HTMLCanvasElement) => {
     (function update() {
       setTimeout(update, 1000 / 50);
       mem.copyWithin(0, boardSize, boardSize + boardSize);
-      exports.step();
+      exported.step();
     })();
 
     const imageData = context.createImageData(WIDTH, HEIGHT);
@@ -78,7 +73,7 @@ const run = async (canvas: HTMLCanvasElement) => {
       context.putImageData(imageData, 0, 0); // apply image buffer
     })();
 
-    // addAllListeners(canvas, document);
+    addAllListeners(canvas, document, exported);
   } catch (err) {
     alert('Failed to load WASM: ' + err.message + ' (ad blocker, maybe?)');
     console.log(err.stack);
@@ -86,41 +81,3 @@ const run = async (canvas: HTMLCanvasElement) => {
 };
 
 run(document.getElementsByTagName('canvas')[0]);
-
-// const addAllListeners = (canvas: HTMLCanvasElement, document: Document) => {
-//   // When clicked or dragged, fill the current row and column with random live cells
-//   let down = false;
-//   addListeners(
-//     [
-//       [canvas, 'mousedown'],
-//       [canvas, 'touchstart'],
-//     ],
-//     () => (down = true),
-//   );
-//   addListeners(
-//     [
-//       [document, 'mouseup'],
-//       [document, 'touchend'],
-//     ],
-//     () => (down = false),
-//   );
-//   addListeners(
-//     [
-//       [canvas, 'mousemove'],
-//       [canvas, 'touchmove'],
-//       [canvas, 'mousedown'],
-//     ],
-//     (e: any) => {
-//       if (!down) return;
-//       let loc: { clientX: number; clientY: number };
-//       if (e.touches) {
-//         if (e.touches.length > 1) return;
-//         loc = e.touches[0];
-//       } else {
-//         loc = e as MouseEvent;
-//       }
-//       const bcr = canvas.getBoundingClientRect();
-//       exports.fill((loc.clientX - bcr.left) >>> 1, (loc.clientY - bcr.top) >>> 1, 0.5);
-//     },
-//   );
-// };

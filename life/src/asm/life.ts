@@ -207,13 +207,33 @@ export const lifeLib: LibFunc = ({
     );
   });
 
-  // const fill = func({ params: { x: i32, y: i32, i: i32 } }, ({ result }) => {
-  //   result(literal(0));
-  // });
+  const fill = func(
+    { params: { x: i32, y: i32, i: i32 } },
+    (result, { x, y, width, height, i, j }) => {
+      result(
+        //
+        log(x),
+        log(y),
+        FOR(
+          //
+          i(0),
+          lt(i, width),
+          i(add1(i)),
+        )(setPixel(i, y, RGB_ALIVE)),
+        FOR(
+          //
+          j(0),
+          lt(j, height),
+          j(add1(j)),
+        )(setPixel(x, j, RGB_ALIVE)),
+        0,
+      );
+    },
+  );
 
   return {
     init,
-    // fill,
+    fill,
     step,
   };
 };

@@ -9,4 +9,3 @@ export const addListeners = (array: EventTuple[], handler: (evt: Event) => void)
     element.addEventListener(eventName, handler);
   }
 };
-
