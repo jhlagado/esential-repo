@@ -1,8 +1,7 @@
-import { HEIGHT, RGB_ALIVE, RGB_DEAD, BIT_ROT, WASM_FILENAME, WIDTH } from './common/constants';
+import { HEIGHT, WASM_FILENAME, WIDTH } from './common/constants';
 import { calcNumPages } from './common/tools';
 import { addAllListeners } from './events';
 import { Exported } from './types';
-import { addListeners } from './utils';
 
 const run = async (canvas: HTMLCanvasElement) => {
   const context = canvas.getContext('2d');
@@ -13,10 +12,6 @@ const run = async (canvas: HTMLCanvasElement) => {
 
   canvas.width = WIDTH;
   canvas.height = HEIGHT;
-  canvas.style.cssText = `
-  image-rendering: optimizeSpeed;
-  image-rendering: pixelated;
-`;
 
   const pages = calcNumPages(WIDTH, HEIGHT);
   const boardSize = WIDTH * HEIGHT;

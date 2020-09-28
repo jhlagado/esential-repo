@@ -209,35 +209,37 @@ export const lifeLib: LibFunc = ({
 
   const fill = func(
     { params: { x: i32, y: i32, i: i32 } },
-    (result, { x, y, width, height, i, j }) => {
+    (result, { x, y, width, height, top, right, bottom, left, i, j }) => {
       result(
         //
-        log(x),
-        log(y),
+        top(mul(div(y, 4), 3)),
+        right(add(x, div(sub(width, x), 4))),
+        bottom(add(y, div(sub(height, y), 4))),
+        left(mul(div(x, 4), 3)),
         FOR(
           //
-          i(div(x, 2)),
-          lt(i, add(x, div(sub(width, x), 2))),
+          i(left),
+          lt(i, right),
           i(add1(i)),
-        )(setPixel(i, div(y, 2), RGB_ALIVE)),
+        )(setPixel(i, top, RGB_ALIVE)),
         FOR(
           //
-          i(div(x, 2)),
-          lt(i, add(x, div(sub(width, x), 2))),
+          i(left),
+          lt(i, right),
           i(add1(i)),
-        )(setPixel(i, add(y, div(sub(height, y), 2)), RGB_ALIVE)),
+        )(setPixel(i, bottom, RGB_ALIVE)),
         FOR(
           //
-          j(div(y, 2)),
-          lt(j, add(y, div(sub(height, y), 2))),
+          j(top),
+          lt(j, bottom),
           j(add1(j)),
-        )(setPixel(div(x, 2), j, RGB_ALIVE)),
+        )(setPixel(left, j, RGB_ALIVE)),
         FOR(
           //
-          j(div(y, 2)),
-          lt(j, add(y, div(sub(height, y), 2))),
+          j(top),
+          lt(j, bottom),
           j(add1(j)),
-        )(setPixel(add(x, div(sub(width, x), 2)), j, RGB_ALIVE)),
+        )(setPixel(right, j, RGB_ALIVE)),
         0,
       );
     },
