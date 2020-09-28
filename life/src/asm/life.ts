@@ -3,7 +3,7 @@ import { LibFunc } from 'esential';
 import { RGB_ALIVE, RGB_DEAD } from '../common/constants';
 
 export const lifeLib: LibFunc = ({
-  i32: { store, load, store8, load8_u, add, sub, mul, lt, gt, eqz, eq, and, or },
+  i32: { store, load, store8, load8_u, add, sub, mul, div, lt, gt, eqz, eq, and, or },
   external,
   func,
   globals,
@@ -216,16 +216,28 @@ export const lifeLib: LibFunc = ({
         log(y),
         FOR(
           //
-          i(0),
-          lt(i, width),
+          i(div(x, 2)),
+          lt(i, add(x, div(sub(width, x), 2))),
           i(add1(i)),
-        )(setPixel(i, y, RGB_ALIVE)),
+        )(setPixel(i, div(y, 2), RGB_ALIVE)),
         FOR(
           //
-          j(0),
-          lt(j, height),
+          i(div(x, 2)),
+          lt(i, add(x, div(sub(width, x), 2))),
+          i(add1(i)),
+        )(setPixel(i, add(y, div(sub(height, y), 2)), RGB_ALIVE)),
+        FOR(
+          //
+          j(div(y, 2)),
+          lt(j, add(y, div(sub(height, y), 2))),
           j(add1(j)),
-        )(setPixel(x, j, RGB_ALIVE)),
+        )(setPixel(div(x, 2), j, RGB_ALIVE)),
+        FOR(
+          //
+          j(div(y, 2)),
+          lt(j, add(y, div(sub(height, y), 2))),
+          j(add1(j)),
+        )(setPixel(add(x, div(sub(width, x), 2)), j, RGB_ALIVE)),
         0,
       );
     },
