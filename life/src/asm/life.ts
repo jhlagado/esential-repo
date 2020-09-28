@@ -49,7 +49,7 @@ export const lifeLib: LibFunc = ({
       result(
         //
         y0(mul(y, width)),
-        pos(add(add(ofs, y0), x)),
+        pos(add(add(ofs, y0), x)), 
         mul(pos, 4),
       );
     },
@@ -58,8 +58,8 @@ export const lifeLib: LibFunc = ({
   const getPixel = func({ params: { x: i32, y: i32 } }, (result, { x, y }) => {
     result(
       //
-      log(99999),
-      log(getPos(x, y, 0)),
+      // log(99999),
+      // log(getPos(x, y, 0)),
       load(0, 0, getPos(x, y, 0)),
     );
   });
@@ -68,12 +68,12 @@ export const lifeLib: LibFunc = ({
     result(
       //
       store(0, 0, getPos(x, y, offset), v),
-      log(444444),
-      log(x),
-      log(y),
-      log(offset),
-      log(getPos(x, y, offset)),
-      log(v),
+      // log(444444),
+      // log(x),
+      // log(y),
+      // log(offset),
+      // log(getPos(x, y, offset)),
+      // log(v),
       0,
     );
   });
@@ -185,9 +185,9 @@ export const lifeLib: LibFunc = ({
         )(
           //
           IF(rnd())(setPixel(i, j, RGB_ALIVE))(setPixel(i, j, RGB_DEAD)),
-          IF(and(eq(j, 2), and(gt(i, 0), lt(i, 4))))(setPixel(i, j, RGB_ALIVE))(
-            setPixel(i, j, RGB_DEAD),
-          ),
+          // IF(and(eq(j, 2), and(gt(i, 0), lt(i, 4))))(setPixel(i, j, RGB_ALIVE))(
+          //   setPixel(i, j, RGB_DEAD),
+          // ), 
         ),
       ),
       0,
@@ -223,11 +223,11 @@ export const lifeLib: LibFunc = ({
           lt(i, width),
           i(add1(i)),
         )(
-          log(1111111),
-          log(i),
-          log(j),
+          // log(1111111),
+          // log(i),
+          // log(j),
           count(countNeighbors(i, j)),
-          log(count),
+          // log(count),
           pixel(getPixel(i, j)),
           // IF(and(eq(i, 10), eq(j, 10)))(log(pixel))(),
 

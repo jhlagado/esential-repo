@@ -6,5 +6,5 @@ export const ALPHA_ON = 0xff000000;
 export const ALPHA_MASK = 0x00ffffff;
 
 export const WASM_FILENAME = 'life.wasm';
-export const WIDTH = 5;
-export const HEIGHT = 5;
+export const WIDTH = 500;
+export const HEIGHT = 500;

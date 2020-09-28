@@ -45,7 +45,7 @@ const run = async (canvas: HTMLCanvasElement) => {
           return;
         },
         rnd: () => {
-          return Math.random() < 0.5;
+          return Math.random() < 0.1;
         },
       },
       // config: {
@@ -63,18 +63,11 @@ const run = async (canvas: HTMLCanvasElement) => {
 
     const mem = new Uint32Array(memory.buffer);
 
-    mem.copyWithin(0, boardSize, boardSize + boardSize); 
-    exports.step();
-    // mem.copyWithin(0, boardSize, boardSize + boardSize); 
-    // exports.step();
-
-
-    // (function update() {
-    //   // setTimeout(update, 1000 );
-    //   mem.copyWithin(0, boardSize, boardSize + boardSize); 
-    //   exports.step();
-      
-    // })();
+    (function update() {
+      setTimeout(update, 1000 / 30);
+      mem.copyWithin(0, boardSize, boardSize + boardSize);
+      exports.step();
+    })();
 
     const imageData = context.createImageData(WIDTH, HEIGHT);
     const pixels = new Uint32Array(imageData.data.buffer);
