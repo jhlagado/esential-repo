@@ -45,11 +45,11 @@ export const lifeLib: LibFunc = ({
 
   const getPos = func(
     { params: { x: i32, y: i32, ofs: i32 }, locals: { y0: i32, pos: i32, ofs: i32 } },
-    (result, { x, y, y0, pos, width, offset }) => {
+    (result, { x, y, ofs, y0, pos, width }) => {
       result(
         //
         y0(mul(y, width)),
-        pos(add(add(offset, y0), x)),
+        pos(add(add(ofs, y0), x)),
         mul(pos, 4),
       );
     },
@@ -58,6 +58,8 @@ export const lifeLib: LibFunc = ({
   const getPixel = func({ params: { x: i32, y: i32 } }, (result, { x, y }) => {
     result(
       //
+      log(99999),
+      log(getPos(x, y, 0)),
       load(0, 0, getPos(x, y, 0)),
     );
   });
@@ -66,6 +68,12 @@ export const lifeLib: LibFunc = ({
     result(
       //
       store(0, 0, getPos(x, y, offset), v),
+      log(444444),
+      log(x),
+      log(y),
+      log(offset),
+      log(getPos(x, y, offset)),
+      log(v),
       0,
     );
   });
@@ -144,15 +152,15 @@ export const lifeLib: LibFunc = ({
         cb(isAlive(x, yp1)),
         cc(isAlive(xp1, yp1)),
 
-        log(0x22220),
-        log(aa),
-        log(ab),
-        log(ac),
-        log(ba),
-        log(bc),
-        log(ca),
-        log(cb),
-        log(cc),
+        // log(0x22220),
+        // log(aa),
+        // log(ab),
+        // log(ac),
+        // log(ba),
+        // log(bc),
+        // log(ca),
+        // log(cb),
+        // log(cc),
 
         count(add(aa, add(ab, add(ac, add(ba, add(bc, add(ca, add(cb, cc)))))))),
         // IF(and(eq(x, 10), eq(y, 10)))(log(0x33330), log(count))(),
@@ -228,7 +236,7 @@ export const lifeLib: LibFunc = ({
           IF(eq(count, 3))(pixel(RGB_ALIVE))(),
 
           // IF(and(eq(i, 10), eq(j, 10)))(log(pixel))(),
-          // setPixel(i, j, pixel),
+          setPixel(i, j, pixel),
         ),
       ),
       0,
