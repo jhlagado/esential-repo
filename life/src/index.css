@@ -19,11 +19,9 @@ a:hover {
   color: yellow;
 }
 canvas {
-  /* position: absolute; */
-  /* top: 60px;
-  left: 20px; */
-  width: 1000px;
-  height: 1000px;
+  width: 100%;
   cursor: cell;
   user-select: none;
+  image-rendering: optimizeSpeed;
+  image-rendering: pixelated;
 }

@@ -15,13 +15,7 @@ const run = async (canvas: HTMLCanvasElement) => {
   canvas.height = HEIGHT;
   canvas.style.cssText = `
   image-rendering: optimizeSpeed;
-  image-rendering: -moz-crisp-edges;
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: -o-crisp-edges;
-  image-rendering: optimize-contrast;
-  image-rendering: crisp-edges;
   image-rendering: pixelated;
-  -ms-interpolation-mode: nearest-neighbor;
 `;
 
   const pages = calcNumPages(WIDTH, HEIGHT);
@@ -59,7 +53,7 @@ const run = async (canvas: HTMLCanvasElement) => {
     const mem = new Uint32Array(memory.buffer);
 
     (function update() {
-      setTimeout(update, 1000 / 50);
+      setTimeout(update, 1000 / 60);
       mem.copyWithin(0, boardSize, boardSize + boardSize);
       exported.step();
     })();
