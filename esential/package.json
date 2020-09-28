@@ -1,11 +1,12 @@
 {
-  "name": "esential",
+  "name": "@jhlagado/esential",
   "version": "1.0.0",
   "description": "Esential - Support for WebAssembly in Javascript",
   "keywords": [
     "webassembly",
     "typescript"
   ],
+  "repository": "https://github.com/jhlagado/esential-repo.git",
   "author": "John Hardy <“jh@lagado.com”> (https://www.lagado.com)",
   "license": "MIT",
   "source": "index.ts",
@@ -21,5 +22,8 @@
   },
   "dependencies": {
     "binaryen": "^97.0.0"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
   }
 }
