@@ -16,7 +16,7 @@
     "start": "concurrently --kill-others \"yarn watch\" \"yarn serve\""
   },
   "watch": {
-    "build": "src/asm/*.*"
+    "build": "src/**/*.*"
   },
   "staticFiles": {
     "staticPath": "public",

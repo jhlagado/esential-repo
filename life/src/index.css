@@ -1,35 +1,29 @@
-html,
-body {
-  height: 100%;
-  margin: 0;
-  overflow: hidden;
-  color: #111;
-  background: #fff;
+ html, 
+ body {
+  background: #100707;
   font-family: sans-serif;
-}
-body {
+  color: white;
+} 
+/* body {
   border-top: 2px solid #bc18d4;
-}
-h1 {
+} */
+/* h1 {
   padding: 18px 20px 20px;
   font-size: 12pt;
   margin: 0;
-}
+} */
 a {
-  color: #111;
-  text-decoration: none;
+  color: #d41818;
 }
 a:hover {
-  color: #bc18d4;
-  text-decoration: underline;
+  color: yellow;
 }
 canvas {
-  position: absolute;
-  top: 60px;
-  left: 20px;
-  width: calc(100% - 40px);
-  height: calc(100% - 80px);
-  background: #100707;
+  /* position: absolute; */
+  /* top: 60px;
+  left: 20px; */
+  width: 1000px;
+  height: 1000px;
   cursor: cell;
   user-select: none;
 }
