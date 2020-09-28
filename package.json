@@ -16,6 +16,7 @@
     "test": "yarn jestx",
     "coverage": "yarn jestx --coverage",
     "lint": "eslint src/**/*.ts* --fix",
+    "build": "cd life && yarn build",
     "start": "cd life && yarn start"
   },
   "staticFiles": {
