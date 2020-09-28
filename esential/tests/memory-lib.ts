@@ -1,5 +1,5 @@
 import { i32, none } from 'binaryen';
-import { LibFunc } from 'esential';
+import { LibFunc } from '@jhlagado/esential';
 
 export const memoryLib: LibFunc = ({ func, i32: { load, store } }) => {
   //

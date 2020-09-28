@@ -1,4 +1,4 @@
-import { esential } from 'esential';
+import { esential } from '@jhlagado/esential';
 import { globalsLib } from './globals-lib';
 
 global.console = { ...console, log: jest.fn(console.log) };

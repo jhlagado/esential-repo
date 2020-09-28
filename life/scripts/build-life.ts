@@ -1,4 +1,4 @@
-import { build } from 'esential';
+import { build } from '@jhlagado/esential';
 import { lifeLib } from '../src/asm/life';
 import { WIDTH, HEIGHT } from '../src/common/constants';
 import { calcNumPages } from '../src/common/tools';

@@ -1,5 +1,5 @@
 import { i32 } from 'binaryen';
-import { esential } from 'esential';
+import { esential } from '@jhlagado/esential';
 
 const { lib, load, compile } = esential();
 

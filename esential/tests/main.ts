@@ -1,4 +1,4 @@
-import { esential } from 'esential';
+import { esential } from '@jhlagado/esential';
 import { loopLib } from './loop-lib';
 import { writeFileSync } from 'fs';
 

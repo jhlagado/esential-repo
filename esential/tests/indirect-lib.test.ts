@@ -1,4 +1,4 @@
-import { esential } from 'esential';
+import { esential } from '@jhlagado/esential';
 import { indirectLib } from './indirect-lib';
 
 const size = { initial: 10, maximum: 100 };

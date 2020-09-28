@@ -1,4 +1,4 @@
-import { esential } from 'esential';
+import { esential } from '@jhlagado/esential';
 import { addLib } from './add-lib';
 
 const { lib, load, compile } = esential();

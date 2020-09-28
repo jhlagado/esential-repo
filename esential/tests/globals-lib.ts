@@ -1,5 +1,5 @@
 import { i32 } from 'binaryen';
-import { LibFunc } from 'esential';
+import { LibFunc } from '@jhlagado/esential';
 
 export const globalsLib: LibFunc = ({ func, globals, i32: { add } }) => {
   //

@@ -1,5 +1,5 @@
 import { f32, i32, none } from 'binaryen';
-import { LibFunc } from 'esential';
+import { LibFunc } from '@jhlagado/esential';
 import { RGB_ALIVE, RGB_DEAD } from '../common/constants';
 
 export const lifeLib: LibFunc = ({

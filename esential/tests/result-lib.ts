@@ -1,4 +1,4 @@
-import { LibFunc } from 'esential';
+import { LibFunc } from '@jhlagado/esential';
 
 export const resultLib: LibFunc = ({ func, block }) => {
   //
