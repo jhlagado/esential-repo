@@ -1,14 +1,14 @@
 {
   "name": "esential-life",
   "version": "1.0.0",
-  "description": "A recoil based form example",
+  "description": "Conway's Life i Esential",
   "main": "index.js",
   "scripts": {
     "nodex": "node --experimental-wasm-mv",
     "tsnodex": "yarn nodex -r ts-node/register",
     "jestx": "yarn nodex node_modules/.bin/jest",
     "build": "mkdir -p dist && yarn tsnodex scripts/build-life && parcel build src/index.html  --public-url /esential-repo/",
-    "serve": "parcel src/index.html",
+    "serve": "parcel src/index.html --public-url /esential-repo/",
     "test": "yarn jestx",
     "coverage": "yarn jestx --coverage",
     "lint": "eslint src/**/*.ts* --fix",

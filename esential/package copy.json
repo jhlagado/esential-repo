@@ -1,13 +1,7 @@
 {
-  "name": "esential-repo",
   "version": "1.0.0",
-  "description": "Esential - Support for WebAssembly in Javascript",
+  "description": "A recoil based form example",
   "main": "index.js",
-  "private": true,
-  "workspaces": [
-    "esential",
-    "life"
-  ],
   "scripts": {
     "nodex": "node --experimental-wasm-mv",
     "tsnodex": "yarn nodex -r ts-node/register",
@@ -15,9 +9,7 @@
     "serve": "parcel src/life/index.html",
     "test": "yarn jestx",
     "coverage": "yarn jestx --coverage",
-    "lint": "eslint src/**/*.ts* --fix",
-    "build": "cd life && yarn build",
-    "start": "cd life && yarn start"
+    "lint": "eslint src/**/*.ts* --fix"
   },
   "staticFiles": {
     "staticPath": "public",

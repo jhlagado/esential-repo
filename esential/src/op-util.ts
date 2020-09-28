@@ -1,8 +1,9 @@
 import { Module } from 'binaryen';
-import { asArray, isSignature, setTypeDef } from '.';
 import { opsSignatures } from './ops-sigs';
 import { literalize } from './literals';
 import { Dict, OpUtils, TypeDef } from './types';
+import { asArray, isSignature } from './util';
+import { setTypeDef } from './type-util';
 
 const builtinCallableMap = new Map<string, any>();
 

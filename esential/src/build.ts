@@ -1,5 +1,6 @@
 import { writeFileSync } from 'fs';
-import { LibFunc, EsentialCfg, esential } from '.';
+import { esential } from './context';
+import { EsentialCfg, LibFunc } from './types';
 
 export const build = (library: LibFunc, filename: string, cfg?: EsentialCfg) => {
   const { lib, compile, module: m } = esential(cfg);
