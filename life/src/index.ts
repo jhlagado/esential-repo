@@ -3,6 +3,15 @@ import { calcNumPages } from './common/tools';
 import { addAllListeners } from './events';
 import { Exported } from './types';
 
+const timer = (boardSize: number, mem: any, exported: any, increment: number, limit: number) => {
+  var update = (divisor: number) => () => {
+    setTimeout(update(Math.min(divisor + increment, limit)), 1000 / divisor);
+    mem.copyWithin(0, boardSize, boardSize + boardSize);
+    exported.step();
+  };
+  setTimeout(update(1), 3000);
+};
+
 const run = async (canvas: HTMLCanvasElement) => {
   const context = canvas.getContext('2d');
   if (!context) {
@@ -47,11 +56,7 @@ const run = async (canvas: HTMLCanvasElement) => {
 
     const mem = new Uint32Array(memory.buffer);
 
-    (function update() {
-      setTimeout(update, 1000 / 60);
-      mem.copyWithin(0, boardSize, boardSize + boardSize);
-      exported.step();
-    })();
+    timer(boardSize, mem, exported, 0.05, 60);
 
     const imageData = context.createImageData(WIDTH, HEIGHT);
     const pixels = new Uint32Array(imageData.data.buffer);
