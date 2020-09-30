@@ -44,29 +44,25 @@ const run = async (canvas: HTMLCanvasElement) => {
           return;
         },
         rnd: () => {
-          return Math.random() < 0.1;
+          return Math.random() < 0.2;
         },
       },
     });
 
     const exported = module.instance.exports as Exported;
 
-    const sanity = exported.init(WIDTH, HEIGHT);
-    console.log('wasm loaded', sanity.toString(10));
-
+    exported.init(WIDTH, HEIGHT);
+    console.log('wasm loaded');
     const mem = new Uint32Array(memory.buffer);
-
-    timer(boardSize, mem, exported, 0.05, 60);
-
     const imageData = context.createImageData(WIDTH, HEIGHT);
     const pixels = new Uint32Array(imageData.data.buffer);
-
+   
     (function render() {
       requestAnimationFrame(render);
       pixels.set(mem.subarray(boardSize, 2 * boardSize)); // copy output to image buffer
       context.putImageData(imageData, 0, 0); // apply image buffer
     })();
-
+    timer(boardSize, mem, exported, 0.5, 60);
     addAllListeners(canvas, document, exported);
   } catch (err) {
     alert('Failed to load WASM: ' + err.message + ' (ad blocker, maybe?)');
