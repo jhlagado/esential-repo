@@ -1,11 +1,29 @@
-import { HEIGHT, RGB_ALIVE, RGB_DEAD, BIT_ROT, WASM_FILENAME, WIDTH } from './common/constants';
-import { calcNumPages } from './common/tools';
+import { HEIGHT, WIDTH } from './common/constants';
 import { Exported } from './types';
 import { addListeners } from './utils';
 
-export const addAllListeners = (canvas: HTMLCanvasElement, document: Document, exported: Exported) => {
+let active = true;
+
+export const isActive = () => active;
+
+window.onfocus = function() {
+  console.log('focused');
+  active = true;
+};
+window.onblur = function() {
+  console.log('unfocused');
+  active = false;
+};
+
+export const addAllListeners = (
+  canvas: HTMLCanvasElement,
+  document: Document,
+  exported: Exported,
+  callback: (x: number, y: number) => void,
+) => {
   // When clicked or dragged, fill the current row and column with random live cells
   let down = false;
+
   addListeners(
     [
       [canvas, 'mousedown'],
@@ -36,7 +54,10 @@ export const addAllListeners = (canvas: HTMLCanvasElement, document: Document, e
         loc = e as MouseEvent;
       }
       const bcr = canvas.getBoundingClientRect();
-      exported.fill((loc.clientX - bcr.left) >>> 1, (loc.clientY - bcr.top) >>> 1, 0.5);
+      const x = (loc.clientX - bcr.left)/(bcr.width)* WIDTH;
+      const y = (loc.clientY - bcr.top)/(bcr.height)* HEIGHT;
+      console.log({x,y})
+      if (callback) callback(x, y);
     },
   );
 };

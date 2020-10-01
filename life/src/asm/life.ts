@@ -208,7 +208,7 @@ export const lifeLib: LibFunc = ({
   });
 
   const fill = func(
-    { params: { x: i32, y: i32, i: i32 } },
+    { params: { x: i32, y: i32 } },
     (result, { x, y, width, height, top, right, bottom, left, i, j }) => {
       result(
         //
