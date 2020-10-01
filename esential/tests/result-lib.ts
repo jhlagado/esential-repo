@@ -1,11 +1,11 @@
-import { LibFunc } from '@jhlagado/esential';
+import { LibFunc } from '../src';
 
 export const resultLib: LibFunc = ({ func, block }) => {
   //
   const return1000 = func(
     { params: {} },
 
-    result => {
+    (result, {}) => {
       result(1000);
     },
   );
@@ -16,7 +16,11 @@ export const resultLib: LibFunc = ({ func, block }) => {
     (result, { u }) => {
       result(
         //
-        block(u(2000), u),
+        // block(
+          //
+          u(1000),
+          u,
+        // ),
       );
     },
   );

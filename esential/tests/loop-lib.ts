@@ -1,4 +1,4 @@
-import { LibFunc } from '@jhlagado/esential';
+import { LibFunc } from '../src';
 
 export const loopLib: LibFunc = ({ block, func, FOR, i32: { add, sub, gt } }) => {
   //

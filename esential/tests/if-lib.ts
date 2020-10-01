@@ -1,5 +1,5 @@
 import { i32 } from 'binaryen';
-import { LibFunc } from '@jhlagado/esential';
+import { LibFunc } from '../src';
 import { ioLib } from './io-lib';
 
 export const ifLib: LibFunc = ({ lib, func, block, FOR, IF, i32: { add, lt, rem, eqz } }) => {

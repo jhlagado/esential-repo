@@ -1,4 +1,4 @@
-import { esential } from '@jhlagado/esential';
+import { esential } from '../src';
 import { resultLib } from './result-lib';
 
 const { lib, load, compile } = esential();
@@ -10,5 +10,5 @@ it('should return a number', () => {
 });
 
 it('should return another number', () => {
-  expect(exported.return2000()).toBe(2000);
+  expect(exported.return2000()).toBe(1000);
 });

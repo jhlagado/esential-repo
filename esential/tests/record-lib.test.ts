@@ -1,4 +1,4 @@
-import { esential } from '@jhlagado/esential';
+import { esential } from '../src';
 import { recordLib } from './record-lib';
 
 const { lib, load, compile } = esential();

@@ -1,4 +1,4 @@
-import { esential } from '@jhlagado/esential';
+import { esential } from '../src';
 import { ioLib } from './io-lib';
 
 global.console = { ...global.console, log: jest.fn() };
@@ -32,6 +32,7 @@ const exported = load(compile(), {
 });
 
 it('should log 3 times', () => {
+  (console.log as any).mockClear();
   exported.print3Times();
   expect(console.log).toBeCalledTimes(3);
 });

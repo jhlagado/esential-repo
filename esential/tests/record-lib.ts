@@ -1,5 +1,5 @@
 import { i32 } from 'binaryen';
-import { LibFunc } from '@jhlagado/esential';
+import { LibFunc } from '../src';
 import { addLib } from './add-lib';
 
 export const recordLib: LibFunc = ({ lib, func }) => {

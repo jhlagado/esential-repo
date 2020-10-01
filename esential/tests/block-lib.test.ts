@@ -1,4 +1,4 @@
-import { esential } from '@jhlagado/esential';
+import { esential } from '../src';
 import { blockLib } from './block-lib';
 
 const { lib, load, compile } = esential();
