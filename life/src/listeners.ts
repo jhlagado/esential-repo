@@ -6,19 +6,12 @@ let active = true;
 
 export const isActive = () => active;
 
-window.onfocus = function() {
-  console.log('focused');
-  active = true;
-};
-window.onblur = function() {
-  console.log('unfocused');
-  active = false;
-};
+window.addEventListener('focus', () => active = true);
+window.addEventListener('blur', () => active = false);
 
 export const addAllListeners = (
   canvas: HTMLCanvasElement,
   document: Document,
-  exported: Exported,
   callback: (x: number, y: number) => void,
 ) => {
   // When clicked or dragged, fill the current row and column with random live cells

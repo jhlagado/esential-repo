@@ -63,7 +63,7 @@ const run = async (canvas: HTMLCanvasElement) => {
       context.putImageData(imageData, 0, 0); // apply image buffer
     })();
     timer(boardSize, mem, exported, 0.5, 60);
-    addAllListeners(canvas, document, exported, (x: number, y: number) => exported.fill(x, y));
+    addAllListeners(canvas, document, (x: number, y: number) => exported.fill(x, y));
   } catch (err) {
     alert('Failed to load WASM: ' + err.message + ' (ad blocker, maybe?)');
     console.log(err.stack);
