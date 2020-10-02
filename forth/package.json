@@ -1,24 +1,23 @@
 {
-  "name": "esential-repo",
+  "name": "esential-forth",
   "version": "1.0.0",
-  "description": "Esential - Support for WebAssembly in Javascript",
+  "description": "Experiments with Forth",
   "main": "index.js",
-  "private": true,
-  "workspaces": [
-    "esential",
-    "life",
-    "forth"
-  ],
   "scripts": {
     "nodex": "node --experimental-wasm-mv",
     "tsnodex": "yarn nodex -r ts-node/register",
     "jestx": "yarn nodex node_modules/.bin/jest",
-    "serve": "parcel src/life/index.html",
+    "build": "parcel build src/index.html  --public-url .",
+    "build-main": "mkdir -p dist && yarn tsnodex scripts/build-main",
+    "serve": "parcel src/index.html",
     "test": "yarn jestx",
     "coverage": "yarn jestx --coverage",
     "lint": "eslint src/**/*.ts* --fix",
-    "build": "cd life && yarn build",
-    "start": "cd life && yarn start"
+    "watch": "npm-watch",
+    "start": "concurrently --kill-others \"yarn watch\" \"yarn serve\""
+  },
+  "watch": {
+    "build-main": "src/**/*.*"
   },
   "staticFiles": {
     "staticPath": "public",
@@ -39,6 +38,7 @@
     "@typescript-eslint/eslint-plugin": "^2.34.0",
     "@typescript-eslint/parser": "^2.34.0",
     "binaryen": "^96.0.0",
+    "@jhlagado/esential": "^1.0.0",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.3",
@@ -49,8 +49,7 @@
     "prettier": "^1.19.1",
     "ts-jest": "^26.1.0",
     "ts-node": "^8.10.2",
-    "typescript": "^3.9.3",
-    "wabt": "1.0.19-nightly.20200812"
+    "typescript": "^3.9.3"
   },
   "repository": {
     "type": "git",

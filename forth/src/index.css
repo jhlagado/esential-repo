@@ -1,0 +1,12 @@
+html,
+body {
+  background: #100707;
+  font-family: sans-serif;
+  color: white;
+}
+a {
+  color: #d41818;
+}
+a:hover {
+  color: yellow;
+}
