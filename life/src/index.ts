@@ -9,7 +9,7 @@ const timer = (boardSize: number, mem: any, exported: any, increment: number, li
     mem.copyWithin(0, boardSize, boardSize + boardSize);
     if (isActive()) exported.step();
   };
-  setTimeout(update(1), 3000);
+  setTimeout(update(1), 1000);
 };
 
 const run = async (canvas: HTMLCanvasElement) => {
@@ -39,7 +39,7 @@ const run = async (canvas: HTMLCanvasElement) => {
         log: (number: number) => {
           let hex = number;
           if (hex < 0) hex = 0xffffffff + hex + 1;
-          
+
           console.log(hex.toString(16), `(${number})`);
           return;
         },
@@ -62,7 +62,7 @@ const run = async (canvas: HTMLCanvasElement) => {
       pixels.set(mem.subarray(boardSize, 2 * boardSize)); // copy output to image buffer
       context.putImageData(imageData, 0, 0); // apply image buffer
     })();
-    timer(boardSize, mem, exported, 0.5, 60);
+    timer(boardSize, mem, exported, 1, 60);
     addAllListeners(canvas, document, (x: number, y: number) => exported.fill(x, y));
   } catch (err) {
     alert('Failed to load WASM: ' + err.message + ' (ad blocker, maybe?)');
