@@ -44,10 +44,14 @@ export const getSetter = (
     varDefs[name] = typeDef;
   }
   if (isGlobal) {
-    return module.global.set(name, expr);
+    const gexpr = module.global.set(name, expr);
+    setTypeDef(gexpr, typeDef);
+    return gexpr;
   } else {
     const index = Object.keys(varDefs).lastIndexOf(name);
-    return module.local.set(index, expr);
+    const gexpr = module.local.set(index, expr);
+    setTypeDef(gexpr, typeDef);
+    return gexpr;
   }
 };
 

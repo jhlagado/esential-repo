@@ -1,6 +1,6 @@
 {
   "name": "@jhlagado/esential",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "Esential - Support for WebAssembly in Javascript",
   "keywords": [
     "webassembly",

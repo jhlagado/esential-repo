@@ -1,9 +1,9 @@
-import { f32, i32, none } from 'binaryen';
+import { i32 } from 'binaryen';
 import { LibFunc } from '@jhlagado/esential';
 import { RGB_ALIVE, RGB_DEAD } from '../common/constants';
 
 export const lifeLib: LibFunc = ({
-  i32: { store, load, store8, load8_u, add, sub, mul, div, lt, gt, eqz, eq, and, or },
+  i32: { store, load, store8, load8_u, add, sub, mul, div, lt, gt, eqz, eq, and },
   external,
   func,
   globals,
@@ -21,11 +21,6 @@ export const lifeLib: LibFunc = ({
     },
   );
 
-  const log = external({
-    namespace: 'env',
-    name: 'log',
-    params: { a: i32 },
-  });
 
   const rnd = external({
     namespace: 'env',

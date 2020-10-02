@@ -1,4 +1,4 @@
-import { build } from '@jhlagado/esential';
+import { build } from '../../esential/src';
 import { mainLib } from '../src/asm/main';
 import { WIDTH, HEIGHT } from '../src/common/constants';
 import { calcNumPages } from '../src/common/tools';

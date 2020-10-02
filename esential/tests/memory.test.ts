@@ -1,32 +1,44 @@
 import { i32 } from 'binaryen';
 import { esential, LibFunc, asPages } from '../src';
 
-export const memoryLib: LibFunc = ({ func, i32: { load, store } }) => {
+const i32Size = 4;
+
+export const memoryLib: LibFunc = ({ func, globals, i32: { add, sub, load, store } }) => {
   //
-  const setMem = func({ params: { ptr: i32, a: i32 } }, (result, { ptr, a }) => {
+
+  globals(
+    { ptr: i32 },
+    {
+      ptr: 0,
+    },
+  );
+
+  const push = func({ params: { value: i32 } }, (result, { ptr, value }) => {
     result(
       //
-      store(0, 0, ptr, a),
+      store(0, 0, ptr, value),
+      ptr(add(ptr, i32Size)),
     );
   });
 
-  const getMem = func({ params: { ptr: i32 } }, (result, { ptr }) => {
+  const pop = func({ params: {} }, (result, { ptr }) => {
     result(
       //
+      ptr(sub(ptr, i32Size)),
       load(0, 0, ptr),
     );
   });
 
-  const storeAndLoad = func({ params: { ptr: i32, a: i32 } }, (result, { ptr, a }) => {
+  const pushAndPop = func({ params: { value: i32 } }, (result, { value }) => {
     result(
       //
-      setMem(ptr, a),
-      getMem(ptr),
+      push(value),
+      pop(),
     );
   });
 
   return {
-    storeAndLoad,
+    pushAndPop,
   };
 };
 
@@ -41,5 +53,5 @@ lib(memoryLib);
 const exported = load(compile());
 
 it('should store a number and return it', () => {
-  expect(exported.storeAndLoad(100, 346)).toBe(346);
+  expect(exported.pushAndPop(346)).toBe(346);
 });

@@ -11,9 +11,8 @@ import {
 } from './types';
 import { getVarsAccessor } from './accessors';
 import { getResultFunc, getCallable } from './func-util';
-import { asType, setTypeDef } from './type-util';
+import { asType } from './type-util';
 import { literalize } from './literals';
-import { resolveExpression } from './util';
 
 export const getFunc = (
   module: Module,
@@ -49,7 +48,7 @@ export const getFunc = (
   if (!indirect) {
     exprFunc = (...params: ExpressionRef[]) => module.call(id, params, resultType);
   } else {
-    const index  = indirectTable.length;
+    const index = indirectTable.length;
     indirectTable.push({ index, id, paramDefs: params, resultDef: resultDef });
     exprFunc = (...params: ExpressionRef[]) =>
       module.call_indirect(module.i32.const(index), params, paramsType, resultType);
@@ -81,4 +80,3 @@ export const getGlobals = (module: Module, globalVarDefs: Dict<TypeDef>) => (
     return module.addGlobal(prop, asType(typeDef), true, expr);
   });
 };
-
