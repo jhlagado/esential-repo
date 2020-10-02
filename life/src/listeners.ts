@@ -14,9 +14,7 @@ export const addAllListeners = (
   document: Document,
   callback: (x: number, y: number) => void,
 ) => {
-  // When clicked or dragged, fill the current row and column with random live cells
   let down = false;
-
   addListeners(
     [
       [canvas, 'mousedown'],

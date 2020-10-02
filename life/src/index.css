@@ -4,14 +4,6 @@ body {
   font-family: sans-serif;
   color: white;
 }
-/* body {
-  border-top: 2px solid #bc18d4;
-} */
-/* h1 {
-  padding: 18px 20px 20px;
-  font-size: 12pt;
-  margin: 0;
-} */
 a {
   color: #d41818;
 }
@@ -23,5 +15,5 @@ canvas {
   cursor: cell;
   user-select: none;
   image-rendering: optimizeSpeed;
-  /* image-rendering: pixelated; */
+  image-rendering: pixelated;
 }

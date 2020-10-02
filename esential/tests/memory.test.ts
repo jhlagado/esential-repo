@@ -1,21 +1,27 @@
-import { i32, none } from 'binaryen';
+import { i32 } from 'binaryen';
 import { esential, LibFunc, asPages } from '../src';
 
 export const memoryLib: LibFunc = ({ func, i32: { load, store } }) => {
   //
-  const setMem = func({ params: { a: i32 }, result: none }, (result, { a }) => {
+  const setMem = func({ params: { ptr: i32, a: i32 } }, (result, { ptr, a }) => {
     result(
       //
-      store(0, 0, 10, a),
-      // 0,
+      store(0, 0, ptr, a),
     );
   });
 
-  const storeAndLoad = func({ params: { a: i32 }, result: [i32] }, (result, { a }) => {
+  const getMem = func({ params: { ptr: i32 } }, (result, { ptr }) => {
     result(
       //
-      setMem(a),
-      load(0, 0, 10),
+      load(0, 0, ptr),
+    );
+  });
+
+  const storeAndLoad = func({ params: { ptr: i32, a: i32 } }, (result, { ptr, a }) => {
+    result(
+      //
+      setMem(ptr, a),
+      getMem(ptr),
     );
   });
 
@@ -35,5 +41,5 @@ lib(memoryLib);
 const exported = load(compile());
 
 it('should store a number and return it', () => {
-  expect(exported.storeAndLoad(346)).toBe(346);
+  expect(exported.storeAndLoad(100, 346)).toBe(346);
 });

@@ -14,9 +14,8 @@ const timer = (boardSize: number, mem: any, exported: any, increment: number, li
 
 const run = async (canvas: HTMLCanvasElement) => {
   const context = canvas.getContext('2d');
-  if (!context) {
-    return;
-  }
+  if (!context) return;
+
   context.imageSmoothingEnabled = false;
 
   canvas.width = WIDTH;
@@ -40,6 +39,7 @@ const run = async (canvas: HTMLCanvasElement) => {
         log: (number: number) => {
           let hex = number;
           if (hex < 0) hex = 0xffffffff + hex + 1;
+          
           console.log(hex.toString(16), `(${number})`);
           return;
         },
