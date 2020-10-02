@@ -1,4 +1,4 @@
-import { LibFunc } from '../src';
+import { esential, LibFunc } from '../src';
 
 export const resultLib: LibFunc = ({ func, block }) => {
   //
@@ -18,7 +18,7 @@ export const resultLib: LibFunc = ({ func, block }) => {
         //
         // block(
           //
-          u(1000),
+          u(2000),
           u,
         // ),
       );
@@ -30,3 +30,15 @@ export const resultLib: LibFunc = ({ func, block }) => {
     return2000,
   };
 };
+
+const { lib, load, compile } = esential();
+lib(resultLib);
+const exported = load(compile());
+
+it('should return a number', () => {
+  expect(exported.return1000()).toBe(1000);
+});
+
+it('should return another number', () => {
+  expect(exported.return2000()).toBe(2000);
+});

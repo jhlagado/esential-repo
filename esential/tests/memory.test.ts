@@ -1,5 +1,5 @@
 import { i32, none } from 'binaryen';
-import { LibFunc } from '../src';
+import { esential, LibFunc, asPages } from '../src';
 
 export const memoryLib: LibFunc = ({ func, i32: { load, store } }) => {
   //
@@ -23,3 +23,17 @@ export const memoryLib: LibFunc = ({ func, i32: { load, store } }) => {
     storeAndLoad,
   };
 };
+
+const pages = asPages(500000);
+const size = { initial: pages, maximum: pages };
+const instance = new WebAssembly.Memory(size);
+
+const { lib, load, compile, module } = esential({ memory: { ...size, instance } });
+
+lib(memoryLib);
+
+const exported = load(compile());
+
+it('should store a number and return it', () => {
+  expect(exported.storeAndLoad(346)).toBe(346);
+});

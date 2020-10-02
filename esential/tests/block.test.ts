@@ -1,5 +1,5 @@
 import { i32 } from 'binaryen';
-import { LibFunc } from '../src';
+import { esential, LibFunc } from '../src';
 
 export const blockLib: LibFunc = ({ func, i32: { add } }) => {
   //
@@ -17,3 +17,11 @@ export const blockLib: LibFunc = ({ func, i32: { add } }) => {
     blockadd,
   };
 };
+
+const { lib, load, compile } = esential();
+lib(blockLib);
+const exported = load(compile());
+
+it('should add numbers defined within block', () => {
+  expect(exported.blockadd()).toBe(3);
+});

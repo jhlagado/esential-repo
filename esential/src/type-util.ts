@@ -11,7 +11,7 @@ export const setTypeDef = (expr: ExpressionRef, typeDef: TypeDef) => {
   typeDefMap.set(type, typeDef);
 };
 
-export const getExprType = (expr: ExpressionRef): Type | undefined => {
+export const getKnownExpressionType = (expr: ExpressionRef): Type | undefined => {
   return exprTypeMap.get(expr);
 };
 
@@ -22,7 +22,9 @@ export const getTypeDefOrNull = (type: Type): TypeDef | undefined => {
 
 export const getTypeDef = (type: Type): TypeDef => {
   if (type === none) return none;
+
   if (typeDefMap.has(type)) return typeDefMap.get(type) as Type;
+
   throw new Error(`Could not find typeDef for ${type}`);
 };
 

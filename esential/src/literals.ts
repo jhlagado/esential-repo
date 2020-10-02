@@ -10,7 +10,7 @@ import {
   getExpressionType,
   auto,
 } from 'binaryen';
-import { asType, getExprType, getTypeDef, getTypeDefOrNull, setTypeDef } from './type-util';
+import { asType, getKnownExpressionType, getTypeDef, getTypeDefOrNull, setTypeDef } from './type-util';
 import { Dict, Expression, TypeDef } from './types';
 import { asArray, isPrim } from './util';
 import { resolveExpression } from './util';
@@ -38,21 +38,11 @@ export const literalizePrim = (
   typeDef?: TypeDef,
 ): ExpressionRef => {
   if (typeDef === none) return expr;
-  // note: routine returns garbage for 0 and 2000
-  // probably need to go back to registering expr types outside binaryen
-  const exprType = getExpressionType(expr);
-  if (exprType === none) {
-    if (getExprType(expr) == null) {
-      return asLiteral(module, expr, asType(typeDef));
-    }
-  }
-  const exprTypeDef = getTypeDefOrNull(exprType);
-  if (exprTypeDef == null) {
-    return asLiteral(module, expr);
-  }
-  if (typeDef != null && asType(typeDef) !== asType(exprTypeDef)) {
+  const exprType = getKnownExpressionType(expr);
+  if (exprType == null) return asLiteral(module, expr, asType(typeDef));
+  const exprTypeDef = getTypeDef(exprType);
+  if (typeDef != null && asType(typeDef) !== asType(exprTypeDef))
     throw new Error(`Type mismatch: expected ${typeDef} but got ${exprTypeDef}`);
-  }
   return expr;
 };
 

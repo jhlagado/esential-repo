@@ -23,5 +23,5 @@ canvas {
   cursor: cell;
   user-select: none;
   image-rendering: optimizeSpeed;
-  image-rendering: pixelated;
+  /* image-rendering: pixelated; */
 }

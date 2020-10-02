@@ -11,17 +11,15 @@ export const getResultFunc = (
   bodyItems: ExpressionRef[],
 ): VoidBlockFunc => (...expressions) => {
   const { length } = expressions;
-  if (length < 1) {
-    throw new Error(`Result function must have at least one arg`);
-  }
+  if (length < 1) throw new Error(`Result function must have at least one arg`);
+
   const leadExprs = expressions.slice(0, -1).map(resolveExpression);
   bodyItems.push(...leadExprs);
   const expression = expressions[length - 1];
   const typeDef = resultRef.current === auto ? undefined : resultRef.current;
   const expr = literalize(module, expression, typeDef);
-  if (typeDef == null) {
-    resultRef.current = getTypeDef(getExpressionType(expr));
-  }
+  if (typeDef == null) resultRef.current = getTypeDef(getExpressionType(expr));
+  
   bodyItems.push(module.return(expr));
 };
 
@@ -43,9 +41,8 @@ export const getCallable = (
     return expr;
   };
   callableIdMap.set(callable, id);
-  if (exported && exportedSet) {
-    exportedSet.add(callable);
-  }
+  if (exported && exportedSet) exportedSet.add(callable);
+
   return callable;
 };
 

@@ -1,5 +1,5 @@
 import { esential } from '../src';
-import { addLib } from './add-lib';
+import { addLib } from './shared';
 
 const { lib, load, compile } = esential();
 lib(addLib);

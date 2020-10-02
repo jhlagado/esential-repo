@@ -32,3 +32,16 @@ export const addLib: LibFunc = ({ func, i32: { add } }) => {
     increment,
   };
 };
+
+export const ioLib: LibFunc = ({ external }) => {
+  //
+  const log = external({
+    namespace: 'env',
+    name: 'log',
+    params: { a: i32 },
+  });
+
+  return {
+    log,
+  };
+};
