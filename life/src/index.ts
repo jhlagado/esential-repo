@@ -66,7 +66,7 @@ const run = async (canvas: HTMLCanvasElement) => {
     addAllListeners(canvas, document, (x: number, y: number) => exported.fill(x, y));
   } catch (err) {
     alert('Failed to load WASM: ' + err.message + ' (ad blocker, maybe?)');
-    console.log(err.stack);
+    console.log(err.stack); 
   }
 };
 

@@ -9,7 +9,6 @@ export const lifeLib: LibFunc = ({
   globals,
   FOR,
   IF,
-  module,
 }) => {
   globals(
     { width: i32, widthM1: i32, height: i32, heightM1: i32, offset: i32 },
@@ -66,7 +65,6 @@ export const lifeLib: LibFunc = ({
     result(
       //
       store(0, 0, getPos(x, y, offset), v),
-      0,
     );
   });
 
@@ -79,7 +77,6 @@ export const lifeLib: LibFunc = ({
         alpha(sub1(load8_u(0, 0, pos))),
         IF(lt(alpha, 0))(alpha(0))(),
         store8(0, 0, pos, alpha),
-        0,
       );
     },
   );
@@ -240,7 +237,7 @@ export const lifeLib: LibFunc = ({
           lt(j, bottom),
           j(add1(j)),
         )(setPixel(right, j, RGB_ALIVE)),
-        0,
+        // 0,
       );
     },
   );

@@ -49,7 +49,7 @@ export const getFunc = (
   if (!indirect) {
     exprFunc = (...params: ExpressionRef[]) => module.call(id, params, resultType);
   } else {
-    const { length: index } = indirectTable;
+    const index  = indirectTable.length;
     indirectTable.push({ index, id, paramDefs: params, resultDef: resultDef });
     exprFunc = (...params: ExpressionRef[]) =>
       module.call_indirect(module.i32.const(index), params, paramsType, resultType);
