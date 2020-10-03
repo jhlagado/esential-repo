@@ -11,12 +11,10 @@ export const lifeLib: LibFunc = ({
   IF,
 }) => {
   globals(
-    { width: i32, widthM1: i32, height: i32, heightM1: i32, offset: i32 },
+    { width: i32, height: i32, offset: i32 },
     {
       width: 0,
-      widthM1: 0,
       height: 0,
-      heightM1: 0,
       offset: 0,
     },
   );
@@ -152,13 +150,11 @@ export const lifeLib: LibFunc = ({
 
   const init = func(
     { params: { w: i32, h: i32 } }, //
-    (result, { width, widthM1, height, heightM1, offset, w, h }) => {
+    (result, { width, height, offset, w, h }) => {
       result(
         //
         width(w),
-        widthM1(sub1(w)),
         height(h),
-        heightM1(sub1(h)),
         offset(mul(w, h)),
         randomize(),
       );
