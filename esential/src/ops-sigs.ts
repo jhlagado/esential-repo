@@ -139,10 +139,10 @@ export const opsSignatures: Dict<any> = {
     convert_u: {
       i32: { params: { value: f32 }, result: f32 },
       i64: { params: { value: f32 }, result: f32 },
-    },
+    }, 
     demote: { params: { value: f32 }, result: f32 },
-    load: { params: { offset: none, align: none, ptr: f32 }, result: f32 },
-    store: { params: { offset: none, align: none, ptr: f32, value: f32 }, result: f32 },
+    load: { params: { offset: none, align: none, ptr: i32 }, result: f32 },
+    store: { params: { offset: none, align: none, ptr: i32, value: f32 }, result: f32 },
   },
 
   f64: {

@@ -27,12 +27,15 @@ const run = async () => {
         rnd: () => {
           return Math.random() < 0.2;
         },
+        sqrt: (number: number) => {
+          return Math.sqrt(number);
+        },
       },
     });
 
     const exported = module.instance.exports as Exported;
 
-    const value = exported.init(WIDTH, HEIGHT);
+    const value = exported.init(6, 5);
     console.log('wasm loaded', value);
   } catch (err) {
     alert('Failed to load WASM: ' + err.message);

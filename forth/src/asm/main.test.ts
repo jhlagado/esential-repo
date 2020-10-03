@@ -26,10 +26,14 @@ const exported = load(compile(), {
     rnd: () => {
       return Math.random() < 0.2;
     },
+    sqrt: (number: number) => {
+      return Math.sqrt(number);
+    },
+
   },
 });
 
 it('should init lib', () => {
-  const j = exported.init(100, 100);
-  expect(j).toBe(3339);
+  const j = exported.init(3, 4);
+  expect(j).toBe(5);
 });

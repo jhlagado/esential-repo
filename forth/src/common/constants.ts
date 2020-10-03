@@ -3,6 +3,8 @@ export const WIDTH = 500;
 export const HEIGHT = 500;
 
 export const i32Size = 4;
+export const f32Size = 4;
+
 export const pStackSize = 1000;
 export const rStackSize = 1000;
 export const userSize = 1000;
