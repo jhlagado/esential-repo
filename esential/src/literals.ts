@@ -10,7 +10,12 @@ import {
   getExpressionType,
   auto,
 } from 'binaryen';
-import { asType, getKnownExpressionType, getTypeDef, getTypeDefOrNull, setTypeDef } from './type-util';
+import {
+  asType,
+  getKnownExpressionType,
+  getTypeDef,
+  setTypeDef,
+} from './type-util';
 import { Dict, Expression, TypeDef } from './types';
 import { asArray, isPrim } from './util';
 import { resolveExpression } from './util';

@@ -7,9 +7,11 @@ export const mainLib: LibFunc = ({
   external,
   func,
   globals,
+  FOR,
+  IF,
 }) => {
   globals(
-    { psp: i32, rsp: i32 }, 
+    { psp: i32, rsp: i32 },
     {
       psp: pStackStart,
       rsp: rStackStart,
@@ -39,16 +41,40 @@ export const mainLib: LibFunc = ({
       result(
         //
         psp(sub(psp, i32Size)),
-        load(0, 0, psp), 
+        load(0, 0, psp),
       );
     },
   );
+
+  const rnd = external({
+    namespace: 'env',
+    name: 'rnd',
+    params: {},
+    result: i32,
+  });
+
+  const randomize = func({}, (result, { i, temp }) => {
+    result(
+      //
+      FOR(
+        //
+        i(0),
+        lt(i, 500),
+        i(add(i, 1)),
+      )(
+        //
+        IF(rnd())(push(1))(push(0)),
+        1000,
+      ),
+    );
+  });
 
   const init = func(
     { params: { w: i32, h: i32 } }, //
     (result, { w, h }) => {
       result(
         //
+        randomize(),
         push(3339),
         pop(),
       );

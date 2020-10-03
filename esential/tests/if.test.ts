@@ -1,13 +1,14 @@
+import { i32 } from 'binaryen';
 import { esential, LibFunc } from '../src';
 import { ioLib } from './shared';
 
-export const ifLib: LibFunc = ({ lib, func, block, FOR, IF, i32: { add, lt, rem, eqz } }) => {
+export const ifLib: LibFunc = ({ lib, func, block, FOR, IF, i32: { add, sub, lt, rem, eqz } }) => {
   //
   const { log } = lib(ioLib);
 
-  // const isOdd = func({ params: { a: i32 } }, (result, { a }) => {
-  //   result(IFF(eqz(rem(a, 2)))(100)(200));
-  // });
+  const isEven = func({ params: { number: i32 }, result: i32 }, (result, { number }) => {
+    result(IF(eqz(rem(number, 2)))(1)(0));
+  });
 
   const oddeven = func({}, (result, { odd, even, i }) => {
     result(
@@ -35,9 +36,20 @@ export const ifLib: LibFunc = ({ lib, func, block, FOR, IF, i32: { add, lt, rem,
     );
   });
 
+  const getM1 = func(
+    { params: { x: i32, limit: i32 } }, //
+    (result, { limit, x }) => {
+      result(
+        //
+        sub(IF(eqz(x))(limit)(x), 1),
+      );
+    },
+  );
+
   return {
-    // isOdd,
+    isEven,
     oddeven,
+    getM1,
   };
 };
 
@@ -54,11 +66,24 @@ const exported = load(compile(), {
   },
 });
 
-// it('should return 100 if number is odd', () => {
-//   const j = exported.isOdd(5);
-//   expect(j).toBe(100);
+// it('should return 1 if number is even', () => {
+//   const j = exported.isEven(4);
+//   expect(j).toBe(1);
 // });
-it('should return the number of odds when counting to 10', () => {
-  const j = exported.oddeven();
-  expect(j).toBe(5);
+// it('should return 0 if number is odd', () => {
+//   const j = exported.isEven(5);
+//   expect(j).toBe(0);
+// });
+// it('should return the number of odds when counting to 10', () => {
+//   const j = exported.oddeven();
+//   expect(j).toBe(5);
+// });
+it('should sub 1', () => {
+  const j = exported.getM1(1, 10);
+  expect(j).toBe(0);
+});
+
+it('should sub 1 and wrap if below zero', () => {
+  const j = exported.getM1(0, 10);
+  expect(j).toBe(9);
 });

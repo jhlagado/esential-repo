@@ -46,7 +46,7 @@ const pages = asPages(500000);
 const size = { initial: pages, maximum: pages };
 const instance = new WebAssembly.Memory(size);
 
-const { lib, load, compile, module } = esential({ memory: { ...size, instance } });
+const { lib, load, compile } = esential({ memory: { ...size, instance } });
 
 lib(memoryLib);
 

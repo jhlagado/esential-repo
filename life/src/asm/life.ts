@@ -1,5 +1,5 @@
 import { i32 } from 'binaryen';
-import { LibFunc } from '@jhlagado/esential';
+import { LibFunc } from '../../../esential/src';
 import { RGB_ALIVE, RGB_DEAD } from '../common/constants';
 
 export const lifeLib: LibFunc = ({
@@ -20,7 +20,6 @@ export const lifeLib: LibFunc = ({
       offset: 0,
     },
   );
-
 
   const rnd = external({
     namespace: 'env',
@@ -81,8 +80,7 @@ export const lifeLib: LibFunc = ({
     (result, { limit, x, temp }) => {
       result(
         //
-        IF(eqz(x))(temp(sub1(limit)))(temp(sub1(x))),
-        temp,
+        sub(IF(eqz(x))(limit)(x), 1),
       );
     },
   );
@@ -92,8 +90,7 @@ export const lifeLib: LibFunc = ({
     (result, { limit, x, temp }) => {
       result(
         //
-        IF(eq(x, sub1(limit)))(temp(0))(temp(add1(x))),
-        temp,
+        IF(eq(x, sub(limit, 1)))(0)(add(x, 1)),
       );
     },
   );
@@ -127,8 +124,7 @@ export const lifeLib: LibFunc = ({
         cb(isAlive(x, yp1)),
         cc(isAlive(xp1, yp1)),
 
-        count(add(aa, add(ab, add(ac, add(ba, add(bc, add(ca, add(cb, cc)))))))),
-        count,
+        add(aa, add(ab, add(ac, add(ba, add(bc, add(ca, add(cb, cc))))))),
       );
     },
   );
@@ -151,7 +147,6 @@ export const lifeLib: LibFunc = ({
           IF(rnd())(setPixel(i, j, RGB_ALIVE))(setPixel(i, j, RGB_DEAD)),
         ),
       ),
-      0,
     );
   });
 
@@ -195,7 +190,6 @@ export const lifeLib: LibFunc = ({
           setPixel(i, j, pixel),
         ),
       ),
-      0,
     );
   });
 
@@ -232,7 +226,6 @@ export const lifeLib: LibFunc = ({
           lt(j, bottom),
           j(add1(j)),
         )(setPixel(right, j, RGB_ALIVE)),
-        // 0,
       );
     },
   );

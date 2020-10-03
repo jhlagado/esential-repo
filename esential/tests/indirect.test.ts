@@ -26,9 +26,8 @@ export const indirectLib: LibFunc = ({ func, i32: { add } }) => {
 };
 
 const size = { initial: 10, maximum: 100 };
-const instance = new WebAssembly.Table({ ...size, element: 'anyfunc' });
 
-const { lib, load, compile } = esential({ table: { ...size, instance } });
+const { lib, load, compile } = esential({ table: { ...size } });
 lib(indirectLib);
 
 const exported = load(compile());
