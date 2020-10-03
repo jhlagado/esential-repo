@@ -1,4 +1,4 @@
-import { auto, ExpressionRef, none, createType, Module, getExpressionType } from 'binaryen';
+import { auto, ExpressionRef, none, createType } from 'binaryen';
 import {
   Callable,
   IndirectInfo,
@@ -13,9 +13,9 @@ import { getVarsAccessor } from './accessors';
 import { getResultFunc, getCallable } from './func-util';
 import { asType } from './type-util';
 import { literalize } from './literals';
+import { getModule } from './module';
 
 export const getFunc = (
-  module: Module,
   callableIdMap: Map<Callable, string>,
   exportedSet: Set<Callable>,
   indirectTable: IndirectInfo[],
@@ -30,11 +30,12 @@ export const getFunc = (
     export: exported = true,
     indirect = false,
   } = def;
+  const module = getModule();
   const bodyItems: ExpressionRef[] = [];
   const vars = { ...params, ...locals };
-  const varsAccessor = getVarsAccessor(module, vars, globalVars);
+  const varsAccessor = getVarsAccessor(vars, globalVars);
   const resultRef: Ref<TypeDef> = { current: result == null ? auto : result };
-  const resultFunc = getResultFunc(module, resultRef, bodyItems);
+  const resultFunc = getResultFunc(resultRef, bodyItems);
   if (initializer) initializer(resultFunc, varsAccessor);
   const resultDef = resultRef.current === auto ? none : resultRef.current;
   const { length: paramsLength } = Object.values(params);
@@ -53,12 +54,13 @@ export const getFunc = (
     exprFunc = (...params: ExpressionRef[]) =>
       module.call_indirect(module.i32.const(index), params, paramsType, resultType);
   }
-  return getCallable(module, id, exported, exprFunc, params, resultDef, callableIdMap, exportedSet);
+  return getCallable(id, exported, exprFunc, params, resultDef, callableIdMap, exportedSet);
 };
 
-export const getExternal = (module: Module, callableIdMap: Map<Callable, string>) => (
+export const getExternal = (callableIdMap: Map<Callable, string>) => (
   def: FuncDef,
 ): Callable => {
+  const module = getModule();
   const count = callableIdMap.size;
   const { id = `func${count}`, params = {}, result, namespace = 'namespace', name = 'name' } = def;
   const resultDef = result == null ? none : result;
@@ -66,16 +68,17 @@ export const getExternal = (module: Module, callableIdMap: Map<Callable, string>
   const resultType = asType(resultDef);
   module.addFunctionImport(id, namespace, name, paramsType, resultType);
   const exprFunc = (...params: ExpressionRef[]) => module.call(id, params, resultType);
-  return getCallable(module, id, false, exprFunc, params, resultDef, callableIdMap);
+  return getCallable(id, false, exprFunc, params, resultDef, callableIdMap);
 };
 
-export const getGlobals = (module: Module, globalVarDefs: Dict<TypeDef>) => (
+export const getGlobals = (globalVarDefs: Dict<TypeDef>) => (
   varDefs: Dict<TypeDef>,
   assignments: Dict<Expression>,
 ) => {
+  const module = getModule();
   Object.entries(assignments).forEach(([prop, expression]) => {
     let typeDef = varDefs[prop];
-    const expr = literalize(module, expression, typeDef);
+    const expr = literalize(expression, typeDef);
     globalVarDefs[prop] = typeDef;
     return module.addGlobal(prop, asType(typeDef), true, expr);
   });

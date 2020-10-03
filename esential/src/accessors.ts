@@ -3,9 +3,9 @@ import { Expression, TypeDef, Dict, Accessor } from './types';
 import { asType, setTypeDef, getTypeDef } from './type-util';
 import { isPrim } from './util';
 import { literalize } from './literals';
+import { getModule } from './module';
 
 export const getGetter = (
-  module: Module,
   varDefs: Dict<TypeDef>,
   globalVarDefs: Dict<TypeDef>,
   name: string,
@@ -14,6 +14,7 @@ export const getGetter = (
     throw new Error(`Getter: unknown variable '${name}'`);
   }
   let expr, typeDef;
+  const module = getModule();
   if (name in varDefs) {
     typeDef = varDefs[name];
     const index = Object.keys(varDefs).lastIndexOf(name);
@@ -27,7 +28,6 @@ export const getGetter = (
 };
 
 export const getSetter = (
-  module: Module,
   varDefs: Dict<TypeDef>,
   globalVarDefs: Dict<TypeDef>,
   name: string,
@@ -38,7 +38,8 @@ export const getSetter = (
     typeDef = globalVarDefs[name];
     isGlobal = typeDef != null;
   }
-  const expr = literalize(module, expression, typeDef);
+  const module = getModule();
+  const expr = literalize(expression, typeDef);
   if (typeDef == null) {
     typeDef = getTypeDef(getExpressionType(expr));
     varDefs[name] = typeDef;
@@ -56,23 +57,21 @@ export const getSetter = (
 };
 
 const getAccessor = (
-  module: Module,
   localVarDefs: Dict<TypeDef>,
   globalVarDefs: Dict<TypeDef>,
   name: string,
 ) => {
-  const getter = getGetter(module, localVarDefs, globalVarDefs, name);
-  const setter = getSetter(module, localVarDefs, globalVarDefs, name);
+  const getter = getGetter(localVarDefs, globalVarDefs, name);
+  const setter = getSetter(localVarDefs, globalVarDefs, name);
   return (expression?: Expression): any => (expression == null ? getter() : setter(expression));
 };
 
 export const accessor = (
-  module: Module,
   localVarDefs: Dict<TypeDef>,
   globalVarDefs: Dict<TypeDef>,
   name: string,
 ) => {
-  const accessor = getAccessor(module, localVarDefs, globalVarDefs, name);
+  const accessor = getAccessor(localVarDefs, globalVarDefs, name);
 
   return new Proxy<Accessor>(accessor as Accessor, {
     get(_target: any, prop: number | string) {
@@ -84,6 +83,7 @@ export const accessor = (
       if (isPrim<ExpressionRef>(typeDef)) {
         throw new Error(`Cannot index a primitive value`);
       } else {
+        const module = getModule();
         const expr = accessor();
         if (Array.isArray(typeDef)) {
           const index = prop as number;
@@ -109,7 +109,6 @@ export const accessor = (
 };
 
 export const getVarsAccessor = (
-  module: Module,
   varDefs: Dict<TypeDef>,
   globalVarDefs: Dict<TypeDef>,
 ) => {
@@ -117,7 +116,7 @@ export const getVarsAccessor = (
     {},
     {
       get(_target: any, prop: string) {
-        return accessor(module, varDefs, globalVarDefs, prop);
+        return accessor(varDefs, globalVarDefs, prop);
       },
     },
   );

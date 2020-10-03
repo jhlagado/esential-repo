@@ -1,8 +1,12 @@
 import { i32 } from 'binaryen';
-import { esential, LibFunc } from '../src';
+import { esential, LibFunc, ops } from '../src';
 
-export const globalsLib: LibFunc = ({ func, globals, i32: { add } }) => {
+export const globalsLib: LibFunc = ({ func, globals }) => {
   //
+  const {
+    i32: { add },
+  } = ops;
+
   globals({ g1: i32, g2: [i32, i32] }, { g1: 999, g2: [1000, 2000] });
 
   const global1000 = func({}, (result, { u, g1 }) => {
@@ -21,7 +25,7 @@ export const globalsLib: LibFunc = ({ func, globals, i32: { add } }) => {
 
 global.console = { ...console, log: jest.fn(console.log) };
 
-const { lib, load, compile, module } = esential();
+const { lib, load, compile } = esential();
 lib(globalsLib);
 const exported = load(compile());
 

@@ -1,7 +1,10 @@
-import { esential, LibFunc } from '../src';
+import { block, esential, FOR, LibFunc, ops } from '../src';
 
-export const loopLib: LibFunc = ({ block, func, FOR, i32: { add, sub, gt } }) => {
+export const loopLib: LibFunc = ({ func }) => {
   //
+  const {
+    i32: { add, sub, gt },
+  } = ops;
 
   const looper = func({}, (result, { i, j }) => {
     result(
@@ -28,7 +31,7 @@ export const loopLib: LibFunc = ({ block, func, FOR, i32: { add, sub, gt } }) =>
 
 global.console = { ...console, log: jest.fn(console.log) };
 
-const { lib, load, compile, module: m } = esential();
+const { lib, load, compile } = esential();
 lib(loopLib);
 const exported = load(compile());
 

@@ -6,10 +6,10 @@ import {
   f32,
   f64,
   none,
-  Module,
   getExpressionType,
   auto,
 } from 'binaryen';
+import { getModule } from './module';
 import {
   asType,
   getKnownExpressionType,
@@ -20,7 +20,8 @@ import { Dict, Expression, TypeDef } from './types';
 import { asArray, isPrim } from './util';
 import { resolveExpression } from './util';
 
-export const asLiteral = (module: Module, value: number, type?: Type): ExpressionRef => {
+export const asLiteral = (value: number, type?: Type): ExpressionRef => {
+  const module = getModule();
   const opDict = {
     [i32]: module.i32,
     [i64]: module.i64,
@@ -38,13 +39,12 @@ export const asLiteral = (module: Module, value: number, type?: Type): Expressio
 };
 
 export const literalizePrim = (
-  module: Module,
   expr: ExpressionRef,
   typeDef?: TypeDef,
 ): ExpressionRef => {
   if (typeDef === none) return expr;
   const exprType = getKnownExpressionType(expr);
-  if (exprType == null) return asLiteral(module, expr, asType(typeDef));
+  if (exprType == null) return asLiteral(expr, asType(typeDef));
   const exprTypeDef = getTypeDef(exprType);
   if (typeDef != null && asType(typeDef) !== asType(exprTypeDef))
     throw new Error(`Type mismatch: expected ${typeDef} but got ${exprTypeDef}`);
@@ -52,22 +52,22 @@ export const literalizePrim = (
 };
 
 export const literalize = (
-  module: Module,
   expression: Expression,
   typeDef?: TypeDef,
 ): ExpressionRef => {
   const resolved = resolveExpression(expression);
   if (isPrim<ExpressionRef>(resolved)) {
-    return literalizePrim(module, resolved, typeDef);
+    return literalizePrim(resolved, typeDef);
   } else {
     const typeArray = typeDef ? asArray<Type>(typeDef as any) : [];
     const exprArray = asArray<ExpressionRef>(resolved).map((expr, index) => {
-      const expr1 = literalizePrim(module, expr, typeArray[index]);
+      const expr1 = literalizePrim(expr, typeArray[index]);
       if (typeArray[index] == null) {
         typeArray[index] = getExpressionType(expr1) as Type;
       }
       return expr1;
     });
+    const module = getModule();
     const tupleExpr = module.tuple.make(exprArray);
     let typeDef1: TypeDef = Array.isArray(resolved)
       ? typeArray

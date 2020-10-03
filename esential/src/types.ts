@@ -1,4 +1,4 @@
-import { ExpressionRef, Type, Module } from 'binaryen';
+import { ExpressionRef, Type } from 'binaryen';
 
 export type Thunk<T> = () => T;
 export type Ref<T> = { current: T };
@@ -81,15 +81,6 @@ export type LibUtils = {
   external: (def: ExternalDef) => Callable;
   globals: (varDefs: Dict<TypeDef>, assignments: Dict<Expression>) => void;
   lib: (func: LibFunc, args?: Dict<any>) => any;
-  FOR: (
-    initializer: ExpressionRef,
-    condition: ExpressionRef,
-    final: ExpressionRef,
-  ) => (...body: ExpressionRef[]) => ExpressionRef;
-  IF: (
-    condition: ExpressionRef,
-  ) => (...thenBody: Expression[]) => (...elseBody: Expression[]) => ExpressionRef;
-  block: (...args: Expression[]) => ExpressionRef;
 };
 
 export type OpUtils = {
@@ -101,7 +92,6 @@ export type OpUtils = {
 };
 
 export type ContextUtils = {
-  module: Module;
   compile: (options?: CompileOptions) => Uint8Array;
   load: (binary: Uint8Array, imports?: Dict<Dict<any>>) => any;
 
@@ -110,4 +100,4 @@ export type ContextUtils = {
   getTable: () => TableDef | null;
 };
 
-export type EsentialContext = LibUtils & OpUtils & ContextUtils;
+export type EsentialContext = LibUtils & ContextUtils;

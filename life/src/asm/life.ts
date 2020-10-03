@@ -1,22 +1,17 @@
 import { i32 } from 'binaryen';
-import { LibFunc } from '../../../esential/src';
+import { FOR, IF, LibFunc, ops } from '../../../esential/src';
 import { RGB_ALIVE, RGB_DEAD } from '../common/constants';
 
-export const lifeLib: LibFunc = ({
-  i32: { store, load, store8, load8_u, add, sub, mul, div, lt, gt, eqz, eq, and },
-  external,
-  func,
-  globals,
-  FOR,
-  IF,
-}) => {
+export const lifeLib: LibFunc = ({ external, func, globals }) => {
+  //
+  const {
+    i32: { store, load, store8, load8, add, sub, mul, div, lt, gt, eqz, eq, and },
+  } = ops;
+
   globals(
+    //
     { width: i32, height: i32, offset: i32 },
-    {
-      width: 0,
-      height: 0,
-      offset: 0,
-    },
+    { width: 0, height: 0, offset: 0 },
   );
 
   const rnd = external({
@@ -66,7 +61,7 @@ export const lifeLib: LibFunc = ({
       result(
         //
         pos(add(getPos(x, y, 0), 3)),
-        alpha(sub1(load8_u(0, 0, pos))),
+        alpha(sub1(load8(0, 0, pos))),
         IF(lt(alpha, 0))(alpha(0))(),
         store8(0, 0, pos, alpha),
       );
@@ -75,7 +70,7 @@ export const lifeLib: LibFunc = ({
 
   const getM1 = func(
     { params: { x: i32, limit: i32 } }, //
-    (result, { limit, x, temp }) => {
+    (result, { limit, x }) => {
       result(
         //
         sub(IF(eqz(x))(limit)(x), 1),
@@ -85,7 +80,7 @@ export const lifeLib: LibFunc = ({
 
   const getP1 = func(
     { params: { x: i32, limit: i32 } }, //
-    (result, { limit, x, temp }) => {
+    (result, { limit, x }) => {
       result(
         //
         IF(eq(x, sub(limit, 1)))(0)(add(x, 1)),

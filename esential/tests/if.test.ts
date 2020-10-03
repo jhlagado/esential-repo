@@ -1,9 +1,13 @@
 import { i32 } from 'binaryen';
-import { esential, LibFunc } from '../src';
+import { block, esential, FOR, IF, LibFunc, ops } from '../src';
 import { ioLib } from './shared';
 
-export const ifLib: LibFunc = ({ lib, func, block, FOR, IF, i32: { add, sub, lt, rem, eqz } }) => {
+export const ifLib: LibFunc = ({ lib, func }) => {
   //
+  const {
+    i32: { add, sub, lt, rem, eqz },
+  } = ops;
+
   const { log } = lib(ioLib);
 
   const isEven = func({ params: { number: i32 }, result: i32 }, (result, { number }) => {
@@ -55,7 +59,7 @@ export const ifLib: LibFunc = ({ lib, func, block, FOR, IF, i32: { add, sub, lt,
 
 global.console = { ...console, log: jest.fn(console.log) };
 
-const { lib, load, compile, module: m } = esential();
+const { lib, load, compile } = esential();
 lib(ifLib);
 const exported = load(compile(), {
   env: {
@@ -66,18 +70,18 @@ const exported = load(compile(), {
   },
 });
 
-// it('should return 1 if number is even', () => {
-//   const j = exported.isEven(4);
-//   expect(j).toBe(1);
-// });
-// it('should return 0 if number is odd', () => {
-//   const j = exported.isEven(5);
-//   expect(j).toBe(0);
-// });
-// it('should return the number of odds when counting to 10', () => {
-//   const j = exported.oddeven();
-//   expect(j).toBe(5);
-// });
+it('should return 1 if number is even', () => {
+  const j = exported.isEven(4);
+  expect(j).toBe(1);
+});
+it('should return 0 if number is odd', () => {
+  const j = exported.isEven(5);
+  expect(j).toBe(0);
+});
+it('should return the number of odds when counting to 10', () => {
+  const j = exported.oddeven();
+  expect(j).toBe(5);
+});
 it('should sub 1', () => {
   const j = exported.getM1(1, 10);
   expect(j).toBe(0);

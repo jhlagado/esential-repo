@@ -1,7 +1,9 @@
 import { i32 } from 'binaryen';
-import { LibFunc } from '../src';
+import { LibFunc, ops } from '../src';
 
-export const addLib: LibFunc = ({ func, i32: { add } }) => {
+
+export const addLib: LibFunc = ({ func }) => {
+  const {i32: { add }} = ops;
   //
   const addition = func(
     { params: { a: i32, b: i32 } },

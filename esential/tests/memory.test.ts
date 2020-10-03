@@ -1,10 +1,11 @@
 import { i32 } from 'binaryen';
-import { esential, LibFunc, asPages } from '../src';
+import { esential, LibFunc, asPages, ops } from '../src';
 
 const i32Size = 4;
 
-export const memoryLib: LibFunc = ({ func, globals, i32: { add, sub, load, store } }) => {
+export const memoryLib: LibFunc = ({ func, globals }) => {
   //
+  const {i32: { add, sub, load, store }} = ops;
 
   globals(
     { ptr: i32 },

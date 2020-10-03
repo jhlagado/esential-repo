@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Module } from 'binaryen';
 import {
   Callable,
   LibFunc,
@@ -13,13 +12,13 @@ import {
 } from './types';
 import { FEATURE_MULTIVALUE } from './constants';
 import { getCompile, getLoad } from './context-utils';
-import { getFOR, getIF } from './control';
-import { getOps } from './op-util';
-import { exportFuncs, getBlock } from './func-util';
+import { exportFuncs } from './func-util';
 import { getFunc, getExternal, getGlobals } from './lib-util';
+import { getModule } from './module';
 
 export const esential = (cfg?: EsentialCfg): EsentialContext => {
-  const module = new Module();
+  const module = getModule();
+
   module.setFeatures(FEATURE_MULTIVALUE);
   module.autoDrop();
 
@@ -57,21 +56,15 @@ export const esential = (cfg?: EsentialCfg): EsentialContext => {
         return libMap.get(libFunc);
       }
       const lib = libFunc(context, args);
-      exportFuncs(module, lib, exportedSet, callableIdMap);
+      exportFuncs(lib, exportedSet, callableIdMap);
       libMap.set(libFunc, lib);
       return lib;
     },
-    func: getFunc(module, callableIdMap, exportedSet, indirectTable, globalVars),
-    external: getExternal(module, callableIdMap),
-    globals: getGlobals(module, globalVars),
-    FOR: getFOR(module),
-    IF: getIF(module),
-    block: getBlock(module),
+    func: getFunc(callableIdMap, exportedSet, indirectTable, globalVars),
+    external: getExternal(callableIdMap),
+    globals: getGlobals(globalVars),
 
-    ...getOps(module),
-
-    module,
-    compile: getCompile(module, memoryDef, tableDef, indirectTable),
+    compile: getCompile(memoryDef, tableDef, indirectTable),
     load: getLoad(memoryDef, tableDef),
 
     getIndirectInfo: (callable: Callable) => callableIndirectMap.get(callable),

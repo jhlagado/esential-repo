@@ -7,6 +7,7 @@ export * from './control';
 export * from './func-util';
 export * from './literals';
 export * from './op-util';
+export * from './module';
 export * from './types';
 export * from './type-util';
 export * from './util';

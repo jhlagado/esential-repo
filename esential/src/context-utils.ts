@@ -1,4 +1,4 @@
-import { Module } from 'binaryen';
+import { getModule } from './module';
 import {
   IndirectInfo,
   Dict,
@@ -8,7 +8,6 @@ import {
 } from './types';
 
 export const getCompile = (
-  module: Module,
   memoryDef: MemoryDef | null,
   tableDef: TableDef | null,
   indirectTable: IndirectInfo[],
@@ -18,6 +17,7 @@ export const getCompile = (
   debugRaw = true,
   debugOptimized: debugOpt = false,
 }: CompileOptions = {}): any => {
+  const module = getModule();
   if (memoryDef) {
     module.addMemoryImport('0', memoryDef.namespace!, memoryDef.name!);
     module.setMemory(memoryDef.initial!, memoryDef.maximum!, memoryDef.name!);

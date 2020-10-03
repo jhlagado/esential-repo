@@ -1,6 +1,6 @@
 import { esential, LibFunc } from '../src';
 
-export const resultLib: LibFunc = ({ func, block }) => {
+export const resultLib: LibFunc = ({ func }) => {
   //
   const return1000 = func(
     { params: {} },

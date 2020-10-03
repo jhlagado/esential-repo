@@ -1,15 +1,16 @@
-import { ExpressionRef, auto, Module, getExpressionType } from 'binaryen';
+import { ExpressionRef, auto, getExpressionType } from 'binaryen';
 import { TypeDef, VoidBlockFunc, Ref, Callable, Dict, Expression } from './types';
 import { setTypeDef, getTypeDef } from './type-util';
 import { asArray } from './util';
 import { literalize } from './literals';
 import { resolveExpression } from './util';
+import { getModule } from './module';
 
 export const getResultFunc = (
-  module: Module,
   resultRef: Ref<TypeDef>,
   bodyItems: ExpressionRef[],
 ): VoidBlockFunc => (...expressions) => {
+  const module = getModule();
   const { length } = expressions;
   if (length < 1) throw new Error(`Result function must have at least one arg`);
 
@@ -17,14 +18,13 @@ export const getResultFunc = (
   bodyItems.push(...leadExprs);
   const expression = expressions[length - 1];
   const typeDef = resultRef.current === auto ? undefined : resultRef.current;
-  const expr = literalize(module, expression, typeDef);
+  const expr = literalize(expression, typeDef);
   if (typeDef == null) resultRef.current = getTypeDef(getExpressionType(expr));
   
   bodyItems.push(module.return(expr));
 };
 
 export const getCallable = (
-  module: Module,
   id: string,
   exported: boolean,
   exprFunc: (...params: ExpressionRef[]) => ExpressionRef,
@@ -35,7 +35,7 @@ export const getCallable = (
 ) => {
   const callable = (...params: Expression[]) => {
     const typeArray = asArray(typeDef);
-    const params1 = params.map((param, index) => literalize(module, param, typeArray[index]));
+    const params1 = params.map((param, index) => literalize(param, typeArray[index]));
     const expr = exprFunc(...params1);
     setTypeDef(expr, resultDef);
     return expr;
@@ -47,11 +47,11 @@ export const getCallable = (
 };
 
 export const exportFuncs = (
-  module: Module,
   lib: Dict<any>,
   exportedSet: Set<Callable>,
   callableIdMap: Map<Callable, string>,
 ) => {
+  const module = getModule();
   Object.entries(lib).forEach(([externalName, callable]) => {
     if (exportedSet.has(callable)) {
       const internalName = callableIdMap.get(callable);
@@ -63,8 +63,3 @@ export const exportFuncs = (
   });
 };
 
-export const getBlock = (module: Module) => (...args: Expression[]) => {
-  const expr = module.block(null as any, args.map(resolveExpression), auto);
-  setTypeDef(expr, getExpressionType(expr));
-  return expr;
-};
