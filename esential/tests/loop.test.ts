@@ -1,10 +1,8 @@
-import { block, esential, FOR, LibFunc, ops } from '../src';
+import { block, esential, FOR, LibFunc, i32ops } from '../src';
 
 export const loopLib: LibFunc = ({ func }) => {
   //
-  const {
-    i32: { add, sub, gt },
-  } = ops;
+  const { add, sub, gt } = i32ops;
 
   const looper = func({}, (result, { i, j }) => {
     result(

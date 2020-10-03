@@ -54,10 +54,8 @@ export const getBuiltinProxy = (key: keyof Module) => {
   return builtinProxy(sigs, base, key);
 };
 
-export const ops: OpUtils = {
-  i32: getBuiltinProxy('i32'),
-  i64: getBuiltinProxy('i64'),
-  f32: getBuiltinProxy('f32'),
-  f64: getBuiltinProxy('f64'),
-  memory: getBuiltinProxy('memory'),
-};
+export const i32ops = getBuiltinProxy('i32');
+export const i64ops = getBuiltinProxy('i64');
+export const f32ops = getBuiltinProxy('f32');
+export const f64ops = getBuiltinProxy('f64');
+export const memops = getBuiltinProxy('memory');

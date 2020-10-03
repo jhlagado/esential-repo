@@ -1,12 +1,10 @@
 import { i32 } from 'binaryen';
-import { FOR, IF, LibFunc, ops } from '../../../esential/src';
+import { FOR, IF, LibFunc, i32ops } from '../../../esential/src';
 import { i32Size, pStackStart, rStackStart } from '../common/constants';
 
 export const mainLib: LibFunc = ({ external, func, globals }) => {
   //
-  const {
-    i32: { lt, add, sub, load, store },
-  } = ops;
+  const { lt, add, sub, load, store } = i32ops;
 
   globals(
     { psp: i32, rsp: i32 },

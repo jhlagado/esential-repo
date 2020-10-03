@@ -1,12 +1,9 @@
 import { i32 } from 'binaryen';
-import { block, esential, FOR, IF, LibFunc, ops } from '../src';
+import { block, esential, FOR, i32ops, IF, LibFunc } from '../src';
 import { ioLib } from './shared';
 
 export const ifLib: LibFunc = ({ lib, func }) => {
-  //
-  const {
-    i32: { add, sub, lt, rem, eqz },
-  } = ops;
+  const { add, sub, lt, rem, eqz } = i32ops;
 
   const { log } = lib(ioLib);
 

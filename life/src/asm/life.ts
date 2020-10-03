@@ -1,12 +1,10 @@
 import { i32 } from 'binaryen';
-import { FOR, IF, LibFunc, ops } from '../../../esential/src';
+import { FOR, IF, LibFunc, i32ops } from '../../../esential/src';
 import { RGB_ALIVE, RGB_DEAD } from '../common/constants';
 
 export const lifeLib: LibFunc = ({ external, func, globals }) => {
   //
-  const {
-    i32: { store, load, store8, load8, add, sub, mul, div, lt, gt, eqz, eq, and },
-  } = ops;
+  const { store, load, store8, load8, add, sub, mul, div, lt, gt, eqz, eq, and } = i32ops;
 
   globals(
     //
@@ -35,7 +33,7 @@ export const lifeLib: LibFunc = ({ external, func, globals }) => {
       result(
         //
         y0(mul(y, width)),
-        pos(add(add(ofs, y0), x)),
+        pos(add(add(ofs, y0), x)),  
         mul(pos, 4),
       );
     },

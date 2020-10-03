@@ -3,15 +3,14 @@ import { asLiteral, literalize } from './literals';
 import { getModule } from './module';
 import { getTypeDef, setTypeDef } from './type-util';
 import { Expression } from './types';
-import { resolveExpression } from './util';
+
+const lit = (expression: Expression) => literalize(expression);
 
 let scopeCount = 0;
 
-export const FOR = (
-  initializer: ExpressionRef,
-  condition: ExpressionRef,
-  final: ExpressionRef,
-) => (...body: ExpressionRef[]) => {
+export const FOR = (initializer: ExpressionRef, condition: ExpressionRef, final: ExpressionRef) => (
+  ...body: ExpressionRef[]
+) => {
   const scopeId = scopeCount++;
   const module = getModule();
   const {
@@ -27,7 +26,10 @@ export const FOR = (
           module.block(null as any, [
             //
             module.br(`loopOuter${scopeId}`, ne(condition, asLiteral(1))),
-            module.block(null as any,body.map(expression => literalize(expression))),
+            module.block(
+              null as any,
+              body.map(expression => literalize(expression)),
+            ),
             literalize(final),
             module.br(`loop${scopeId}`),
           ]),
@@ -43,14 +45,22 @@ export const FOR = (
 };
 
 //TODO make this a first class expression
-export const IF = (condition: ExpressionRef) => (
-  ...thenBody: Expression[]
-) => (...elseBody: Expression[]) => {
+export const IF = (condition: ExpressionRef) => (...thenBody: Expression[]) => (
+  ...elseBody: Expression[]
+) => {
   const module = getModule();
   const expr = module.if(
     condition,
-    module.block(null as any, thenBody.map(expression => literalize(expression)), auto),
-    module.block(null as any, elseBody.map(expression => literalize(expression)), auto),
+    module.block(
+      null as any,
+      thenBody.map(lit),
+      auto,
+    ),
+    module.block(
+      null as any,
+      elseBody.map(lit),
+      auto,
+    ),
   );
   const type = getExpressionType(expr);
   const typeDef = getTypeDef(type);
@@ -60,7 +70,11 @@ export const IF = (condition: ExpressionRef) => (
 
 export const block = (...args: Expression[]) => {
   const module = getModule();
-  const expr = module.block(null as any, args.map(resolveExpression), auto);
+  const expr = module.block(
+    null as any,
+    args.map(lit),
+    auto,
+  );
   setTypeDef(expr, getExpressionType(expr));
   return expr;
 };
