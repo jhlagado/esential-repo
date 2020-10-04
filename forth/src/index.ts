@@ -24,14 +24,9 @@ const run = async () => {
           console.log(hex.toString(16), `(${number})`);
           return;
         },
-        rnd: () => {
-          return Math.random() < 0.2;
-        },
-        sqrt: (number: number) => {
-          return Math.sqrt(number);
-        },
       },
-    });
+      Math,
+    } as any);
 
     const exported = module.instance.exports as Exported;
 

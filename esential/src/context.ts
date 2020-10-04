@@ -29,8 +29,9 @@ export const esential = (cfg?: EsentialCfg): EsentialContext => {
     memoryDef = {
       initial: cfg.memory.initial || 10,
       maximum: cfg.memory.maximum,
-      namespace: cfg.memory.namespace = 'env',
-      name: cfg.memory.name = 'memory',
+      namespace: cfg.memory.namespace || 'env',
+      name: cfg.memory.name || 'memory',
+      segments: cfg.memory.segments || [],
     };
   }
 

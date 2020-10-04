@@ -1,3 +1,4 @@
+import { MemorySegment } from 'binaryen';
 import { getModule } from './module';
 import {
   IndirectInfo,
@@ -20,7 +21,7 @@ export const getCompile = (
   const module = getModule();
   if (memoryDef) {
     module.addMemoryImport('0', memoryDef.namespace!, memoryDef.name!);
-    module.setMemory(memoryDef.initial!, memoryDef.maximum!, memoryDef.name!);
+    module.setMemory(memoryDef.initial!, memoryDef.maximum!, memoryDef.name!, memoryDef.segments!);
   }
   const ids = indirectTable.map(item => item.id);
   const { length } = ids;

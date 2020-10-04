@@ -1,6 +1,18 @@
 import { f32, i32 } from 'binaryen';
 import { LibFunc, i32ops, f32ops } from '../../../esential/src';
-import { f32Size, i32Size, pStackStart, rStackStart } from '../common/constants';
+import { f32Size, i32Size, pStackStart, rStackStart, sStackStart } from '../common/constants';
+
+enum prim {
+  nil, // 0
+  i8,  // 1
+  i16, // 2
+  i32, // 3
+  i64, // 4 
+  f32, // 5
+  f64, // 6
+};
+const primArray = 0x10;
+const procArray = 0x20;
 
 export const mainLib: LibFunc = ({ external, func, globals }) => {
   //
@@ -11,14 +23,21 @@ export const mainLib: LibFunc = ({ external, func, globals }) => {
     params: { a: i32 },
   });
 
-  const _sqrt = external({
-    namespace: 'env',
+  const sqrt = external({
+    namespace: 'Math',
     name: 'sqrt',
     params: { a: i32 },
     result: f32,
   });
 
-  const { add, sub, mul, load, store } = i32ops;
+  // const intern = external({
+  //   namespace: 'env',
+  //   name: 'intern',
+  //   params: { ptr: i32 },
+  //   result: i32,
+  // });
+
+  const { add, sub, mul, load, store, load8 } = i32ops;
   const { load: fload, store: fstore } = f32ops;
 
   globals(
@@ -26,6 +45,7 @@ export const mainLib: LibFunc = ({ external, func, globals }) => {
     {
       psp: pStackStart,
       rsp: rStackStart,
+      ssp: sStackStart,
     },
   );
 
@@ -127,12 +147,12 @@ export const mainLib: LibFunc = ({ external, func, globals }) => {
     },
   );
 
-  const sqrt = func(
+  const sqroot = func(
     { params: {} }, //
     (result, {}) => {
       result(
         //
-        fpush(_sqrt(pop())),
+        fpush(sqrt(pop())),
         // fpush(3),
       );
     },
@@ -149,6 +169,7 @@ export const mainLib: LibFunc = ({ external, func, globals }) => {
         dup(),
         star(),
         plus(),
+        sqroot(),
       );
     },
   );
@@ -158,15 +179,12 @@ export const mainLib: LibFunc = ({ external, func, globals }) => {
     (result, { w, h }) => {
       result(
         //
+        log(load8(0,0,0)),
+        log(load8(0,0,1)),
+        log(load8(0,0,2)),
         push(w),
         push(h), 
-        dup(),
-        star(),
-        swap(),
-        dup(),
-        star(),
-        plus(),
-        sqrt(),
+        hyp(),
         fpop(), 
       );
     },

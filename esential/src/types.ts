@@ -1,4 +1,4 @@
-import { ExpressionRef, Type } from 'binaryen';
+import { ExpressionRef, MemorySegment, Type } from 'binaryen';
 
 export type Thunk<T> = () => T;
 export type Ref<T> = { current: T };
@@ -54,6 +54,7 @@ export type AllocatedDef<T> = {
   initial?: number;
   maximum?: number;
   instance?: T;
+  segments?: MemorySegment[];
 };
 export type MemoryDef = AllocatedDef<WebAssembly.Memory>;
 export type TableDef = AllocatedDef<WebAssembly.Table>;

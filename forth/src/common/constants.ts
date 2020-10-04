@@ -7,6 +7,7 @@ export const f32Size = 4;
 
 export const pStackSize = 1000;
 export const rStackSize = 1000;
+export const sStackSize = 1000;
 export const userSize = 1000;
 
 export const memStart = 0;
@@ -16,5 +17,7 @@ export const pStackStart = latest + i32Size;
 export const pStackEnd = pStackStart + pStackSize;
 export const rStackStart = pStackEnd;
 export const rStackEnd = rStackStart + rStackSize;
-export const userStart = rStackEnd;
+export const sStackStart = rStackEnd;
+export const sStackEnd = sStackStart + sStackSize;
+export const userStart = sStackEnd;
 export const userEnd = userStart + userSize;

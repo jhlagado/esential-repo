@@ -1,13 +1,41 @@
-import { asPages, esential } from '../../../esential/src';
+import { asPages, esential, getModule } from '../../../esential/src';
 import { mainLib } from './main';
+
+const module = getModule();
 
 global.console = { ...console, log: jest.fn(console.log) };
 
-const pages = asPages(500000);
-const size = { initial: pages, maximum: pages };
-const memory = new WebAssembly.Memory(size);
+const stringSegment = (string: string) => new TextEncoder().encode(string);
 
-const { lib, load, compile } = esential({ memory: { ...size } });
+const uint32ArraySegment = (array: number[]) => new Uint8Array(new Uint32Array(array).buffer);
+
+const getSegments = (arrays: Uint8Array[]) => {
+  let offset = 0;
+  const segments = [];
+  for (const array of arrays) {
+    segments.push({
+      offset: module.i32.const(offset),
+      data: array,
+    });
+    offset += array.length;
+  }
+  return segments;
+};
+
+const pages = asPages(500000);
+const memoryDef = {
+  initial: pages,
+  maximum: pages,
+  name: 'memory1',
+  segments: getSegments([
+    //
+    stringSegment('xyz'),
+    uint32ArraySegment([1000, 2000, 3000]),
+  ]),
+};
+const memory = new WebAssembly.Memory(memoryDef);
+
+const { lib, load, compile } = esential({ memory: { ...memoryDef } });
 
 lib(mainLib);
 const exported = load(compile(), {
@@ -23,14 +51,8 @@ const exported = load(compile(), {
       console.log(hex.toString(16), `(${number})`);
       return;
     },
-    rnd: () => {
-      return Math.random() < 0.2;
-    },
-    sqrt: (number: number) => {
-      return Math.sqrt(number);
-    },
-
   },
+  Math,
 });
 
 it('should init lib', () => {
