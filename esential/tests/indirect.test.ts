@@ -27,9 +27,9 @@ export const indirectLib: LibFunc = ({ func, indirect }) => {
   };
 };
 
-const size = { initial: 10, maximum: 100 };
+const tableDef = { initial: 10, maximum: 100 };
 
-const { lib, load, compile } = esential({ table: { ...size } });
+const { lib, load, compile } = esential({ table: { ...tableDef } });
 lib(indirectLib);
 
 const exported = load(compile());

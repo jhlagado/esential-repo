@@ -14,7 +14,7 @@ enum prim {
 const primArray = 0x10;
 const procArray = 0x20;
 
-export const mainLib: LibFunc = ({ external, func, globals }) => {
+export const mainLib: LibFunc = ({ external, func, indirect, globals }) => {
   //
 
   const log = external({
@@ -74,30 +74,6 @@ export const mainLib: LibFunc = ({ external, func, globals }) => {
     },
   );
 
-  const dup = func(
-    { params: {} }, //
-    (result, { a }) => {
-      result(
-        //
-        a(peek()),
-        push(a),
-      );
-    },
-  );
-
-  const swap = func(
-    { params: {} }, //
-    (result, { a, b }) => {
-      result(
-        //
-        a(pop()),
-        b(pop()),
-        push(a),
-        push(b),
-      );
-    },
-  );
-
   const fpush = func(
     { params: { value: f32 } }, //
     (result, { value, psp }) => {
@@ -120,7 +96,31 @@ export const mainLib: LibFunc = ({ external, func, globals }) => {
     },
   );
 
-  const plus = func(
+  const dup = indirect(
+    { params: {} }, //
+    (result, { a }) => {
+      result(
+        //
+        a(peek()),
+        push(a),
+      );
+    },
+  );
+
+  const swap = indirect(
+    { params: {} }, //
+    (result, { a, b }) => {
+      result(
+        //
+        a(pop()),
+        b(pop()),
+        push(a),
+        push(b),
+      );
+    },
+  );
+
+  const plus = indirect(
     { params: {} }, //
     (result, {}) => {
       result(
@@ -130,7 +130,7 @@ export const mainLib: LibFunc = ({ external, func, globals }) => {
     },
   );
 
-  const star = func(
+  const star = indirect(
     { params: {} }, //
     (result, {}) => {
       result(
@@ -140,7 +140,7 @@ export const mainLib: LibFunc = ({ external, func, globals }) => {
     },
   );
 
-  const sqroot = func(
+  const sqroot = indirect(
     { params: {} }, //
     (result, {}) => {
       result(

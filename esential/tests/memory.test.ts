@@ -44,10 +44,10 @@ export const memoryLib: LibFunc = ({ func, globals }) => {
 };
 
 const pages = asPages(500000);
-const size = { initial: pages, maximum: pages };
-const instance = new WebAssembly.Memory(size);
+const memoryDef = { initial: pages, maximum: pages };
+const instance = new WebAssembly.Memory(memoryDef);
 
-const { lib, load, compile } = esential({ memory: { ...size, instance } });
+const { lib, load, compile } = esential({ memory: { ...memoryDef, instance } });
 
 lib(memoryLib);
 

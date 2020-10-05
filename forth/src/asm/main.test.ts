@@ -34,8 +34,9 @@ const memoryDef = {
   ]),
 };
 const memory = new WebAssembly.Memory(memoryDef);
+const tableDef = { initial: 10, maximum: 100 };
 
-const { lib, load, compile } = esential({ memory: { ...memoryDef } });
+const { lib, load, compile } = esential({ memory: memoryDef, table: tableDef });
 
 lib(mainLib);
 const exported = load(compile(), {
