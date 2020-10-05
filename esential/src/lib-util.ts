@@ -15,21 +15,39 @@ import { asType } from './type-util';
 import { literalize } from './literals';
 import { getModule } from './module';
 
+export const getDirectFuncImpl = ()=>(id: string, _paramDefs: Dict<TypeDef>, resultDef: TypeDef) => (
+  ...params: ExpressionRef[]
+) => {
+  const resultType = asType(resultDef);
+  return getModule().call(id, params, resultType);
+};
+
+export const getIndirectFuncImpl = (indirectTable: IndirectInfo[]) => (
+  id: string,
+  paramDefs: Dict<TypeDef>,
+  resultDef: TypeDef,
+) => {
+  const module = getModule();
+  const paramsType = createType(Object.values(paramDefs).map(asType));
+  const resultType = asType(resultDef);
+  const index = indirectTable.length;
+  indirectTable.push({ index, id, paramDefs, resultDef });
+  return (...params: ExpressionRef[]) =>
+    module.call_indirect(module.i32.const(index), params, paramsType, resultType);
+};
+
 export const getFunc = (
   callableIdMap: Map<Callable, string>,
   exportedSet: Set<Callable>,
-  indirectTable: IndirectInfo[],
   globalVars: Dict<TypeDef>,
+  getFuncImpl: (
+    id: string,
+    paramDefs: Dict<TypeDef>,
+    resultDef: TypeDef,
+  ) => (...params: ExpressionRef[]) => ExpressionRef,
 ) => (def: FuncDef, initializer?: Initializer): Callable => {
   const count = callableIdMap.size;
-  const {
-    id = `func${count}`,
-    params = {},
-    result,
-    locals = {},
-    export: exported = true,
-    indirect = false,
-  } = def;
+  const { id = `func${count}`, params = {}, result, locals = {}, export: exported = true } = def;
   const module = getModule();
   const bodyItems: ExpressionRef[] = [];
   const vars = { ...params, ...locals };
@@ -45,21 +63,11 @@ export const getFunc = (
     .slice(paramsLength)
     .map(asType);
   module.addFunction(id, paramsType, resultType, localTypes, module.block(null as any, bodyItems));
-  let exprFunc;
-  if (!indirect) {
-    exprFunc = (...params: ExpressionRef[]) => module.call(id, params, resultType);
-  } else {
-    const index = indirectTable.length;
-    indirectTable.push({ index, id, paramDefs: params, resultDef: resultDef });
-    exprFunc = (...params: ExpressionRef[]) =>
-      module.call_indirect(module.i32.const(index), params, paramsType, resultType);
-  }
+  const exprFunc = getFuncImpl(id, params, resultType);
   return getCallable(id, exported, exprFunc, params, resultDef, callableIdMap, exportedSet);
 };
 
-export const getExternal = (callableIdMap: Map<Callable, string>) => (
-  def: FuncDef,
-): Callable => {
+export const getExternal = (callableIdMap: Map<Callable, string>) => (def: FuncDef): Callable => {
   const module = getModule();
   const count = callableIdMap.size;
   const { id = `func${count}`, params = {}, result, namespace = 'namespace', name = 'name' } = def;

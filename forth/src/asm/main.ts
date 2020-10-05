@@ -30,13 +30,6 @@ export const mainLib: LibFunc = ({ external, func, globals }) => {
     result: f32,
   });
 
-  // const intern = external({
-  //   namespace: 'env',
-  //   name: 'intern',
-  //   params: { ptr: i32 },
-  //   result: i32,
-  // });
-
   const { add, sub, mul, load, store, load8 } = i32ops;
   const { load: fload, store: fstore } = f32ops;
 

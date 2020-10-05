@@ -13,7 +13,13 @@ import {
 import { FEATURE_MULTIVALUE } from './constants';
 import { getCompile, getLoad } from './context-utils';
 import { exportFuncs } from './func-util';
-import { getFunc, getExternal, getGlobals } from './lib-util';
+import {
+  getFunc,
+  getExternal,
+  getGlobals,
+  getDirectFuncImpl,
+  getIndirectFuncImpl,
+} from './lib-util';
 import { getModule } from './module';
 
 export const esential = (cfg?: EsentialCfg): EsentialContext => {
@@ -61,7 +67,8 @@ export const esential = (cfg?: EsentialCfg): EsentialContext => {
       libMap.set(libFunc, lib);
       return lib;
     },
-    func: getFunc(callableIdMap, exportedSet, indirectTable, globalVars),
+    func: getFunc(callableIdMap, exportedSet, globalVars, getDirectFuncImpl()),
+    indirect: getFunc(callableIdMap, exportedSet, globalVars, getIndirectFuncImpl(indirectTable)),
     external: getExternal(callableIdMap),
     globals: getGlobals(globalVars),
 

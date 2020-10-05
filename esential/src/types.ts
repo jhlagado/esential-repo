@@ -28,7 +28,6 @@ export type FuncDef = {
   result?: TypeDef;
   locals?: Dict<TypeDef>;
   export?: boolean;
-  indirect?: boolean;
   namespace?: string;
   name?: string;
 };
@@ -79,6 +78,7 @@ export type EsentialCfg = {
 
 export type LibUtils = {
   func: (def: FuncDef, funcImpl?: Initializer) => Callable;
+  indirect: (def: FuncDef, funcImpl?: Initializer) => Callable;
   external: (def: ExternalDef) => Callable;
   globals: (varDefs: Dict<TypeDef>, assignments: Dict<Expression>) => void;
   lib: (func: LibFunc, args?: Dict<any>) => any;
