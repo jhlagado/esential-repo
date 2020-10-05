@@ -1,5 +1,6 @@
 import { i32 } from 'binaryen';
 import { esential, LibFunc, i32ops } from '../src';
+import { callableInfoMap } from '../src/maps';
 
 export const indirectLib: LibFunc = ({ func, indirect }) => {
   //
@@ -21,9 +22,18 @@ export const indirectLib: LibFunc = ({ func, indirect }) => {
     },
   );
 
+  const getCallableIndex = func({}, result => {
+    const callable = indirectAddition;
+    const info = callableInfoMap.get(callable);
+    const index = info? info.index : -1;
+    console.log(info);
+    result(index);
+  });
+
   return {
     indirectAddition,
     indirect123,
+    getCallableIndex,
   };
 };
 
@@ -36,4 +46,8 @@ const exported = load(compile());
 
 it('should add 2 numbers indirectly', () => {
   expect(exported.indirect123(300, 200)).toBe(500);
+});
+
+it('should return the index of the indirect function', () => { 
+  expect(exported.getCallableIndex()).toBe(0);
 });
