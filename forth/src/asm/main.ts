@@ -1,5 +1,13 @@
-import { f32, i32 } from 'binaryen';
-import { LibFunc, i32ops, f32ops, Callable, EsentialContext } from '../../../esential/src';
+import { f32, i32, none } from 'binaryen';
+import {
+  LibFunc,
+  i32ops,
+  f32ops,
+  Callable,
+  EsentialContext,
+  getModule,
+} from '../../../esential/src';
+import { callableInfoMap } from '../../../esential/src/maps';
 import { f32Size, i32Size, pStackStart, rStackStart, sStackStart } from '../common/constants';
 
 enum prim {
@@ -14,13 +22,20 @@ enum prim {
 const primArray = 0x10;
 const procArray = 0x20;
 
-// const DEFWORD = (getIndirectInfo:, ...indirects:Callable) => {
-//   // cosnt module = getModule();
-//   const infos = getIn
-// }
-
 export const mainLib: LibFunc = ({ external, func, indirect, globals }) => {
   //
+
+  const DEFWORD = (...indirects: Callable[]) =>
+    func({ params: {} }, (result, {}) => {
+      const module = getModule();
+      const opcodes = indirects
+        .map(indirect => callableInfoMap.get(indirect))
+        .map(info => {
+          const index = info?.index || 0;
+          return module.call_indirect(module.i32.const(index), [], none, none);
+        });
+      result(...opcodes, module.nop());
+    });
 
   const log = external({
     namespace: 'env',
@@ -172,15 +187,7 @@ export const mainLib: LibFunc = ({ external, func, indirect, globals }) => {
     },
   );
 
-  // const hyp1 = func(
-  //   { params: {} }, //
-  //   (result, {}) => {
-  //     result(
-  //       //
-  //       DEFWORD(dup, star, swap, dup, star, plus, sqroot),
-  //     );
-  //   },
-  // );
+  const hyp1 = DEFWORD(dup, star, swap, dup, star, plus, sqroot);
 
   const init = func(
     { params: { w: i32, h: i32 } }, //
@@ -192,7 +199,7 @@ export const mainLib: LibFunc = ({ external, func, indirect, globals }) => {
         log(load8(0, 0, 2)),
         push(w),
         push(h),
-        hyp(),
+        hyp1(),
         fpop(),
       );
     },
