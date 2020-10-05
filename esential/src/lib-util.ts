@@ -14,6 +14,7 @@ import { getResultFunc, getCallable } from './func-util';
 import { asType } from './type-util';
 import { literalize } from './literals';
 import { getModule } from './module';
+import { callableIdMap } from './maps';
 
 export const getDirectFuncImpl = ()=>(id: string, _paramDefs: Dict<TypeDef>, resultDef: TypeDef) => (
   ...params: ExpressionRef[]
@@ -26,6 +27,7 @@ export const getIndirectFuncImpl = (indirectTable: IndirectInfo[]) => (
   id: string,
   paramDefs: Dict<TypeDef>,
   resultDef: TypeDef,
+  
 ) => {
   const module = getModule();
   const paramsType = createType(Object.values(paramDefs).map(asType));
@@ -37,7 +39,6 @@ export const getIndirectFuncImpl = (indirectTable: IndirectInfo[]) => (
 };
 
 export const getFunc = (
-  callableIdMap: Map<Callable, string>,
   exportedSet: Set<Callable>,
   globalVars: Dict<TypeDef>,
   getFuncImpl: (
@@ -64,10 +65,10 @@ export const getFunc = (
     .map(asType);
   module.addFunction(id, paramsType, resultType, localTypes, module.block(null as any, bodyItems));
   const exprFunc = getFuncImpl(id, params, resultType);
-  return getCallable(id, exported, exprFunc, params, resultDef, callableIdMap, exportedSet);
+  return getCallable(id, exported, exprFunc, params, resultDef, exportedSet);
 };
 
-export const getExternal = (callableIdMap: Map<Callable, string>) => (def: FuncDef): Callable => {
+export const getExternal = () => (def: FuncDef): Callable => {
   const module = getModule();
   const count = callableIdMap.size;
   const { id = `func${count}`, params = {}, result, namespace = 'namespace', name = 'name' } = def;
@@ -76,7 +77,7 @@ export const getExternal = (callableIdMap: Map<Callable, string>) => (def: FuncD
   const resultType = asType(resultDef);
   module.addFunctionImport(id, namespace, name, paramsType, resultType);
   const exprFunc = (...params: ExpressionRef[]) => module.call(id, params, resultType);
-  return getCallable(id, false, exprFunc, params, resultDef, callableIdMap);
+  return getCallable(id, false, exprFunc, params, resultDef);
 };
 
 export const getGlobals = (globalVarDefs: Dict<TypeDef>) => (

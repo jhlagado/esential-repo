@@ -1,18 +1,23 @@
 import { f32, i32 } from 'binaryen';
-import { LibFunc, i32ops, f32ops } from '../../../esential/src';
+import { LibFunc, i32ops, f32ops, Callable, EsentialContext } from '../../../esential/src';
 import { f32Size, i32Size, pStackStart, rStackStart, sStackStart } from '../common/constants';
 
 enum prim {
   nil, // 0
-  i8,  // 1
+  i8, // 1
   i16, // 2
   i32, // 3
-  i64, // 4 
+  i64, // 4
   f32, // 5
   f64, // 6
-};
+}
 const primArray = 0x10;
 const procArray = 0x20;
+
+// const DEFWORD = (getIndirectInfo:, ...indirects:Callable) => {
+//   // cosnt module = getModule();
+//   const infos = getIn
+// }
 
 export const mainLib: LibFunc = ({ external, func, indirect, globals }) => {
   //
@@ -167,18 +172,28 @@ export const mainLib: LibFunc = ({ external, func, indirect, globals }) => {
     },
   );
 
+  // const hyp1 = func(
+  //   { params: {} }, //
+  //   (result, {}) => {
+  //     result(
+  //       //
+  //       DEFWORD(dup, star, swap, dup, star, plus, sqroot),
+  //     );
+  //   },
+  // );
+
   const init = func(
     { params: { w: i32, h: i32 } }, //
     (result, { w, h }) => {
       result(
         //
-        log(load8(0,0,0)),
-        log(load8(0,0,1)),
-        log(load8(0,0,2)),
+        log(load8(0, 0, 0)),
+        log(load8(0, 0, 1)),
+        log(load8(0, 0, 2)),
         push(w),
-        push(h), 
+        push(h),
         hyp(),
-        fpop(), 
+        fpop(),
       );
     },
   );

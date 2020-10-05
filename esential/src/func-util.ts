@@ -5,6 +5,7 @@ import { asArray } from './util';
 import { literalize } from './literals';
 import { resolveExpression } from './util';
 import { getModule } from './module';
+import { callableIdMap } from './maps';
 
 export const getResultFunc = (
   resultRef: Ref<TypeDef>,
@@ -30,7 +31,6 @@ export const getCallable = (
   exprFunc: (...params: ExpressionRef[]) => ExpressionRef,
   typeDef: Dict<TypeDef> | TypeDef[],
   resultDef: TypeDef,
-  callableIdMap: Map<Callable, string>,
   exportedSet?: Set<Callable>,
 ) => {
   const callable = (...params: Expression[]) => {
@@ -49,7 +49,6 @@ export const getCallable = (
 export const exportFuncs = (
   lib: Dict<any>,
   exportedSet: Set<Callable>,
-  callableIdMap: Map<Callable, string>,
 ) => {
   const module = getModule();
   Object.entries(lib).forEach(([externalName, callable]) => {

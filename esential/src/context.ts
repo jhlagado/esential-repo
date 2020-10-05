@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
   Callable,
   LibFunc,
@@ -21,6 +20,7 @@ import {
   getIndirectFuncImpl,
 } from './lib-util';
 import { getModule } from './module';
+import { callableIndirectMap } from './maps';
 
 export const esential = (cfg?: EsentialCfg): EsentialContext => {
   const module = getModule();
@@ -50,8 +50,6 @@ export const esential = (cfg?: EsentialCfg): EsentialContext => {
     };
   }
 
-  const callableIdMap = new Map<Callable, string>();
-  const callableIndirectMap = new Map<Callable, IndirectInfo>();
   const libMap = new Map<LibFunc, Dict<Callable>>();
   const exportedSet = new Set<Callable>();
   const indirectTable: IndirectInfo[] = [];
@@ -63,13 +61,13 @@ export const esential = (cfg?: EsentialCfg): EsentialContext => {
         return libMap.get(libFunc);
       }
       const lib = libFunc(context, args);
-      exportFuncs(lib, exportedSet, callableIdMap);
+      exportFuncs(lib, exportedSet);
       libMap.set(libFunc, lib);
       return lib;
     },
-    func: getFunc(callableIdMap, exportedSet, globalVars, getDirectFuncImpl()),
-    indirect: getFunc(callableIdMap, exportedSet, globalVars, getIndirectFuncImpl(indirectTable)),
-    external: getExternal(callableIdMap),
+    func: getFunc(exportedSet, globalVars, getDirectFuncImpl()),
+    indirect: getFunc(exportedSet, globalVars, getIndirectFuncImpl(indirectTable)),
+    external: getExternal(),
     globals: getGlobals(globalVars),
 
     compile: getCompile(memoryDef, tableDef, indirectTable),
