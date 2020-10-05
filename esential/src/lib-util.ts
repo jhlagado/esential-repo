@@ -14,28 +14,32 @@ import { getResultFunc, getCallable } from './func-util';
 import { asType } from './type-util';
 import { literalize } from './literals';
 import { getModule } from './module';
-import { callableIdMap } from './maps';
+import { callableIdMap, callableInfoMap } from './maps';
 
-export const getDirectFuncImpl = ()=>(id: string, _paramDefs: Dict<TypeDef>, resultDef: TypeDef) => (
-  ...params: ExpressionRef[]
+export const getDirectFuncImpl = () => (
+  id: string,
+  _paramDefs: Dict<TypeDef>,
+  resultDef: TypeDef,
 ) => {
   const resultType = asType(resultDef);
-  return getModule().call(id, params, resultType);
+  const exprFunc = (...params: ExpressionRef[]) => getModule().call(id, params, resultType);
+  return { exprFunc };
 };
 
 export const getIndirectFuncImpl = (indirectTable: IndirectInfo[]) => (
   id: string,
   paramDefs: Dict<TypeDef>,
   resultDef: TypeDef,
-  
 ) => {
   const module = getModule();
   const paramsType = createType(Object.values(paramDefs).map(asType));
   const resultType = asType(resultDef);
   const index = indirectTable.length;
-  indirectTable.push({ index, id, paramDefs, resultDef });
-  return (...params: ExpressionRef[]) =>
+  const info = { index, id, paramDefs, resultDef };
+  indirectTable.push(info);
+  const exprFunc = (...params: ExpressionRef[]) =>
     module.call_indirect(module.i32.const(index), params, paramsType, resultType);
+  return { exprFunc, info };
 };
 
 export const getFunc = (
@@ -45,7 +49,7 @@ export const getFunc = (
     id: string,
     paramDefs: Dict<TypeDef>,
     resultDef: TypeDef,
-  ) => (...params: ExpressionRef[]) => ExpressionRef,
+  ) => { exprFunc: (...params: ExpressionRef[]) => ExpressionRef; info?: Dict<any> },
 ) => (def: FuncDef, initializer?: Initializer): Callable => {
   const count = callableIdMap.size;
   const { id = `func${count}`, params = {}, result, locals = {}, export: exported = true } = def;
@@ -64,8 +68,11 @@ export const getFunc = (
     .slice(paramsLength)
     .map(asType);
   module.addFunction(id, paramsType, resultType, localTypes, module.block(null as any, bodyItems));
-  const exprFunc = getFuncImpl(id, params, resultType);
-  return getCallable(id, exported, exprFunc, params, resultDef, exportedSet);
+  const { exprFunc, info } = getFuncImpl(id, params, resultType);
+  const callable = getCallable(id, exported, exprFunc, params, resultDef, exportedSet);
+  if (info != null) callableInfoMap.set(callable, info);
+
+  return callable;
 };
 
 export const getExternal = () => (def: FuncDef): Callable => {

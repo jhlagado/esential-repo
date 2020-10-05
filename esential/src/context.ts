@@ -20,7 +20,7 @@ import {
   getIndirectFuncImpl,
 } from './lib-util';
 import { getModule } from './module';
-import { callableIndirectMap } from './maps';
+import { callableInfoMap } from './maps';
 
 export const esential = (cfg?: EsentialCfg): EsentialContext => {
   const module = getModule();
@@ -72,10 +72,6 @@ export const esential = (cfg?: EsentialCfg): EsentialContext => {
 
     compile: getCompile(memoryDef, tableDef, indirectTable),
     load: getLoad(memoryDef, tableDef),
-
-    getIndirectInfo: (callable: Callable) => callableIndirectMap.get(callable),
-    getMemory: () => memoryDef,
-    getTable: () => tableDef,
   };
   return context;
 };

@@ -95,10 +95,6 @@ export type OpUtils = {
 export type ContextUtils = {
   compile: (options?: CompileOptions) => Uint8Array;
   load: (binary: Uint8Array, imports?: Dict<Dict<any>>) => any;
-
-  getIndirectInfo(callable: Callable): IndirectInfo | undefined;
-  getMemory: () => MemoryDef | null;
-  getTable: () => TableDef | null;
 };
 
 export type EsentialContext = LibUtils & ContextUtils;
