@@ -4,7 +4,7 @@ import { RGB_ALIVE, RGB_DEAD } from '../common/constants';
 
 export const lifeLib: LibFunc = ({ external, func, globals }) => {
   //
-  const { store, load, store8, load8, add, sub, mul, div, lt, gt, eqz, eq, and } = i32ops;
+  const { store, load, store8, load8_u, add, sub, mul, div, lt, gt, eqz, eq, and } = i32ops;
 
   globals(
     //
@@ -12,19 +12,17 @@ export const lifeLib: LibFunc = ({ external, func, globals }) => {
     { width: 0, height: 0, offset: 0 },
   );
 
+  const log = external({
+    namespace: 'env',
+    name: 'log',
+    params: { a: i32 },
+  });
+
   const rnd = external({
     namespace: 'env',
     name: 'rnd',
     params: {},
     result: i32,
-  });
-
-  const add1 = func({ params: { a: i32 } }, (result, { a }) => {
-    result(add(a, 1));
-  });
-
-  const sub1 = func({ params: { a: i32 } }, (result, { a }) => {
-    result(sub(a, 1));
   });
 
   const getPos = func(
@@ -59,7 +57,7 @@ export const lifeLib: LibFunc = ({ external, func, globals }) => {
       result(
         //
         pos(add(getPos(x, y, 0), 3)),
-        alpha(sub1(load8(0, 0, pos))),
+        alpha(sub(load8_u(0, 0, pos),1)),
         IF(lt(alpha, 0))(alpha(0))(),
         store8(0, 0, pos, alpha),
       );
@@ -126,13 +124,13 @@ export const lifeLib: LibFunc = ({ external, func, globals }) => {
       FOR(
         j(0),
         lt(j, height),
-        j(add1(j)),
+        j(add(j,1)),
       )(
         FOR(
           //
           i(0),
           lt(i, width),
-          i(add1(i)),
+          i(add(i,1)),
         )(
           //
           IF(rnd())(setPixel(i, j, RGB_ALIVE))(setPixel(i, j, RGB_DEAD)),
@@ -160,13 +158,13 @@ export const lifeLib: LibFunc = ({ external, func, globals }) => {
       FOR(
         j(0),
         lt(j, height),
-        j(add1(j)),
+        j(add(j,1)),
       )(
         FOR(
           //
           i(0),
           lt(i, width),
-          i(add1(i)),
+          i(add(i,1)),
         )(
           fadePixel(i, j),
           count(countNeighbors(i, j)),
@@ -195,25 +193,25 @@ export const lifeLib: LibFunc = ({ external, func, globals }) => {
           //
           i(left),
           lt(i, right),
-          i(add1(i)),
+          i(add(i,1)),
         )(setPixel(i, top, RGB_ALIVE)),
         FOR(
           //
           i(left),
           lt(i, right),
-          i(add1(i)),
+          i(add(i,1)),
         )(setPixel(i, bottom, RGB_ALIVE)),
         FOR(
           //
           j(top),
           lt(j, bottom),
-          j(add1(j)),
+          j(add(j,1)),
         )(setPixel(left, j, RGB_ALIVE)),
         FOR(
           //
           j(top),
           lt(j, bottom),
-          j(add1(j)),
+          j(add(j,1)),
         )(setPixel(right, j, RGB_ALIVE)),
       );
     },
