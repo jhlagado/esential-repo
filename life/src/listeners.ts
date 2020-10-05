@@ -47,7 +47,6 @@ export const addAllListeners = (
       const bcr = canvas.getBoundingClientRect();
       const x = (loc.clientX - bcr.left)/(bcr.width)* WIDTH;
       const y = (loc.clientY - bcr.top)/(bcr.height)* HEIGHT;
-      console.log({x,y})
       if (callback) callback(x, y);
     },
   );
