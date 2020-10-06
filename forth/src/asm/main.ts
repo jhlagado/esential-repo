@@ -4,23 +4,12 @@ import {
   i32ops,
   f32ops,
   Callable,
-  EsentialContext,
   getModule,
+  setTypeDef,
+  block,
 } from '../../../esential/src';
 import { callableInfoMap } from '../../../esential/src/maps';
 import { f32Size, i32Size, pStackStart, rStackStart, sStackStart } from '../common/constants';
-
-enum prim {
-  nil, // 0
-  i8, // 1
-  i16, // 2
-  i32, // 3
-  i64, // 4
-  f32, // 5
-  f64, // 6
-}
-const primArray = 0x10;
-const procArray = 0x20;
 
 export const mainLib: LibFunc = ({ external, func, indirect, globals }) => {
   //
@@ -32,15 +21,24 @@ export const mainLib: LibFunc = ({ external, func, indirect, globals }) => {
         .map(indirect => callableInfoMap.get(indirect))
         .map(info => {
           const index = info?.index || 0;
-          return module.call_indirect(module.i32.const(index), [], none, none);
+          const expr = module.call_indirect(module.i32.const(index), [], none, none);
+          setTypeDef(expr, none);
+          return expr;
         });
-      result(...opcodes, module.nop());
+      result(block(...opcodes));
     });
 
   const log = external({
     namespace: 'env',
     name: 'log',
     params: { a: i32 },
+  });
+
+  const rnd = external({
+    namespace: 'env',
+    name: 'rnd',
+    params: {},
+    result: i32,
   });
 
   const sqrt = external({
@@ -116,6 +114,16 @@ export const mainLib: LibFunc = ({ external, func, indirect, globals }) => {
     },
   );
 
+  const literal = indirect(
+    { params: { a: i32 } }, //
+    (result, { a }) => {
+      result(
+        //
+        push(a),
+      );
+    },
+  );
+
   const dup = indirect(
     { params: {} }, //
     (result, { a }) => {
@@ -171,22 +179,6 @@ export const mainLib: LibFunc = ({ external, func, indirect, globals }) => {
     },
   );
 
-  const hyp = func(
-    { params: {} }, //
-    (result, {}) => {
-      result(
-        //
-        dup(),
-        star(),
-        swap(),
-        dup(),
-        star(),
-        plus(),
-        sqroot(),
-      );
-    },
-  );
-
   const hyp1 = DEFWORD(dup, star, swap, dup, star, plus, sqroot);
 
   const init = func(
@@ -194,9 +186,6 @@ export const mainLib: LibFunc = ({ external, func, indirect, globals }) => {
     (result, { w, h }) => {
       result(
         //
-        log(load8(0, 0, 0)),
-        log(load8(0, 0, 1)),
-        log(load8(0, 0, 2)),
         push(w),
         push(h),
         hyp1(),

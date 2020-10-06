@@ -5,8 +5,11 @@ import { calcNumPages } from '../src/common/tools';
 
 const pages = calcNumPages(WIDTH, HEIGHT);
 console.log(pages);
-const size = { initial: pages, maximum: pages };
 
-build(mainLib, 'dist/main.wasm', {
-  memory: { ...size },
-});
+const memoryDef = {
+  initial: pages,
+  maximum: pages,
+};
+const tableDef = { initial: 10, maximum: 100 };
+
+build(mainLib, 'dist/main.wasm', { memory: memoryDef, table: tableDef });

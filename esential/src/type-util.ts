@@ -15,11 +15,6 @@ export const getKnownExpressionType = (expr: ExpressionRef): Type | undefined =>
   return exprTypeMap.get(expr);
 };
 
-export const getTypeDefOrNull = (type: Type): TypeDef | undefined => {
-  if (type === none) return none;
-  return typeDefMap.get(type);
-};
-
 export const getTypeDef = (type: Type): TypeDef => {
   if (type === none) return none;
 

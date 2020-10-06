@@ -39,7 +39,7 @@ const tableDef = { initial: 10, maximum: 100 };
 const { lib, load, compile } = esential({ memory: memoryDef, table: tableDef });
 
 lib(mainLib);
-const exported = load(compile(), {
+const exported = load(compile({ debugOptimized: true }), {
   env: {
     memory,
     abort: function() {
