@@ -10,6 +10,6 @@ const memoryDef = {
   initial: pages,
   maximum: pages,
 };
-const tableDef = { initial: 10, maximum: 100 };
+const tableDef = { initial: 10, maximum: 100 }; 
 
-build(mainLib, 'dist/main.wasm', { memory: memoryDef, table: tableDef });
+build(mainLib, 'dist/main.wasm', { memory: memoryDef, table: tableDef },{ debugOptimized: false });

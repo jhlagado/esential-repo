@@ -1,18 +1,25 @@
-import { f32, i32, none } from 'binaryen';
+import { i32, none } from 'binaryen';
 import {
   LibFunc,
   i32ops,
-  f32ops,
   Callable,
   getModule,
   setTypeDef,
   block,
+  getIndirectIndex,
 } from '../../../esential/src';
 import { callableInfoMap } from '../../../esential/src/maps';
-import { f32Size, i32Size, pStackStart, rStackStart, sStackStart } from '../common/constants';
+import { RGB_ALIVE } from '../common/constants';
+import { forthCoreLib } from './forth-core';
+import { stackLib } from './stack';
+import { systemLib } from './system';
 
-export const mainLib: LibFunc = ({ external, func, indirect, globals }) => {
+export const mainLib: LibFunc = ({ lib, func, indirect }) => {
   //
+  lib(systemLib);
+  const { push, fpop } = lib(stackLib);
+  const { dup, swap, plus, star, sqroot } = lib(forthCoreLib);
+  const { add, mul, store } = i32ops;
 
   const DEFWORD = (...indirects: Callable[]) =>
     func({ params: {} }, (result, {}) => {
@@ -28,164 +35,37 @@ export const mainLib: LibFunc = ({ external, func, indirect, globals }) => {
       result(block(...opcodes));
     });
 
-  const log = external({
-    namespace: 'env',
-    name: 'log',
-    params: { a: i32 },
-  });
-
-  const rnd = external({
-    namespace: 'env',
-    name: 'rnd',
-    params: {},
-    result: i32,
-  });
-
-  const sqrt = external({
-    namespace: 'Math',
-    name: 'sqrt',
-    params: { a: i32 },
-    result: f32,
-  });
-
-  const { add, sub, mul, load, store, load8 } = i32ops;
-  const { load: fload, store: fstore } = f32ops;
-
-  globals(
-    { psp: i32, rsp: i32 },
-    {
-      psp: pStackStart,
-      rsp: rStackStart,
-      ssp: sStackStart,
-    },
-  );
-
-  const push = func(
-    { params: { value: i32 } }, //
-    (result, { value, psp }) => {
-      result(
-        //
-        store(0, 0, psp, value),
-        psp(add(psp, i32Size)),
-      );
-    },
-  );
-
-  const pop = func(
-    { params: {} }, //
-    (result, { psp }) => {
-      result(
-        //
-        psp(sub(psp, i32Size)),
-        load(0, 0, psp),
-      );
-    },
-  );
-
-  const peek = func(
-    { params: {} }, //
-    (result, { psp }) => {
-      result(
-        //
-        load(0, 0, sub(psp, i32Size)),
-      );
-    },
-  );
-
-  const fpush = func(
-    { params: { value: f32 } }, //
-    (result, { value, psp }) => {
-      result(
-        //
-        fstore(0, 0, psp, value),
-        psp(add(psp, f32Size)),
-      );
-    },
-  );
-
-  const fpop = func(
-    { params: {}, result: f32 }, //
-    (result, { psp }) => {
-      result(
-        //
-        psp(sub(psp, f32Size)),
-        fload(0, 0, psp),
-      );
-    },
-  );
-
-  const literal = indirect(
-    { params: { a: i32 } }, //
-    (result, { a }) => {
-      result(
-        //
-        push(a),
-      );
-    },
-  );
-
-  const dup = indirect(
-    { params: {} }, //
-    (result, { a }) => {
-      result(
-        //
-        a(peek()),
-        push(a),
-      );
-    },
-  );
-
-  const swap = indirect(
-    { params: {} }, //
-    (result, { a, b }) => {
-      result(
-        //
-        a(pop()),
-        b(pop()),
-        push(a),
-        push(b),
-      );
-    },
-  );
-
-  const plus = indirect(
-    { params: {} }, //
-    (result, {}) => {
-      result(
-        //
-        push(add(pop(), pop())),
-      );
-    },
-  );
-
-  const star = indirect(
-    { params: {} }, //
-    (result, {}) => {
-      result(
-        //
-        push(mul(pop(), pop())),
-      );
-    },
-  );
-
-  const sqroot = indirect(
-    { params: {} }, //
-    (result, {}) => {
-      result(
-        //
-        fpush(sqrt(pop())),
-        // fpush(3),
-      );
-    },
-  );
-
   const hyp1 = DEFWORD(dup, star, swap, dup, star, plus, sqroot);
+
+  const getPos = func(
+    { params: { x: i32, y: i32, ofs: i32 }, locals: { y0: i32, pos: i32, ofs: i32 } },
+    (result, { x, y, ofs, y0, pos, width }) => {
+      result(
+        //
+        y0(mul(y, width)),
+        pos(add(add(ofs, y0), x)),
+        mul(pos, 4),
+      );
+    },
+  );
+
+  const setPixel = func({ params: { x: i32, y: i32, v: i32 } }, (result, { offset, x, y, v }) => {
+    result(
+      //
+      store(0, 0, getPos(x, y, offset), v),
+    );
+  });
 
   const init = func(
     { params: { w: i32, h: i32 } }, //
-    (result, { w, h }) => {
+    (result, { width, height, offset, w, h }) => {
       result(
         //
+        width(w),
+        height(h),
+        offset(mul(w, h)),
+        setPixel(10, 10, RGB_ALIVE),
+
         push(w),
         push(h),
         hyp1(),
@@ -194,7 +74,50 @@ export const mainLib: LibFunc = ({ external, func, indirect, globals }) => {
     },
   );
 
+  const step = func(
+    { params: {} }, //
+    (result, {}) => {
+      result(
+        //
+        1,
+      );
+    },
+  );
+
+  const WRITE = func({ params: { data: i32 } }, (result, { data, HERE }) => {
+    result(
+      //
+      store(0, 0, HERE, data),
+      HERE(add(HERE, 1)),
+      0,
+    );
+  });
+
+  const doColon = indirect({}, (result, {}) => {});
+
+  const COMPILE = (...items: (Callable | number)[]) => {
+    const data = items.map(item => {
+      if (Number.isInteger(item)) {
+        return item as number;
+      } else {
+        const info = callableInfoMap.get(item as Callable);
+        if (!info) throw new Error(`item not indirect ${item}`);
+        return info.index as number;
+      }
+    });
+    const DOCOLON = getIndirectIndex(doColon);
+    return func({ params: {} }, (result, {}) => {
+      result(
+        //
+        WRITE(0), //flags
+        WRITE(DOCOLON),
+        block(...data.map(item => WRITE(item))),
+      );
+    });
+  };
+
   return {
     init,
+    step,
   };
 };

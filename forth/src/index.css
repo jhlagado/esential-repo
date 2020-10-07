@@ -1,6 +1,6 @@
 html,
 body {
-  background: #100707;
+  background-color: #0000a7;
   font-family: sans-serif;
   color: white;
 }
@@ -9,4 +9,11 @@ a {
 }
 a:hover {
   color: yellow;
+}
+canvas {
+  height: 100%;
+  cursor: cell;
+  user-select: none;
+  image-rendering: optimizeSpeed;
+  image-rendering: pixelated;
 }

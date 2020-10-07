@@ -5,7 +5,7 @@ import { asArray } from './util';
 import { literalize } from './literals';
 import { resolveExpression } from './util';
 import { getModule } from './module';
-import { callableIdMap } from './maps';
+import { callableIdMap, callableInfoMap } from './maps';
 
 export const getResultFunc = (
   resultRef: Ref<TypeDef>,
@@ -62,3 +62,7 @@ export const exportFuncs = (
   });
 };
 
+export const getIndirectIndex = (callable: Callable) => {
+  const info = callableInfoMap.get(callable);
+  return info ? info.index : -1;
+};
