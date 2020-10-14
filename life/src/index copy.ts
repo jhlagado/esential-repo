@@ -1,6 +1,5 @@
 import { HEIGHT, WASM_FILENAME, WIDTH } from './common/constants';
 import { calcNumPages, log, rnd } from './common/tools';
-import { init, step, fill, setup } from './life-js';
 import { addAllListeners, isActive } from './listeners';
 import { Exported } from './types';
 
@@ -24,38 +23,28 @@ const run = async (canvas: HTMLCanvasElement) => {
 
   const pages = calcNumPages(WIDTH, HEIGHT);
   const boardSize = WIDTH * HEIGHT;
-
-  const useWASM = false;
-
   const memory = new WebAssembly.Memory({
     initial: pages,
     maximum: pages,
   });
-  const env = {
-    memory,
-    abort: function() {
-      return;
-    },
-    log,
-    rnd,
-  };
-
   try {
-    let exported: any;
-    if (useWASM) {
-      const response = await fetch(WASM_FILENAME);
-      const buffer = await response.arrayBuffer();
-      const module = await WebAssembly.instantiate(buffer, { env });
-      exported = module.instance.exports as Exported;
-    } else {
-      setup({ env });
-      exported = {
-        init,
-        step,
-        fill,
-      };
-    }
+    const response = await fetch(WASM_FILENAME);
+    const buffer = await response.arrayBuffer();
+    const module = await WebAssembly.instantiate(buffer, {
+      env: {
+        memory,
+        abort: function() {
+          return;
+        },
+        log,
+        rnd,
+      },
+    });
+
+    const exported = module.instance.exports as Exported;
+
     exported.init(WIDTH, HEIGHT);
+    console.log('wasm loaded');
     const mem = new Uint32Array(memory.buffer);
     const imageData = context.createImageData(WIDTH, HEIGHT);
     const pixels = new Uint32Array(imageData.data.buffer);
@@ -69,7 +58,7 @@ const run = async (canvas: HTMLCanvasElement) => {
     addAllListeners(canvas, document, (x: number, y: number) => exported.fill(x, y));
   } catch (err) {
     alert('Failed to load WASM: ' + err.message + ' (ad blocker, maybe?)');
-    console.log(err.stack);
+    console.log(err.stack); 
   }
 };
 

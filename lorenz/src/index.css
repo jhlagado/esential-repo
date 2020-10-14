@@ -1,0 +1,17 @@
+body {
+  font-family: arial;
+}
+
+#legend {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+}
+
+#legend h1 {
+  font-weight: 700;
+}
+
+#instructions {
+  font-weight: 300;
+}

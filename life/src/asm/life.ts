@@ -1,11 +1,10 @@
 import { i32 } from 'binaryen';
 import { FOR, IF, LibFunc, i32ops } from '../../../esential/src';
 import { RGB_ALIVE, RGB_DEAD } from '../common/constants';
+const { store, load, store8, load8_u, add, sub, mul, div, lt, gt, eqz, eq, and } = i32ops;
 
 export const lifeLib: LibFunc = ({ external, func, globals }) => {
   //
-  const { store, load, store8, load8_u, add, sub, mul, div, lt, gt, eqz, eq, and } = i32ops;
-
   globals(
     //
     { width: i32, height: i32, offset: i32 },

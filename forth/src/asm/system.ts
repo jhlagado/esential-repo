@@ -1,4 +1,4 @@
-import { i32, f32 } from 'binaryen';
+import { i32, f32, none } from 'binaryen';
 import { LibFunc } from '../../../esential/src';
 import { pStackStart, rStackStart, sStackStart, userStart } from '../common/constants';
 
@@ -18,6 +18,13 @@ export const systemLib: LibFunc = ({ globals, external }) => {
     },
   );
 
+  const log = external({
+    namespace: 'env',
+    name: 'log',
+    params: { a: i32 },
+    result: none,
+  });
+
   const sqrt = external({
     namespace: 'Math',
     name: 'sqrt',
@@ -25,5 +32,5 @@ export const systemLib: LibFunc = ({ globals, external }) => {
     result: f32,
   });
 
-  return { sqrt };
+  return { log, sqrt };
 };

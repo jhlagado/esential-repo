@@ -65,8 +65,8 @@ export const getFunc = (
   const paramsType = createType(Object.values(params).map(asType));
   const resultType = asType(resultDef);
   const localTypes = Object.values(vars)
-    .slice(paramsLength)
-    .map(asType);
+  .slice(paramsLength)
+  .map(asType);
   module.addFunction(id, paramsType, resultType, localTypes, module.block(null as any, bodyItems));
   const { exprFunc, info } = getFuncImpl(id, params, resultType);
   const callable = getCallable(id, exported, exprFunc, params, resultDef, exportedSet);

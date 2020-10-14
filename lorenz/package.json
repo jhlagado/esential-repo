@@ -1,25 +1,23 @@
 {
-  "name": "esential-repo",
+  "name": "lorenz",
   "version": "1.0.0",
-  "description": "Esential - Support for WebAssembly in Javascript",
+  "description": "Conway's Life i Esential",
   "main": "index.js",
-  "private": true,
-  "workspaces": [
-    "esential",
-    "life",
-    "forth",
-    "lorenz"
-  ],
   "scripts": {
     "nodex": "node --experimental-wasm-mv",
     "tsnodex": "yarn nodex -r ts-node/register",
     "jestx": "yarn nodex node_modules/.bin/jest",
-    "serve": "parcel src/life/index.html",
+    "build": "parcel build src/index.html  --public-url .",
+    "build1": "mkdir -p dist && yarn tsnodex scripts/build-life && parcel build src/index.html  --public-url .",
+    "serve": "parcel src/index.html",
     "test": "yarn jestx",
     "coverage": "yarn jestx --coverage",
     "lint": "eslint src/**/*.ts* --fix",
-    "build": "cd life && yarn build",
-    "start": "cd life && yarn start"
+    "watch": "npm-watch",
+    "start": "concurrently --kill-others \"yarn watch\" \"yarn serve\""
+  },
+  "watch": {
+    "build": "src/**/*.*"
   },
   "staticFiles": {
     "staticPath": "public",
@@ -33,6 +31,7 @@
   "author": "John Hardy <“jh@lagado.com”> (https://www.lagado.com)",
   "license": "MIT",
   "dependencies": {
+    "@jhlagado/esential": "^1.0.0",
     "@types/fetch-mock": "^7.3.2",
     "@types/jest": "^24.9.1",
     "@types/node": "^12.12.43",
@@ -48,10 +47,10 @@
     "node-fetch": "^2.6.0",
     "parcel-bundler": "^1.12.4",
     "prettier": "^1.19.1",
+    "three": "^0.121.1",
     "ts-jest": "^26.1.0",
     "ts-node": "^8.10.2",
-    "typescript": "^3.9.3",
-    "wabt": "1.0.19-nightly.20200812"
+    "typescript": "^3.9.3"
   },
   "repository": {
     "type": "git",

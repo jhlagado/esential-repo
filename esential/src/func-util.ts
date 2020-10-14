@@ -33,11 +33,11 @@ export const getCallable = (
   resultDef: TypeDef,
   exportedSet?: Set<Callable>,
 ) => {
-  const callable = (...params: Expression[]) => {
+  const callable = (...params: Expression[]) => { 
     const typeArray = asArray(typeDef);
     const params1 = params.map((param, index) => literalize(param, typeArray[index]));
     const expr = exprFunc(...params1);
-    setTypeDef(expr, resultDef);
+    setTypeDef(expr, resultDef); 
     return expr;
   };
   callableIdMap.set(callable, id);

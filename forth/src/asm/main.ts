@@ -1,25 +1,20 @@
 import { i32, none } from 'binaryen';
-import {
-  LibFunc,
-  i32ops,
-  Callable,
-  getModule,
-  setTypeDef,
-  block,
-  getIndirectIndex,
-} from '../../../esential/src';
+import { LibFunc, i32ops, Callable, getModule, setTypeDef, block } from '../../../esential/src';
+
 import { callableInfoMap } from '../../../esential/src/maps';
 import { RGB_ALIVE } from '../common/constants';
+import { compileLib } from './compile';
 import { forthCoreLib } from './forth-core';
 import { stackLib } from './stack';
 import { systemLib } from './system';
+const { add, mul, store } = i32ops;
 
-export const mainLib: LibFunc = ({ lib, func, indirect }) => {
+export const mainLib: LibFunc = ({ lib, func, }) => {
   //
-  lib(systemLib);
-  const { push, fpop } = lib(stackLib);
-  const { dup, swap, plus, star, sqroot } = lib(forthCoreLib);
-  const { add, mul, store } = i32ops;
+  const { log } = lib(systemLib);
+  const { COMPILE, doColon } = lib(compileLib);
+  const { push, pop, popf, rpush } = lib(stackLib);
+  const { lit, dup, swap, plus, star, sqroot } = lib(forthCoreLib);
 
   const DEFWORD = (...indirects: Callable[]) =>
     func({ params: {} }, (result, {}) => {
@@ -58,7 +53,7 @@ export const mainLib: LibFunc = ({ lib, func, indirect }) => {
 
   const init = func(
     { params: { w: i32, h: i32 } }, //
-    (result, { width, height, offset, w, h }) => {
+    (result, { width, height, offset, w, h, MYWORD, DUP, LIT }) => {
       result(
         //
         width(w),
@@ -69,7 +64,16 @@ export const mainLib: LibFunc = ({ lib, func, indirect }) => {
         push(w),
         push(h),
         hyp1(),
-        fpop(),
+        popf(),
+
+        DUP(COMPILE(dup)),
+        LIT(COMPILE(lit)),
+        MYWORD(COMPILE(doColon, LIT, 100, DUP)),
+        log(pop()),
+        log(pop()),
+        rpush(-1),
+        // forth(MYWORD),
+        1000,
       );
     },
   );
@@ -84,40 +88,19 @@ export const mainLib: LibFunc = ({ lib, func, indirect }) => {
     },
   );
 
-  const WRITE = func({ params: { data: i32 } }, (result, { data, HERE }) => {
-    result(
-      //
-      store(0, 0, HERE, data),
-      HERE(add(HERE, 1)),
-      0,
-    );
-  });
-
-  const doColon = indirect({}, (result, {}) => {});
-
-  const COMPILE = (...items: (Callable | number)[]) => {
-    const data = items.map(item => {
-      if (Number.isInteger(item)) {
-        return item as number;
-      } else {
-        const info = callableInfoMap.get(item as Callable);
-        if (!info) throw new Error(`item not indirect ${item}`);
-        return info.index as number;
-      }
-    });
-    const DOCOLON = getIndirectIndex(doColon);
-    return func({ params: {} }, (result, {}) => {
+  const fill = func(
+    { params: {} }, //
+    (result, {}) => {
       result(
         //
-        WRITE(0), //flags
-        WRITE(DOCOLON),
-        block(...data.map(item => WRITE(item))),
+        1,
       );
-    });
-  };
+    },
+  );
 
   return {
     init,
     step,
+    fill,
   };
 };
